@@ -31,7 +31,7 @@ export default function ExpenseForm() {
 
           <div className="mb-4">
             <label id="category-label" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <div className="grid grid-cols-4 gap-2" aria-labelledby="category-label">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2" aria-labelledby="category-label">
               <button type="button" className="flex flex-col items-center justify-center p-2 border-2 border-blue-500 rounded-lg bg-blue-50 text-blue-700 font-medium focus:outline-none">
                 <span className="text-2xl">🍕</span>
                 <span className="text-xs mt-1">Food</span>
@@ -48,21 +48,25 @@ export default function ExpenseForm() {
                 <span className="text-2xl">🛍️</span>
                 <span className="text-xs mt-1">Shopping</span>
               </button>
+              <button type="button" className="flex flex-col items-center justify-center p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400">
+                <span className="text-2xl">🛍️</span>
+                <span className="text-xs mt-1">Shopping</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex gap-4 mb-4">
-            <div className="flex-1">
+          <div className="flex max-sm:flex-col gap-4 mb-4">
+            <div className="w-full flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="date">Date</label>
               <input type="date" className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="date" defaultValue="2024-12-17" />
             </div>
-            <div className="flex-1">
+            <div className="w-full flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="time">Time</label>
               <input type="time" className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="time" defaultValue="14:30" />
             </div>
           </div>
 
-          <div className="flex gap-4 mt-6">
+          <div className="flex max-sm:flex-col gap-4 mt-6">
             <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow transition-colors" type="submit">
               Save Expense
             </button>
