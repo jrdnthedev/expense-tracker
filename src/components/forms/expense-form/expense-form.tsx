@@ -69,8 +69,12 @@ export default function ExpenseForm() {
           </div>
 
           <div className="flex max-sm:flex-col gap-4 mt-6">
-            <Button label="Save Expense" type="submit" onClick={() => {console.log('Expense saved')}} primary />
-            <Button label="Cancel" onClick={() => {console.log('Expense entry cancelled')}} />
+            <Button type="submit" onClick={() => {console.log('Expense saved')}} primary>
+              Save Expense
+            </Button>
+            <Button onClick={() => {console.log('Expense entry cancelled')}}>
+              Cancel
+            </Button>
           </div>
         </div>
       </div>
