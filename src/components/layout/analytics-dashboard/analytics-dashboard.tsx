@@ -22,7 +22,7 @@ export default function AnalyticsDashboard() {
             <p className="text-gray-700">Top Category: Food ($1,200)</p>
         </Card>
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-4 max-sm:flex-col">
         <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Category Breakdown</h2>
           <p className="text-gray-700 mb-2">Food: $1,200</p>
