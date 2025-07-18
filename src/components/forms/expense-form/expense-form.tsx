@@ -1,4 +1,15 @@
+import { useState } from "react";
+import CardButton from "../../ui/card-btn/card-btn";
+
 export default function ExpenseForm() {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const categories = [
+    { name: 'Food', icon: '🍕' },
+    { name: 'Transport', icon: '🚗' },
+    { name: 'Fun', icon: '🎬' },
+    { name: 'Shopping', icon: '🛍️' },
+  ];
+
   return (
     <div className="border border-gray-900/10 pb-12 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
       <div className="text-lg font-semibold text-gray-900 mb-2">➕ Add Expense Form</div>
@@ -32,26 +43,17 @@ export default function ExpenseForm() {
           <div className="mb-4">
             <label id="category-label" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2" aria-labelledby="category-label">
-              <button type="button" className="flex flex-col items-center justify-center p-2 border-2 border-blue-500 rounded-lg bg-blue-50 text-blue-700 font-medium focus:outline-none">
-                <span className="text-2xl">🍕</span>
-                <span className="text-xs mt-1">Food</span>
-              </button>
-              <button type="button" className="flex flex-col items-center justify-center p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400">
-                <span className="text-2xl">🚗</span>
-                <span className="text-xs mt-1">Transport</span>
-              </button>
-              <button type="button" className="flex flex-col items-center justify-center p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400">
-                <span className="text-2xl">🎬</span>
-                <span className="text-xs mt-1">Fun</span>
-              </button>
-              <button type="button" className="flex flex-col items-center justify-center p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400">
-                <span className="text-2xl">🛍️</span>
-                <span className="text-xs mt-1">Shopping</span>
-              </button>
-              <button type="button" className="flex flex-col items-center justify-center p-2 border-2 border-gray-200 rounded-lg hover:border-blue-400">
-                <span className="text-2xl">🛍️</span>
-                <span className="text-xs mt-1">Shopping</span>
-              </button>
+              {categories.map((category: { name: string; icon: string }) => (
+                <CardButton
+                  key={category.name}
+                  label={category.name}
+                  icon={category.icon}
+                  selected={selectedCategory === category.name}
+                  onClick={() => setSelectedCategory(category.name)}
+                />
+              ))}
+{/* bg-blue-50 text-blue-700 font-medium focus:outline-none hover:bg-blue-100 transition-colors */}
+            
             </div>
           </div>
 
