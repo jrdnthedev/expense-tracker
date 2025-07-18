@@ -35,8 +35,8 @@ export default function Dashboard() {
         <ul>
             {recentList.map((expense, index) => (
                 <li key={index} className="flex items-center justify-between mb-2 border-b border-gray-200 pb-2">
-                <div className="flex items-center">
-                    <span className="text-xl mr-2">{expense.icon}</span>
+                <div className="flex items-center gap-2">
+                    <span className="text-xl">{expense.icon}</span>
                     <div className="flex flex-col">
                         <span className="font-medium">{expense.title}</span>
                         <span className="text-gray-600">{new Date(expense.date).toLocaleDateString()}</span>
