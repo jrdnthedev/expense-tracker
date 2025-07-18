@@ -5,6 +5,7 @@ export default function Dashboard() {
         { title: "Recent Expense 1", amount: "$50.00", date: "2023-10-01",icon: "💰" },
         { title: "Recent Expense 2", amount: "$30.00", date: "2023-10-02", icon: "🛒" },
         { title: "Recent Expense 3", amount: "$20.00", date: "2023-10-03", icon: "🍕" },
+        
     ]
   return (
     <div className="dashboard-container">
@@ -32,7 +33,7 @@ export default function Dashboard() {
 
       <Card>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Expenses</h2>
-        <ul>
+        <ul className="scrollable-list max-h-64 overflow-y-auto">
             {recentList.map((expense, index) => (
                 <li key={index} className="flex items-center justify-between mb-2 border-b border-gray-200 pb-2">
                 <div className="flex items-center gap-2">
