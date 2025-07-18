@@ -51,9 +51,7 @@ export default function ExpenseForm() {
                   selected={selectedCategory === category.name}
                   onClick={() => setSelectedCategory(category.name)}
                 />
-              ))}
-{/* bg-blue-50 text-blue-700 font-medium focus:outline-none hover:bg-blue-100 transition-colors */}
-            
+              ))}            
             </div>
           </div>
 
