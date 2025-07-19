@@ -24,8 +24,8 @@ function App() {
           <Route path="/budgetmanager" element={<BudgetManager />} />
           <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<div>404 Not Found</div>} />
           <Route path="/expenselist" element={<ExpenseList />} />
+          <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
       </Router>
     </div>

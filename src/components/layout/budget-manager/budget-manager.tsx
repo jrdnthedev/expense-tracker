@@ -59,7 +59,7 @@ export default function BudgetManager() {
               <Card>
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <div className='flex items-center gap-2'>
+                    <div className="flex items-center gap-2">
                       <span className="text-xl">{budget.icon}</span>
                       <h2 className="text-lg font-semibold text-gray-900">
                         {budget.name}
@@ -70,7 +70,9 @@ export default function BudgetManager() {
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                    <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '45%' }}></div>
+                    <div className="bg-blue-600 h-2.5 rounded-full" style={{
+                        width: `${(parseFloat(budget.spent.replace('$', '')) / parseFloat(budget.amount.replace('$', ''))) * 100}%`,
+                      }}></div>
                   </div>
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-600">
