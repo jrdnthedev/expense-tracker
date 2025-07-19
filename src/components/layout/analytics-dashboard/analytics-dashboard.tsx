@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Card from "../../ui/card/card";
 import Select from "../../ui/select/select";
 
 export default function AnalyticsDashboard() {
+  const [timeframe, setTimeframe] = useState("last30days");
   const timeframes = [
     { value: "last30days", label: "Last 30 Days" },
     { value: "last3months", label: "Last 3 Months" },
@@ -21,8 +23,8 @@ export default function AnalyticsDashboard() {
                   name="timeframe"
                   id="timeframe"
                   options={timeframes}
-                  selected="last30days"
-                  onChange={(value) => console.log(value)}
+                  value={timeframe}
+                  onChange={setTimeframe}
                 />
             </div>
             <p className="text-gray-700 mb-2">Total Expenses: $3,500</p>

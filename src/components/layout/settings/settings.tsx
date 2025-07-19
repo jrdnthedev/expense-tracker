@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 
 export default function Settings() {
+  const [currency, setCurrency] = useState('usd');
+  const [defaultCategory, setDefaultCategory] = useState('food');
   const categories = [
     { value: 'food', label: 'Food' },
     { value: 'transport', label: 'Transport' },
@@ -37,8 +40,8 @@ export default function Settings() {
                 name="currency"
                 id="currency"
                 options={currencies}
-                selected="usd"
-                onChange={(value) => console.log(value)}
+                value={currency}
+                onChange={setCurrency}
               />
             </div>
             <div className="flex items-center gap-2 justify-between">
@@ -54,8 +57,8 @@ export default function Settings() {
                 name="default-category"
                 id="default-category"
                 options={categories}
-                selected="food"
-                onChange={(value) => console.log(value)}
+                value={defaultCategory}
+                onChange={setDefaultCategory}
               />
             </div>
           </div>

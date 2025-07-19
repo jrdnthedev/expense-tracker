@@ -1,11 +1,12 @@
-export default function Select({ name, id, options, selected, onChange }: SelectProps) {
+export default function Select({ name, id, options, value, onChange }: SelectProps) {
+
   return (
     <select
       name={name}
       id={id}
-      value={selected}
+      value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-40 border border-gray-300 rounded-md px-2 py-1"
+      className="w-40 border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>
@@ -18,7 +19,7 @@ export default function Select({ name, id, options, selected, onChange }: Select
 
 interface SelectProps {
   options: { value: string; label: string }[];
-  selected: string;
+  value: string;
   name: string;
   id: string;
   onChange: (value: string) => void;
