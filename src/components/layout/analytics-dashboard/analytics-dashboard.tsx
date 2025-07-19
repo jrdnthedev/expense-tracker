@@ -17,11 +17,6 @@ export default function AnalyticsDashboard() {
         <Card>
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Spending Overview</h2>
-                <select name="timeframe" id="timeframe" className="border border-gray-300 rounded-md p-2">
-                    <option value="last30days">Last 30 Days</option>
-                    <option value="last3months">Last 3 Months</option>
-                    <option value="last6months">Last 6 Months</option>
-                </select>
                 <Select
                   name="timeframe"
                   id="timeframe"
