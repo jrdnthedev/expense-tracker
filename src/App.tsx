@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import ExpenseForm from './components/forms/expense-form/expense-form';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Dashboard from './components/layout/dashboard/dashboard';
+import BudgetManager from './components/layout/budget-manager/budget-manager';
+import AnalyticsDashboard from './components/layout/analytics-dashboard/analytics-dashboard';
+import Settings from './components/layout/settings/settings';
+import ExpenseList from './components/layout/expense-list/expense-list';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="p-4 bg-gray-100 min-h-screen">
+      <Router>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/expenseform">Form</Link>
+          <Link to="/budgetmanager">Budget Manager</Link>
+          <Link to="/analytics">Analytics</Link>
+          <Link to="/settings">Settings</Link>
+          <Link to="/expenselist">Expense List</Link>
+        </nav>
+        <Routes>
+          <Route path="/expenseform" element={<ExpenseForm />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/budgetmanager" element={<BudgetManager />} />
+          <Route path="/analytics" element={<AnalyticsDashboard />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<div>404 Not Found</div>} />
+          <Route path="/expenselist" element={<ExpenseList />} />
+        </Routes>
+      </Router>
+    </div>
+  );
 }
 
-export default App
+export default App;
