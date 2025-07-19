@@ -1,13 +1,24 @@
 import Card from '../../ui/card/card';
+import Select from '../../ui/select/select';
 
 export default function Settings() {
+  const categories = [
+    { value: 'food', label: 'Food' },
+    { value: 'transport', label: 'Transport' },
+    { value: 'fun', label: 'Fun' },
+  ];
+  const currencies = [
+    { value: 'usd', label: 'USD' },
+    { value: 'eur', label: 'EUR' },
+    { value: 'gbp', label: 'GBP' },
+  ];
   return (
     <div className="settings-container">
       <h1 className="text-2xl font-bold mb-4">⚙️ Settings</h1>
       <p className="text-gray-600 mb-6">
         Manage your application settings and preferences here.
       </p>
-      <div className='mb-4'>
+      <div className="mb-4">
         <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">
             💰 General Settings
@@ -22,11 +33,13 @@ export default function Settings() {
                   </span>
                 </div>
               </div>
-              <select name="currency" id="currency">
-                <option value="usd">USD</option>
-                <option value="eur">EUR</option>
-                <option value="gbp">GBP</option>
-              </select>
+              <Select
+                name="currency"
+                id="currency"
+                options={currencies}
+                selected="usd"
+                onChange={(value) => console.log(value)}
+              />
             </div>
             <div className="flex items-center gap-2 justify-between">
               <div className="flex items-center gap-2">
@@ -37,11 +50,13 @@ export default function Settings() {
                   </span>
                 </div>
               </div>
-              <select name="default-category" id="default-category">
-                <option value="food">Food</option>
-                <option value="transport">Transport</option>
-                <option value="fun">Fun</option>
-              </select>
+              <Select
+                name="default-category"
+                id="default-category"
+                options={categories}
+                selected="food"
+                onChange={(value) => console.log(value)}
+              />
             </div>
           </div>
         </Card>

@@ -1,6 +1,12 @@
 import Card from "../../ui/card/card";
+import Select from "../../ui/select/select";
 
 export default function AnalyticsDashboard() {
+  const timeframes = [
+    { value: "last30days", label: "Last 30 Days" },
+    { value: "last3months", label: "Last 3 Months" },
+    { value: "last6months", label: "Last 6 Months" },
+  ];
   return (
     <div className="analytics-dashboard-container">
       <h1 className="text-2xl font-bold mb-4">Analytics Dashboard</h1>
@@ -16,6 +22,13 @@ export default function AnalyticsDashboard() {
                     <option value="last3months">Last 3 Months</option>
                     <option value="last6months">Last 6 Months</option>
                 </select>
+                <Select
+                  name="timeframe"
+                  id="timeframe"
+                  options={timeframes}
+                  selected="last30days"
+                  onChange={(value) => console.log(value)}
+                />
             </div>
             <p className="text-gray-700 mb-2">Total Expenses: $3,500</p>
             <p className="text-gray-700 mb-2">Average Monthly Spending: $1,167</p>
