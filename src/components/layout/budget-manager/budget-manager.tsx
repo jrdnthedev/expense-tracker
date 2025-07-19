@@ -39,14 +39,14 @@ export default function BudgetManager() {
   return (
     <div className="budget-manager-container">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold flex-1">Budget Manager</h1>
+        <h1 className="text-2xl font-bold flex-1">🎯 Budget Manager</h1>
       </div>
       <p className="text-gray-600 mb-6">
         Manage your budget effectively with our intuitive tools.
       </p>
       <div>
         <div className="flex items-center justify-between mb-6 gap-4">
-          <h1 className="text-2xl font-bold flex-1">Budget Overview</h1>
+          <h2 className="text-2xl font-bold flex-1">Budget Overview</h2>
           <span className="w-auto">
             <Button onClick={() => console.log('Add Budget Clicked')} primary>
               Add Budget
