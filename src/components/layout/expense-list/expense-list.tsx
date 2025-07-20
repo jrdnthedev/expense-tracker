@@ -48,7 +48,11 @@ export default function ExpenseList() {
         <h2 className="text-2xl font-bold flex-1">Budget Overview</h2>
         <input
           type="text"
-          className="border border-gray-300 border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          name="search"
+          id="search"
+          aria-label="Search expenses"
+          onChange={(e) => console.log(e.target.value)}
+          className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Search expenses..."
         />
         <Select
@@ -61,22 +65,40 @@ export default function ExpenseList() {
       </div>
       <div>
         <Card>
-            <ul>
-                {expenses
-                  .filter(expense => selectedCategory === 'all' || expense.category === selectedCategory)
-                  .map(expense => (
-                    <li key={expense.id} className='flex items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0'>
-                      <div className='flex items-center'>
-                        <span className='text-xl mr-2'>{expense.icon}</span>
-                        <div>
-                          <h3 className='font-semibold'>{expense.name}</h3>
-                          <p className='text-gray-500'>{expense.date}</p>
-                        </div>
-                      </div>
-                      <span className='text-xl text-green-700 font-semibold'>{expense.amount}</span>
-                    </li>
-                  ))}
-            </ul>
+          <ul>
+            {expenses
+              .filter(
+                (expense) =>
+                  selectedCategory === 'all' ||
+                  expense.category === selectedCategory
+              )
+              .map((expense) => (
+                <li
+                  key={expense.id}
+                  className="flex items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0"
+                >
+                  <div className="flex items-center">
+                    <span className="text-xl mr-2">{expense.icon}</span>
+                    <div>
+                      <h3 className="font-semibold">{expense.name}</h3>
+                      <p className="text-gray-500">{expense.date}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl text-green-700 font-semibold">
+                      {expense.amount}
+                    </span>
+                    <button className="text-red-500 hover:text-red-700">
+                      Delete
+                    </button>
+                    <button className="text-blue-500 hover:text-blue-700">
+                      Edit
+                    </button>
+                  </div>
+                </li>
+              ))}
+          </ul>
         </Card>
       </div>
     </div>
