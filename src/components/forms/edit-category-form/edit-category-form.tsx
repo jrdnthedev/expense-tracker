@@ -15,7 +15,6 @@ export default function EditCategoryForm({ name, icon, color }: EditCategoryForm
         <label className="block mb-2 font-medium" htmlFor="color-picker">Pick Color</label>
         <ColourPicker selectedColor={selectedColor} onChange={setSelectedColor} />
         <p className="mt-2">Selected Color: {selectedColor}</p>
-        {/* Add other form fields and submit button */}
       </div>
       <div className="flex justify-end gap-2 mt-4">
         <Button

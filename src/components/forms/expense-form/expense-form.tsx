@@ -5,12 +5,12 @@ import Button from "../../ui/button/button";
 import Card from "../../ui/card/card";
 
 export default function ExpenseForm() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const categories = [
-    { name: 'Food', icon: '🍕' },
-    { name: 'Transport', icon: '🚗' },
-    { name: 'Fun', icon: '🎬' },
-    { name: 'Shopping', icon: '🛍️' },
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+   const categories: Category[] = [
+    { name: 'Food', icon: '🍕', color: 'bg-red-100', isDefault: true, id: 1 },
+    { name: 'Transport', icon: '🚗', color: 'bg-blue-100', isDefault: false, id: 2 },
+    { name: 'Fun', icon: '🎬', color: 'bg-green-100', isDefault: false, id: 3 },
+    { name: 'Shopping', icon: '🛍️', color: 'bg-yellow-100', isDefault: false, id: 4 },
   ];
 
   return (
@@ -19,8 +19,7 @@ export default function ExpenseForm() {
       <div className="text-sm text-gray-500 mb-6">
         Quick expense entry form with smart defaults and category selection. Optimized for fast data entry with minimal friction.
       </div>
-      <div>
-        <div className="mb-8">
+      <div className="mb-8">
           <h3 className="text-xl font-bold text-gray-800 mb-6">Add New Expense</h3>
 
           <div className="mb-4">
@@ -46,13 +45,13 @@ export default function ExpenseForm() {
           <div className="mb-4">
             <label id="category-label" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2" aria-labelledby="category-label">
-              {categories.map((category: Pick<Category, 'name' | 'icon'>) => (
+              {categories.map((category: Category) => (
                 <CardButton
-                  key={category.name}
+                  key={category.id}
                   label={category.name}
                   icon={category.icon}
-                  selected={selectedCategory === category.name}
-                  onClick={() => setSelectedCategory(category.name)}
+                  selected={selectedCategory?.id === category.id}
+                  onClick={() => setSelectedCategory(category)}
                 />
               ))}            
             </div>
@@ -78,7 +77,6 @@ export default function ExpenseForm() {
             </Button>
           </div>
         </div>
-      </div>
     </Card>
   );
 }
