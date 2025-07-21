@@ -11,7 +11,7 @@ export default function AnalyticsDashboard() {
   ];
   return (
     <div className="analytics-dashboard-container">
-      <h1 className="text-2xl font-bold mb-4">Analytics Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">📊 Analytics Dashboard</h1>
       <p className="text-gray-600 mb-6">
         This section provides insights into your spending patterns and financial health.
       </p>
