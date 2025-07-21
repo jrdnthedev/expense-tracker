@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import Select from '../../ui/select/select';
 import Card from '../../ui/card/card';
+import { useDebounce } from '../../../hooks/debounce/use-debounce';
 
 export default function ExpenseList() {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const categories = [
     { value: 'all', label: 'All Categories', category: '' },
     { value: 'food', label: 'Food', category: 'food' },
@@ -51,7 +57,8 @@ export default function ExpenseList() {
           name="search"
           id="search"
           aria-label="Search expenses"
-          onChange={(e) => console.log(e.target.value)}
+          value={searchTerm}
+          onChange={handleSearchChange}
           className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Search expenses..."
         />
@@ -69,8 +76,12 @@ export default function ExpenseList() {
             {expenses
               .filter(
                 (expense) =>
-                  selectedCategory === 'all' ||
-                  expense.category === selectedCategory
+                  (selectedCategory === 'all' ||
+                    expense.category === selectedCategory) &&
+                  (debouncedSearchTerm === '' ||
+                    expense.name
+                      .toLowerCase()
+                      .includes(debouncedSearchTerm.toLowerCase()))
               )
               .map((expense) => (
                 <li
