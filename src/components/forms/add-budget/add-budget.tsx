@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
+import DatePicker from '../../ui/date-picker/date-picker';
 
 export default function AddBudget() {
   const [selectedCategory, setSelectedCategory] = useState('food');
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
-
+  const startDate = 'start-date';
+  const endDate = 'end-date';
   return (
     <Card>
       <h1>Add Budget</h1>
@@ -21,7 +23,7 @@ export default function AddBudget() {
         </div>
 
         <div className="flex gap-4">
-          <div className='w-full flex-1 flex flex-col'>
+          <div className="w-full flex-1 flex flex-col">
             <label htmlFor="category">Category</label>
             <Select
               id="category"
@@ -36,7 +38,7 @@ export default function AddBudget() {
               onChange={(selectedOption) => setSelectedCategory(selectedOption)}
             />
           </div>
-          <div className='w-full flex-1 flex flex-col'>
+          <div className="w-full flex-1 flex flex-col">
             <label htmlFor="period">Period</label>
             <Select
               id="period"
@@ -55,29 +57,27 @@ export default function AddBudget() {
           <div className="w-full flex-1">
             <label
               className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="start-date"
+              htmlFor={startDate}
             >
               Start Date
             </label>
-            <input
-              type="date"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              id="start-date"
+            <DatePicker
+              id={startDate}
               defaultValue="2024-12-17"
+              onChange={(date) => console.log('Start Date:', date)}
             />
           </div>
           <div className="w-full flex-1">
             <label
               className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="end-date"
+              htmlFor={endDate}
             >
               End Date
             </label>
-            <input
-              type="date"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              id="end-date"
-              defaultValue="2024-12-17"
+            <DatePicker
+              id={endDate}
+              defaultValue="2025-01-17"
+              onChange={(date) => console.log('End Date:', date)}
             />
           </div>
         </div>
