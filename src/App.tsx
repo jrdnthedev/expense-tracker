@@ -6,6 +6,7 @@ import AnalyticsDashboard from './components/layout/analytics-dashboard/analytic
 import Settings from './components/layout/settings/settings';
 import ExpenseList from './components/layout/expense-list/expense-list';
 import CategoryManagement from './components/layout/category-management/category-management';
+import AddBudget from './components/forms/add-budget/add-budget';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Link to="/settings">Settings</Link>
           <Link to="/expenselist">Expense List</Link>
           <Link to="/categorymanagement">Category Management</Link>
+          <Link to="/addbudget">Add Budget</Link>
         </nav>
         <Routes>
           <Route path="/expenseform" element={<ExpenseForm />} />
@@ -28,6 +30,7 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/expenselist" element={<ExpenseList />} />
           <Route path="/categorymanagement" element={<CategoryManagement />} />
+          <Route path="/addbudget" element={<AddBudget />} />
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
       </Router>
