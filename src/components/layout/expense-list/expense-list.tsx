@@ -6,10 +6,10 @@ import { useDebounce } from '../../../hooks/debounce/use-debounce';
 export default function ExpenseList() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const categories = [
     { value: 'all', label: 'All Categories', category: '' },
     { value: 'food', label: 'Food', category: 'food' },
