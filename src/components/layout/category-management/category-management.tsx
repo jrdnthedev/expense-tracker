@@ -2,14 +2,15 @@ import { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
 import EditCategoryForm from '../../forms/edit-category-form/edit-category-form';
+import type { Category } from '../../../types/category';
 
 export default function CategoryManagement() {
-  const [selectedCategory, setSelectedCategory] = useState<{ name: string; icon: string; color: string } | null>(null);
-  const categories = [
-    { name: 'Food', icon: '🍕', color: 'bg-red-100' },
-    { name: 'Transport', icon: '🚗', color: 'bg-blue-100' },
-    { name: 'Fun', icon: '🎬', color: 'bg-green-100' },
-    { name: 'Shopping', icon: '🛍️', color: 'bg-yellow-100' },
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const categories: Category[] = [
+    { name: 'Food', icon: '🍕', color: 'bg-red-100', isDefault: true, id: 1 },
+    { name: 'Transport', icon: '🚗', color: 'bg-blue-100', isDefault: false, id: 2 },
+    { name: 'Fun', icon: '🎬', color: 'bg-green-100', isDefault: false, id: 3 },
+    { name: 'Shopping', icon: '🛍️', color: 'bg-yellow-100', isDefault: false, id: 4 },
   ];
 
   return (
@@ -30,9 +31,9 @@ export default function CategoryManagement() {
           </span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-          {categories.map((category) => (
+          {categories.map((category: Category) => (
             <CardButton
-              key={category.name}
+              key={category.id}
               label={category.name}
               icon={category.icon}
               selected={selectedCategory?.name === category.name}

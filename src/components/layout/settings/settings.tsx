@@ -36,13 +36,15 @@ export default function Settings() {
                   </span>
                 </div>
               </div>
-              <Select
+              <div className='w-auto'>
+                <Select
                 name="currency"
                 id="currency"
                 options={currencies}
                 value={currency}
                 onChange={setCurrency}
               />
+              </div>
             </div>
             <div className="flex items-center gap-2 justify-between">
               <div className="flex items-center gap-2">
@@ -53,13 +55,15 @@ export default function Settings() {
                   </span>
                 </div>
               </div>
-              <Select
+              <div className='w-auto'>
+                <Select
                 name="default-category"
                 id="default-category"
                 options={categories}
                 value={defaultCategory}
                 onChange={setDefaultCategory}
               />
+              </div>
             </div>
           </div>
         </Card>

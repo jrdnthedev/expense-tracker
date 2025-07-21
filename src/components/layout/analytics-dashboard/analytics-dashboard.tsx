@@ -19,13 +19,15 @@ export default function AnalyticsDashboard() {
         <Card>
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Spending Overview</h2>
-                <Select
+                <div className="w-40">
+                  <Select
                   name="timeframe"
                   id="timeframe"
                   options={timeframes}
                   value={timeframe}
                   onChange={setTimeframe}
                 />
+                </div>
             </div>
             <p className="text-gray-700 mb-2">Total Expenses: $3,500</p>
             <p className="text-gray-700 mb-2">Average Monthly Spending: $1,167</p>

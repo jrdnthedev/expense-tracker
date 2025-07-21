@@ -62,13 +62,15 @@ export default function ExpenseList() {
           className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Search expenses..."
         />
-        <Select
+        <div className='w-auto'>
+          <Select
           name="sort"
           id="sort"
           options={categories}
           onChange={(value) => setSelectedCategory(value)}
           value={selectedCategory}
         />
+        </div>
       </div>
       <div>
         <Card>
