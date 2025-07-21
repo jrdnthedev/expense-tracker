@@ -1,39 +1,44 @@
+import { useState } from 'react';
 import Button from '../../ui/button/button';
 import Card from '../../ui/card/card';
+import Modal from '../../ui/modal/modal';
+import AddBudget from '../../forms/add-budget/add-budget';
+import type { Budget } from '../../../types/budget';
 
 export default function BudgetManager() {
-  const budgets = [
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const budgets: Budget[] = [
     {
-      name: 'Food',
-      amount: '$500',
-      spent: '$300',
-      icon: '🍕',
-      remaining: '$200',
-      days: '12 days left',
+      id: 1,
+      category: 'Food',
+      limit: 500,
+      period: 'monthly',
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-01-31'),
     },
     {
-      name: 'Transport',
-      amount: '$200',
-      spent: '$150',
-      icon: '🚗',
-      remaining: '$50',
-      days: '5 days left',
+      id: 2,
+      category: 'Transport',
+      limit: 200,
+      period: 'monthly',
+      startDate: new Date('2023-02-01'),
+      endDate: new Date('2023-02-28'),
     },
     {
-      name: 'Entertainment',
-      amount: '$300',
-      spent: '$100',
-      icon: '🎉',
-      remaining: '$200',
-      days: '10 days left',
+      id: 3,
+      category: 'Entertainment',
+      limit: 300,
+      period: 'monthly',
+      startDate: new Date('2023-03-01'),
+      endDate: new Date('2023-03-31'),
     },
     {
-      name: 'Shopping',
-      amount: '$400',
-      spent: '$250',
-      icon: '🛍️',
-      remaining: '$150',
-      days: '8 days left',
+      id: 4,
+      category: 'Shopping',
+      limit: 400,
+      period: 'monthly',
+      startDate: new Date('2023-04-01'),
+      endDate: new Date('2023-04-30'),
     },
   ];
   return (
@@ -48,37 +53,42 @@ export default function BudgetManager() {
         <div className="flex items-center justify-between mb-6 gap-4">
           <h2 className="text-2xl font-bold flex-1">Budget Overview</h2>
           <span className="w-auto">
-            <Button onClick={() => console.log('Add Budget Clicked')} primary>
+            <Button onClick={() => setIsModalOpen(true)} primary>
               Add Budget
             </Button>
+            {isModalOpen && (
+              <Modal onClose={() => setIsModalOpen(false)} isOpen={isModalOpen}>
+                <AddBudget />
+              </Modal>
+            )}
           </span>
         </div>
         <ul>
-          {budgets.map((budget) => (
-            <li key={budget.name} className="mb-4">
+          {budgets.map((budget: Budget) => (
+            <li key={budget.category} className="mb-4">
               <Card>
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{budget.icon}</span>
+                      {/* <span className="text-xl">{budget.icon}</span> */}
                       <h2 className="text-lg font-semibold text-gray-900">
-                        {budget.name}
+                        {budget.category}
                       </h2>
                     </div>
                     <span className="text-xl text-green-700 font-semibold">
-                      {budget.spent}/{budget.amount}
+                      {budget.limit}/{budget.limit}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                     <div className="bg-blue-600 h-2.5 rounded-full" style={{
-                        width: `${(parseFloat(budget.spent.replace('$', '')) / parseFloat(budget.amount.replace('$', ''))) * 100}%`,
+                        width: `${(budget.limit / budget.limit) * 100}%`,
                       }}></div>
                   </div>
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-600">
-                      Remaining: {budget.remaining}
+                      Remaining: {budget.limit - budget.limit}
                     </p>
-                    <p className="text-sm text-gray-600">{budget.days}</p>
+                    <p className="text-sm text-gray-600">{budget.startDate.toDateString()} - {budget.endDate.toDateString()}</p>
                   </div>
                 </div>
               </Card>
@@ -89,3 +99,4 @@ export default function BudgetManager() {
     </div>
   );
 }
+

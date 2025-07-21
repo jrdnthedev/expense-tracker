@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 import DatePicker from '../../ui/date-picker/date-picker';
+import Button from '../../ui/button/button';
 
 export default function AddBudget() {
   const [selectedCategory, setSelectedCategory] = useState('food');
@@ -9,9 +9,9 @@ export default function AddBudget() {
   const startDate = 'start-date';
   const endDate = 'end-date';
   return (
-    <Card>
-      <h1>Add Budget</h1>
+    <>
       <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-bold ">Add Budget</h1>
         <div>
           <label htmlFor="limit">Limit</label>
           <input
@@ -81,7 +81,15 @@ export default function AddBudget() {
             />
           </div>
         </div>
+        <div className="flex gap-4 justify-end">
+          <Button onClick={() => console.log('Budget Added')} primary>
+            Add Budget
+          </Button>
+          <Button onClick={() => console.log('Budget Cancelled')}>
+            Cancel
+          </Button>
+        </div>
       </div>
-    </Card>
+    </>
   );
 }
