@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
+import EditCategoryForm from '../../forms/edit-category-form/edit-category-form';
 
 export default function CategoryManagement() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<{ name: string; icon: string; color: string } | null>(null);
   const categories = [
-    { name: 'Food', icon: '🍕' },
-    { name: 'Transport', icon: '🚗' },
-    { name: 'Fun', icon: '🎬' },
-    { name: 'Shopping', icon: '🛍️' },
+    { name: 'Food', icon: '🍕', color: 'bg-red-100' },
+    { name: 'Transport', icon: '🚗', color: 'bg-blue-100' },
+    { name: 'Fun', icon: '🎬', color: 'bg-green-100' },
+    { name: 'Shopping', icon: '🛍️', color: 'bg-yellow-100' },
   ];
 
   return (
@@ -20,8 +21,7 @@ export default function CategoryManagement() {
         Easily manage your expense categories. Select a category to edit or
         delete.
       </div>
-      <div>
-        <div className="flex items-center justify-between mb-6 gap-4">
+      <div className="flex items-center justify-between mb-6 gap-4">
           <h3 className="text-xl font-bold text-gray-800 mb-6">Expense Categories</h3>
           <span className="w-auto">
             <Button onClick={() => console.log('Add new category')} primary>
@@ -29,18 +29,20 @@ export default function CategoryManagement() {
             </Button>
           </span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
           {categories.map((category) => (
             <CardButton
               key={category.name}
               label={category.name}
               icon={category.icon}
-              selected={selectedCategory === category.name}
-              onClick={() => setSelectedCategory(category.name)}
+              selected={selectedCategory?.name === category.name}
+              onClick={() => setSelectedCategory(category)}
             />
           ))}
         </div>
-      </div>
+        <div>
+            {selectedCategory ? <EditCategoryForm name={selectedCategory?.name} icon={selectedCategory?.icon} color={selectedCategory?.color} /> : <p>Select a category to edit</p>}
+        </div>
     </div>
   );
 }

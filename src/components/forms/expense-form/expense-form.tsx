@@ -2,6 +2,7 @@ import { useState } from "react";
 import CardButton from "../../ui/card-btn/card-btn";
 import type { Category } from "../../../types/category";
 import Button from "../../ui/button/button";
+import Card from "../../ui/card/card";
 
 export default function ExpenseForm() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -13,7 +14,7 @@ export default function ExpenseForm() {
   ];
 
   return (
-    <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
+    <Card>
       <div className="text-lg font-semibold text-gray-900 mb-2">➕ Add Expense Form</div>
       <div className="text-sm text-gray-500 mb-6">
         Quick expense entry form with smart defaults and category selection. Optimized for fast data entry with minimal friction.
@@ -78,6 +79,6 @@ export default function ExpenseForm() {
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
