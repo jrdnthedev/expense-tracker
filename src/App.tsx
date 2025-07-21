@@ -20,7 +20,6 @@ function App() {
           <Link to="/settings">Settings</Link>
           <Link to="/expenselist">Expense List</Link>
           <Link to="/categorymanagement">Category Management</Link>
-          <Link to="/addbudget">Add Budget</Link>
         </nav>
         <Routes>
           <Route path="/expenseform" element={<ExpenseForm />} />
@@ -30,7 +29,6 @@ function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/expenselist" element={<ExpenseList />} />
           <Route path="/categorymanagement" element={<CategoryManagement />} />
-          <Route path="/addbudget" element={<AddBudget />} />
           <Route path="*" element={<div>404 Not Found</div>} />
         </Routes>
       </Router>
