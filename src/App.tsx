@@ -6,6 +6,7 @@ import AnalyticsDashboard from './components/layout/analytics-dashboard/analytic
 import Settings from './components/layout/settings/settings';
 import ExpenseList from './components/layout/expense-list/expense-list';
 import CategoryManagement from './components/layout/category-management/category-management';
+import AddBudget from './components/forms/add-budget/add-budget';
 
 function App() {
   return (

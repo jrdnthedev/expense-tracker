@@ -1,5 +1,5 @@
 export interface Budget {
-  id: string,
+  id: number,
   category: string,
   limit: number,
   period: 'weekly' | 'monthly' | 'yearly',
