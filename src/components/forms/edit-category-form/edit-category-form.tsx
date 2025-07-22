@@ -34,7 +34,7 @@ export default function EditCategoryForm({ name, icon, color }: EditCategoryForm
 }
 
 interface EditCategoryFormProps {
-  name: string | undefined;
-  icon: string | undefined;
-  color: string | undefined;
+  name: string;
+  icon: string;
+  color: string;
 }
