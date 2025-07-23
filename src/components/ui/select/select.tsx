@@ -1,15 +1,20 @@
-export default function Select<T>({ name, id, options, value, onChange,getOptionValue, getOptionLabel, }: SelectProps<T>) {
+export default function Select<T>({ name, id, options, value, onChange,getOptionValue, getOptionLabel,getOptionId }: SelectProps<T>) {
 
   return (
     <select
       name={name}
       id={id}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={e => {
+        const selectedIndex = e.target.selectedIndex;
+        const selectedOption = e.target.options[selectedIndex];
+        const dataId = selectedOption.getAttribute('data-id');
+        onChange(e.target.value, Number(dataId));
+      }}
       className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
     >
       {options.map((option) => (
-        <option key={getOptionValue(option)} value={getOptionValue(option)}>
+        <option key={getOptionValue(option)} value={getOptionValue(option)} data-id={getOptionId(option)}>
           {getOptionLabel(option)}
         </option>
       ))}
@@ -22,7 +27,8 @@ interface SelectProps<T> {
   value: string;
   name: string;
   id: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, dataId: number) => void;
   getOptionValue: (option: T) => string;
   getOptionLabel: (option: T) => string;
+  getOptionId: (option: T) => number;
 }
