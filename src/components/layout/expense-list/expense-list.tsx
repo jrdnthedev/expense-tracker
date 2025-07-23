@@ -5,17 +5,17 @@ import { useDebounce } from '../../../hooks/debounce/use-debounce';
 import type { Category } from '../../../types/category';
 
 export default function ExpenseList() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
   const categories: Category[] = [
-    { name: 'all', id: 1, color: '', icon: '📦', isDefault: true },
-    { name: 'food', id: 2, color: 'bg-green-100', icon: '🍔', isDefault: false },
-    { name: 'transport', id: 3, color: 'bg-blue-100', icon: '🚗', isDefault: false },
-    { name: 'fun', id: 4, color: 'bg-yellow-100', icon: '🎉', isDefault: false },
+    { name: 'all', id: 1, color: '', icon: '📦' },
+    { name: 'food', id: 2, color: 'bg-green-100', icon: '🍔' },
+    { name: 'transport', id: 3, color: 'bg-blue-100', icon: '🚗' },
+    { name: 'fun', id: 4, color: 'bg-yellow-100', icon: '🎉' },
   ];
   const expenses = [
     {
@@ -43,10 +43,7 @@ export default function ExpenseList() {
       date: '2023-10-03',
     },
   ];
-  const categoryOptions = categories.map((cat: Category) => ({
-    value: cat.name,
-    label: cat.name.charAt(0).toUpperCase() + cat.name.slice(1)
-  }));
+
   return (
     <div className="expense-list-container">
       <div className="mb-6">
@@ -71,9 +68,12 @@ export default function ExpenseList() {
           <Select
           name="sort"
           id="sort"
-          options={categoryOptions}
+          options={categories}
           onChange={setSelectedCategory}
           value={selectedCategory}
+          getOptionValue={(cat) => cat.name}
+          getOptionLabel={(cat) => cat.name}
+          getOptionId={(cat) => cat.id}
         />
         </div>
       </div>
