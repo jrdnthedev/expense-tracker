@@ -2,20 +2,20 @@ import { useState } from 'react';
 import Select from '../../ui/select/select';
 import Card from '../../ui/card/card';
 import { useDebounce } from '../../../hooks/debounce/use-debounce';
+import { useAppState } from '../../../context/app-state-context';
 import type { Category } from '../../../types/category';
 
 export default function ExpenseList() {
+  const { categories } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-  const categories: Category[] = [
-    { name: 'all', id: 1, color: '', icon: '📦' },
-    { name: 'food', id: 2, color: 'bg-green-100', icon: '🍔' },
-    { name: 'transport', id: 3, color: 'bg-blue-100', icon: '🚗' },
-    { name: 'fun', id: 4, color: 'bg-yellow-100', icon: '🎉' },
+  const categoriesWithAll: Category[] = [
+    { id: 0, name: 'All', color: '', icon: '📦' },
+    ...categories,
   ];
   const expenses = [
     {
@@ -64,17 +64,17 @@ export default function ExpenseList() {
           className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Search expenses..."
         />
-        <div className='w-auto'>
+        <div className="w-auto">
           <Select
-          name="sort"
-          id="sort"
-          options={categories}
-          onChange={setSelectedCategory}
-          value={selectedCategory}
-          getOptionValue={(cat) => cat.name}
-          getOptionLabel={(cat) => cat.name}
-          getOptionId={(cat) => cat.id}
-        />
+            name="sort"
+            id="sort"
+            options={categoriesWithAll}
+            onChange={setSelectedCategory}
+            value={selectedCategory}
+            getOptionValue={(cat) => cat.name}
+            getOptionLabel={(cat) => cat.name}
+            getOptionId={(cat) => cat.id}
+          />
         </div>
       </div>
       <div>
@@ -83,8 +83,8 @@ export default function ExpenseList() {
             {expenses
               .filter(
                 (expense) =>
-                  (selectedCategory === 'all' ||
-                    expense.category === selectedCategory) &&
+                  (selectedCategory.toLowerCase() === 'all' ||
+                    expense.category === selectedCategory.toLowerCase()) &&
                   (debouncedSearchTerm === '' ||
                     expense.name
                       .toLowerCase()
