@@ -4,9 +4,10 @@ import Card from '../../ui/card/card';
 import { useDebounce } from '../../../hooks/debounce/use-debounce';
 import { useAppState } from '../../../context/app-state-context';
 import type { Category } from '../../../types/category';
+import type { Expense } from '../../../types/expense';
 
 export default function ExpenseList() {
-  const { categories } = useAppState();
+  const { categories, expenses } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -16,32 +17,6 @@ export default function ExpenseList() {
   const categoriesWithAll: Category[] = [
     { id: 0, name: 'All', color: '', icon: '📦' },
     ...categories,
-  ];
-  const expenses = [
-    {
-      id: 1,
-      icon: '🍕',
-      name: 'Lunch at Cafe',
-      amount: '$15',
-      category: 'food',
-      date: '2023-10-01',
-    },
-    {
-      id: 2,
-      icon: '🚌',
-      name: 'Bus Ticket',
-      amount: '$2.5',
-      category: 'transport',
-      date: '2023-10-02',
-    },
-    {
-      id: 3,
-      icon: '🎬',
-      name: 'Movie Night',
-      amount: '$12',
-      category: 'fun',
-      date: '2023-10-03',
-    },
   ];
 
   return (
@@ -71,9 +46,9 @@ export default function ExpenseList() {
             options={categoriesWithAll}
             onChange={setSelectedCategory}
             value={selectedCategory}
-            getOptionValue={(cat) => cat.name}
-            getOptionLabel={(cat) => cat.name}
-            getOptionId={(cat) => cat.id}
+            getOptionValue={(cat: Category) => cat.name}
+            getOptionLabel={(cat: Category) => cat.name}
+            getOptionId={(cat: Category) => cat.id}
           />
         </div>
       </div>
@@ -82,23 +57,23 @@ export default function ExpenseList() {
           <ul>
             {expenses
               .filter(
-                (expense) =>
+                (expense: Expense) =>
                   (selectedCategory.toLowerCase() === 'all' ||
                     expense.category === selectedCategory.toLowerCase()) &&
                   (debouncedSearchTerm === '' ||
-                    expense.name
+                    expense.description
                       .toLowerCase()
                       .includes(debouncedSearchTerm.toLowerCase()))
               )
-              .map((expense) => (
+              .map((expense: Expense) => (
                 <li
                   key={expense.id}
                   className="flex items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0"
                 >
                   <div className="flex items-center">
-                    <span className="text-xl mr-2">{expense.icon}</span>
+                    {/* <span className="text-xl mr-2">{expense.icon}</span> */}
                     <div>
-                      <h3 className="font-semibold">{expense.name}</h3>
+                      <h3 className="font-semibold">{expense.description}</h3>
                       <p className="text-gray-500">{expense.date}</p>
                     </div>
                   </div>

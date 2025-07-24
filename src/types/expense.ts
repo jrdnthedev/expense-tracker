@@ -1,11 +1,11 @@
 export interface Expense {
-  id: string,
+  id: number,
   amount: number,
   description: string,
   category: string,
-  date: Date,
+  date: string,
   tags: string[],
-  createdAt: Date,
-  updatedAt: Date
+  createdAt: string,
+  updatedAt: string
 }
 

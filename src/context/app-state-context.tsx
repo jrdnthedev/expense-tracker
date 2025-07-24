@@ -77,7 +77,38 @@ const initialState: State = {
       id: 4,
     },
   ],
-  expenses: [],
+  expenses: [
+    {
+      id: 1,
+      description: 'Lunch at Cafe',
+      amount: 15,
+      category: 'food',
+      date: '2023-10-01',
+      tags: ['lunch', 'food'],
+      createdAt: '2023-10-01T12:00:00Z',
+      updatedAt: '2023-10-01T12:00:00Z'
+    },
+    {
+      id: 2,
+      description: 'Bus Ticket',
+      amount: 2.5,
+      category: 'transport',
+      date: '2023-10-02',
+      tags: ['transport'],
+      createdAt: '2023-10-01T12:00:00Z',
+      updatedAt: '2023-10-01T12:00:00Z'
+    },
+    {
+      id: 3,
+      description: 'Movie Night',
+      amount: 12,
+      category: 'fun',
+      date: '2023-10-03',
+      tags: ['movie', 'entertainment'],
+      createdAt: '2023-10-01T12:00:00Z',
+      updatedAt: '2023-10-01T12:00:00Z'
+    },
+  ],
 };
 
 function appReducer(state: State, action: Action): State {
