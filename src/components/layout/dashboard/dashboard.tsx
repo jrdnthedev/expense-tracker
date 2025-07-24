@@ -1,26 +1,28 @@
+import type { Expense } from '../../../types/expense';
 import Card from '../../ui/card/card';
 
 export default function Dashboard() {
   const recentList = [
     {
-      title: 'Recent Expense 1',
-      amount: '$50.00',
+      description: 'Recent Expense 1',
+      amount: 50,
       date: '2023-10-01',
-      icon: '💰',
+      category: 'transport',
     },
     {
-      title: 'Recent Expense 2',
-      amount: '$30.00',
+      description: 'Recent Expense 2',
+      amount: 30,
       date: '2023-10-02',
-      icon: '🛒',
+      category: 'shopping',
     },
     {
-      title: 'Recent Expense 3',
-      amount: '$20.00',
+      description: 'Recent Expense 3',
+      amount: 20,
       date: '2023-10-03',
-      icon: '🍕',
+      category: 'food',
     },
   ];
+  
   return (
     <div className="dashboard-container">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
@@ -56,15 +58,15 @@ export default function Dashboard() {
           Recent Expenses
         </h2>
         <ul className="scrollable-list max-h-64 overflow-y-auto">
-          {recentList.map((expense) => (
+          {recentList.map((expense: ExpenseList) => (
             <li
               key={expense.date}
               className="flex items-center justify-between mb-2 border-b border-gray-200 pb-2"
             >
               <div className="flex items-center gap-2">
-                <span className="text-xl">{expense.icon}</span>
+                {/* <span className="text-xl">{expense.icon}</span> */}
                 <div className="flex flex-col">
-                  <span className="font-medium">{expense.title}</span>
+                  <span className="font-medium">{expense.description}</span>
                   <span className="text-gray-600">
                     {new Date(expense.date).toLocaleDateString()}
                   </span>
@@ -80,3 +82,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+type ExpenseList = Pick<Expense, 'description' | 'amount' | 'date' | 'category'>;
