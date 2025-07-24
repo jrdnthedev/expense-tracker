@@ -27,7 +27,40 @@ type Action =
 const initialState: State = {
   currency: "usd",
   defaultCategory: 1,
-  budgets: [],
+  budgets: [
+    {
+      id: 1,
+      category: 'Food',
+      limit: 500,
+      period: 'monthly',
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-01-31'),
+    },
+    {
+      id: 2,
+      category: 'Transport',
+      limit: 200,
+      period: 'monthly',
+      startDate: new Date('2023-02-01'),
+      endDate: new Date('2023-02-28'),
+    },
+    {
+      id: 3,
+      category: 'Entertainment',
+      limit: 300,
+      period: 'monthly',
+      startDate: new Date('2023-03-01'),
+      endDate: new Date('2023-03-31'),
+    },
+    {
+      id: 4,
+      category: 'Shopping',
+      limit: 400,
+      period: 'monthly',
+      startDate: new Date('2023-04-01'),
+      endDate: new Date('2023-04-30'),
+    },
+  ],
   categories: [
     { name: 'Food', icon: '🍕', color: 'bg-red-100', id: 1 },
     {

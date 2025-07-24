@@ -4,43 +4,12 @@ import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
 import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
+import { useAppState } from '../../../context/app-state-context';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const budgets: Budget[] = [
-    {
-      id: 1,
-      category: 'Food',
-      limit: 500,
-      period: 'monthly',
-      startDate: new Date('2023-01-01'),
-      endDate: new Date('2023-01-31'),
-    },
-    {
-      id: 2,
-      category: 'Transport',
-      limit: 200,
-      period: 'monthly',
-      startDate: new Date('2023-02-01'),
-      endDate: new Date('2023-02-28'),
-    },
-    {
-      id: 3,
-      category: 'Entertainment',
-      limit: 300,
-      period: 'monthly',
-      startDate: new Date('2023-03-01'),
-      endDate: new Date('2023-03-31'),
-    },
-    {
-      id: 4,
-      category: 'Shopping',
-      limit: 400,
-      period: 'monthly',
-      startDate: new Date('2023-04-01'),
-      endDate: new Date('2023-04-30'),
-    },
-  ];
+  const { budgets } = useAppState();
+
   return (
     <div className="budget-manager-container">
       <div className="mb-6">
