@@ -1,20 +1,29 @@
 import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
+import { useAppDispatch, useAppState } from '../../../context/app-state-context';
 
 export default function Settings() {
-  const [currency, setCurrency] = useState('usd');
-  const [defaultCategory, setDefaultCategory] = useState('food');
-  const categories = [
-    { value: 'food', label: 'Food' },
-    { value: 'transport', label: 'Transport' },
-    { value: 'fun', label: 'Fun' },
-  ];
+  const { currency, defaultCategory: stateDefaultCategory, categories } = useAppState();
+  const [settingCurrency, setCurrency] = useState(currency);
+  const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
+  const [category, setCategory] = useState<string>('');
+  const dispatch = useAppDispatch();
+    
   const currencies = [
-    { value: 'usd', label: 'USD' },
-    { value: 'eur', label: 'EUR' },
-    { value: 'gbp', label: 'GBP' },
+    { value: 'usd', label: 'USD', id: 1, symbol: '$' },
+    { value: 'eur', label: 'EUR', id: 2, symbol: '€' },
+    { value: 'gbp', label: 'GBP', id: 3, symbol: '£' },
   ];
+  const handleCurrencyChange = (value: string) => {
+    setCurrency(value);
+    dispatch({ type: 'SET_CURRENCY', payload: value });
+  };
+  const handleDefaultCategoryChange = (value: string,id: number) => {
+    setDefaultCategory(id);
+    setCategory(value);
+    dispatch({ type: 'SET_DEFAULT_CATEGORY', payload: { categoryId: id } });
+  };
   return (
     <div className="settings-container">
       <h1 className="text-2xl font-bold mb-4">⚙️ Settings</h1>
@@ -41,8 +50,11 @@ export default function Settings() {
                 name="currency"
                 id="currency"
                 options={currencies}
-                value={currency}
-                onChange={setCurrency}
+                value={settingCurrency}
+                onChange={handleCurrencyChange}
+                getOptionValue={(option) => option.value}
+                getOptionLabel={(option) => option.label}
+                getOptionId={(option) => option.id}
               />
               </div>
             </div>
@@ -60,8 +72,11 @@ export default function Settings() {
                 name="default-category"
                 id="default-category"
                 options={categories}
-                value={defaultCategory}
-                onChange={setDefaultCategory}
+                value={category}
+                onChange={handleDefaultCategoryChange}
+                getOptionValue={(cat) => cat.name}
+                getOptionLabel={(cat) => cat.name}
+                getOptionId={(cat) => cat.id}
               />
               </div>
             </div>

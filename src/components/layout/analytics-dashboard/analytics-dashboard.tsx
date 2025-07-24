@@ -5,9 +5,9 @@ import Select from "../../ui/select/select";
 export default function AnalyticsDashboard() {
   const [timeframe, setTimeframe] = useState("last30days");
   const timeframes = [
-    { value: "last30days", label: "Last 30 Days" },
-    { value: "last3months", label: "Last 3 Months" },
-    { value: "last6months", label: "Last 6 Months" },
+    { value: "last30days", label: "Last 30 Days", id: 1 },
+    { value: "last3months", label: "Last 3 Months", id: 2 },
+    { value: "last6months", label: "Last 6 Months", id: 3 },
   ];
   return (
     <div className="analytics-dashboard-container">
@@ -26,6 +26,9 @@ export default function AnalyticsDashboard() {
                   options={timeframes}
                   value={timeframe}
                   onChange={setTimeframe}
+                  getOptionValue={(option) => option.value}
+                  getOptionLabel={(option) => option.label}
+                  getOptionId={(option) => option.id}
                 />
                 </div>
             </div>

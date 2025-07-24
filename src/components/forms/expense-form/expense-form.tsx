@@ -4,29 +4,13 @@ import type { Category } from '../../../types/category';
 import Button from '../../ui/button/button';
 import Card from '../../ui/card/card';
 import DatePicker from '../../ui/date-picker/date-picker';
+import { useAppState } from '../../../context/app-state-context';
 
 export default function ExpenseForm() {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
+  const { defaultCategory,categories } = useAppState();
+  const [selectedCategory, setSelectedCategory] = useState<number>(
+    defaultCategory
   );
-  const categories: Category[] = [
-    { name: 'Food', icon: '🍕', color: 'bg-red-100', isDefault: true, id: 1 },
-    {
-      name: 'Transport',
-      icon: '🚗',
-      color: 'bg-blue-100',
-      isDefault: false,
-      id: 2,
-    },
-    { name: 'Fun', icon: '🎬', color: 'bg-green-100', isDefault: false, id: 3 },
-    {
-      name: 'Shopping',
-      icon: '🛍️',
-      color: 'bg-yellow-100',
-      isDefault: false,
-      id: 4,
-    },
-  ];
 
   return (
     <Card>
@@ -88,8 +72,8 @@ export default function ExpenseForm() {
                 key={category.id}
                 label={category.name}
                 icon={category.icon}
-                selected={selectedCategory?.id === category.id}
-                onClick={() => setSelectedCategory(category)}
+                selected={selectedCategory === category.id}
+                onClick={() => setSelectedCategory(category.id)}
               />
             ))}
           </div>
