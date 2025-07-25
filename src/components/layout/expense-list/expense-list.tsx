@@ -2,46 +2,21 @@ import { useState } from 'react';
 import Select from '../../ui/select/select';
 import Card from '../../ui/card/card';
 import { useDebounce } from '../../../hooks/debounce/use-debounce';
+import { useAppState } from '../../../context/app-state-context';
 import type { Category } from '../../../types/category';
+import type { Expense } from '../../../types/expense';
 
 export default function ExpenseList() {
+  const { categories, expenses } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-  const categories: Category[] = [
-    { name: 'all', id: 1, color: '', icon: '📦' },
-    { name: 'food', id: 2, color: 'bg-green-100', icon: '🍔' },
-    { name: 'transport', id: 3, color: 'bg-blue-100', icon: '🚗' },
-    { name: 'fun', id: 4, color: 'bg-yellow-100', icon: '🎉' },
-  ];
-  const expenses = [
-    {
-      id: 1,
-      icon: '🍕',
-      name: 'Lunch at Cafe',
-      amount: '$15',
-      category: 'food',
-      date: '2023-10-01',
-    },
-    {
-      id: 2,
-      icon: '🚌',
-      name: 'Bus Ticket',
-      amount: '$2.5',
-      category: 'transport',
-      date: '2023-10-02',
-    },
-    {
-      id: 3,
-      icon: '🎬',
-      name: 'Movie Night',
-      amount: '$12',
-      category: 'fun',
-      date: '2023-10-03',
-    },
+  const categoriesWithAll: Category[] = [
+    { id: 0, name: 'All', color: '', icon: '📦' },
+    ...categories,
   ];
 
   return (
@@ -64,17 +39,17 @@ export default function ExpenseList() {
           className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Search expenses..."
         />
-        <div className='w-auto'>
+        <div className="w-auto">
           <Select
-          name="sort"
-          id="sort"
-          options={categories}
-          onChange={setSelectedCategory}
-          value={selectedCategory}
-          getOptionValue={(cat) => cat.name}
-          getOptionLabel={(cat) => cat.name}
-          getOptionId={(cat) => cat.id}
-        />
+            name="sort"
+            id="sort"
+            options={categoriesWithAll}
+            onChange={setSelectedCategory}
+            value={selectedCategory}
+            getOptionValue={(cat: Category) => cat.name}
+            getOptionLabel={(cat: Category) => cat.name}
+            getOptionId={(cat: Category) => cat.id}
+          />
         </div>
       </div>
       <div>
@@ -82,23 +57,23 @@ export default function ExpenseList() {
           <ul>
             {expenses
               .filter(
-                (expense) =>
-                  (selectedCategory === 'all' ||
-                    expense.category === selectedCategory) &&
+                (expense: Expense) =>
+                  (selectedCategory.toLowerCase() === 'all' ||
+                    expense.category === selectedCategory.toLowerCase()) &&
                   (debouncedSearchTerm === '' ||
-                    expense.name
+                    expense.description
                       .toLowerCase()
                       .includes(debouncedSearchTerm.toLowerCase()))
               )
-              .map((expense) => (
+              .map((expense: Expense) => (
                 <li
                   key={expense.id}
                   className="flex items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0"
                 >
                   <div className="flex items-center">
-                    <span className="text-xl mr-2">{expense.icon}</span>
+                    {/* <span className="text-xl mr-2">{expense.icon}</span> */}
                     <div>
-                      <h3 className="font-semibold">{expense.name}</h3>
+                      <h3 className="font-semibold">{expense.description}</h3>
                       <p className="text-gray-500">{expense.date}</p>
                     </div>
                   </div>

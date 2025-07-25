@@ -13,7 +13,7 @@ export default function Select<T>({ name, id, options, value, onChange,getOption
       }}
       className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
     >
-      {options.map((option) => (
+      {options.map((option: T) => (
         <option key={getOptionValue(option)} value={getOptionValue(option)} data-id={getOptionId(option)}>
           {getOptionLabel(option)}
         </option>

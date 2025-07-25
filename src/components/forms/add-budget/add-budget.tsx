@@ -2,8 +2,10 @@ import { useState } from 'react';
 import Select from '../../ui/select/select';
 import DatePicker from '../../ui/date-picker/date-picker';
 import Button from '../../ui/button/button';
+import { useAppState } from '../../../context/app-state-context';
 
 export default function AddBudget() {
+  const {categories} = useAppState();
   const [selectedCategory, setSelectedCategory] = useState('food');
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const startDate = 'start-date';
@@ -29,13 +31,11 @@ export default function AddBudget() {
               id="category"
               value={selectedCategory}
               name="Select Category"
-              options={[
-                { value: 'food', label: 'Food' },
-                { value: 'transport', label: 'Transport' },
-                { value: 'entertainment', label: 'Entertainment' },
-                { value: 'shopping', label: 'Shopping' },
-              ]}
+              options={categories}
               onChange={(selectedOption) => setSelectedCategory(selectedOption)}
+              getOptionValue={(option) => option.name}
+              getOptionLabel={(option) => option.name}
+              getOptionId={(option) => option.id}
             />
           </div>
           <div className="w-full flex-1 flex flex-col">
@@ -45,11 +45,14 @@ export default function AddBudget() {
               value={selectedPeriod}
               name="Select Period"
               options={[
-                { value: 'weekly', label: 'Weekly' },
-                { value: 'monthly', label: 'Monthly' },
-                { value: 'yearly', label: 'Yearly' },
+                { value: 'weekly', label: 'Weekly', id: 1 },
+                { value: 'monthly', label: 'Monthly', id: 2 },
+                { value: 'yearly', label: 'Yearly', id: 3 },
               ]}
               onChange={(selectedOption) => setSelectedPeriod(selectedOption)}
+              getOptionValue={(option) => option.value}
+              getOptionLabel={(option) => option.label}
+              getOptionId={(option) => option.id}
             />
           </div>
         </div>

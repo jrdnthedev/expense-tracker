@@ -3,29 +3,13 @@ import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
 import EditCategoryForm from '../../forms/edit-category-form/edit-category-form';
 import type { Category } from '../../../types/category';
+import { useAppState } from '../../../context/app-state-context';
 
 export default function CategoryManagement() {
+  const { categories } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
-  const categories: Category[] = [
-    { name: 'Food', icon: '🍕', color: 'bg-red-100', isDefault: true, id: 1 },
-    {
-      name: 'Transport',
-      icon: '🚗',
-      color: 'bg-blue-100',
-      isDefault: false,
-      id: 2,
-    },
-    { name: 'Fun', icon: '🎬', color: 'bg-green-100', isDefault: false, id: 3 },
-    {
-      name: 'Shopping',
-      icon: '🛍️',
-      color: 'bg-yellow-100',
-      isDefault: false,
-      id: 4,
-    },
-  ];
 
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">

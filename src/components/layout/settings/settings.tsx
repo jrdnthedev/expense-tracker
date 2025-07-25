@@ -7,7 +7,6 @@ export default function Settings() {
   const { currency, defaultCategory: stateDefaultCategory, categories } = useAppState();
   const [settingCurrency, setCurrency] = useState(currency);
   const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
-  const [category, setCategory] = useState<string>('');
   const dispatch = useAppDispatch();
     
   const currencies = [
@@ -21,8 +20,10 @@ export default function Settings() {
   };
   const handleDefaultCategoryChange = (value: string,id: number) => {
     setDefaultCategory(id);
-    setCategory(value);
     dispatch({ type: 'SET_DEFAULT_CATEGORY', payload: { categoryId: id } });
+  };
+  const getCategoryById = (id: number) => {
+    return categories.find(cat => cat.id === id)?.name || '';
   };
   return (
     <div className="settings-container">
@@ -45,7 +46,7 @@ export default function Settings() {
                   </span>
                 </div>
               </div>
-              <div className='w-auto'>
+              <div className="w-auto">
                 <Select
                 name="currency"
                 id="currency"
@@ -72,7 +73,7 @@ export default function Settings() {
                 name="default-category"
                 id="default-category"
                 options={categories}
-                value={category}
+                value={getCategoryById(defaultCategory)}
                 onChange={handleDefaultCategoryChange}
                 getOptionValue={(cat) => cat.name}
                 getOptionLabel={(cat) => cat.name}
@@ -89,14 +90,12 @@ export default function Settings() {
         </h2>
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 justify-between pb-2">
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
+            <div className="flex flex-col">
                 <span className="font-medium">Budget Alerts</span>
                 <span className="text-gray-600">
                   Notify when approaching budget limits
                 </span>
               </div>
-            </div>
           </div>
         </div>
       </Card>

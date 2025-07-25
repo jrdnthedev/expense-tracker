@@ -27,7 +27,40 @@ type Action =
 const initialState: State = {
   currency: "usd",
   defaultCategory: 1,
-  budgets: [],
+  budgets: [
+    {
+      id: 1,
+      category: 'Food',
+      limit: 500,
+      period: 'monthly',
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-01-31'),
+    },
+    {
+      id: 2,
+      category: 'Transport',
+      limit: 200,
+      period: 'monthly',
+      startDate: new Date('2023-02-01'),
+      endDate: new Date('2023-02-28'),
+    },
+    {
+      id: 3,
+      category: 'Entertainment',
+      limit: 300,
+      period: 'monthly',
+      startDate: new Date('2023-03-01'),
+      endDate: new Date('2023-03-31'),
+    },
+    {
+      id: 4,
+      category: 'Shopping',
+      limit: 400,
+      period: 'monthly',
+      startDate: new Date('2023-04-01'),
+      endDate: new Date('2023-04-30'),
+    },
+  ],
   categories: [
     { name: 'Food', icon: '🍕', color: 'bg-red-100', id: 1 },
     {
@@ -44,7 +77,38 @@ const initialState: State = {
       id: 4,
     },
   ],
-  expenses: [],
+  expenses: [
+    {
+      id: 1,
+      description: 'Lunch at Cafe',
+      amount: 15,
+      category: 'food',
+      date: '2023-10-01',
+      tags: ['lunch', 'food'],
+      createdAt: '2023-10-01T12:00:00Z',
+      updatedAt: '2023-10-01T12:00:00Z'
+    },
+    {
+      id: 2,
+      description: 'Bus Ticket',
+      amount: 2.5,
+      category: 'transport',
+      date: '2023-10-02',
+      tags: ['transport'],
+      createdAt: '2023-10-01T12:00:00Z',
+      updatedAt: '2023-10-01T12:00:00Z'
+    },
+    {
+      id: 3,
+      description: 'Movie Night',
+      amount: 12,
+      category: 'fun',
+      date: '2023-10-03',
+      tags: ['movie', 'entertainment'],
+      createdAt: '2023-10-01T12:00:00Z',
+      updatedAt: '2023-10-01T12:00:00Z'
+    },
+  ],
 };
 
 function appReducer(state: State, action: Action): State {
