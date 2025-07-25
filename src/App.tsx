@@ -1,4 +1,3 @@
-import ExpenseForm from './components/forms/expense-form/expense-form';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Dashboard from './components/layout/dashboard/dashboard';
 import BudgetManager from './components/layout/budget-manager/budget-manager';
@@ -17,7 +16,6 @@ function App() {
         <Router>
           <nav>
             <Link to="/">Home</Link>
-            <Link to="/expenseform">Form</Link>
             <Link to="/budgetmanager">Budget Manager</Link>
             <Link to="/analytics">Analytics</Link>
             <Link to="/settings">Settings</Link>
@@ -25,7 +23,6 @@ function App() {
             <Link to="/categorymanagement">Category Management</Link>
           </nav>
           <Routes>
-            <Route path="/expenseform" element={<ExpenseForm />} />
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/onboarding" element={<Onboarding />} />
