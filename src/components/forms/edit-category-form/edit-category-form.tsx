@@ -1,17 +1,30 @@
 import { useEffect, useState } from "react";
 import ColourPicker from "../../ui/colour-picker/colour-picker";
 import Button from "../../ui/button/button";
+import { useAppDispatch } from "../../../context/app-state-context";
 
-export default function EditCategoryForm({ name, icon, color }: EditCategoryFormProps) {
+export default function EditCategoryForm({ name, icon, color,id }: EditCategoryFormProps) {
   const [selectedColor, setSelectedColor] = useState(color);
   const [categoryName, setCategoryName] = useState(name);
   const [categoryIcon, setCategoryIcon] = useState(icon);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setSelectedColor(color);
     setCategoryName(name);
     setCategoryIcon(icon);
   }, [name, icon, color]);
+
+  const handleSaveChanges = () => {
+    dispatch({
+      type: "UPDATE_CATEGORY",
+      payload: { id: id, name: categoryName, icon: categoryIcon, color: selectedColor },
+    });
+  };
+
+  const handleDeleteCategory = () => {
+    dispatch({ type: "REMOVE_CATEGORY", payload: { id: id } });
+  };
   return (
     <>
       <div className="edit-category-form mb-4 flex flex-col gap-2">
@@ -32,13 +45,13 @@ export default function EditCategoryForm({ name, icon, color }: EditCategoryForm
       </div>
       <div className="flex justify-end gap-2 mt-4">
         <Button
-          onClick={() => console.log('Save changes ', { categoryName, categoryIcon, color: selectedColor })}
+          onClick={handleSaveChanges}
           primary
         >
           Save Changes
         </Button>
         <Button
-          onClick={() => console.log('Delete category')}
+          onClick={handleDeleteCategory}
         >
           Delete Category
         </Button>
@@ -51,4 +64,5 @@ interface EditCategoryFormProps {
   name: string;
   icon: string;
   color: string;
+  id: number;
 }

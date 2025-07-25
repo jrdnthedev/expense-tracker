@@ -22,6 +22,7 @@ type Action =
 //   | { type: "REMOVE_EXPENSE"; payload: { id: string } }
 //   | { type: "UPDATE_BUDGET"; payload: { amount: number } }
   | { type: "ADD_CATEGORY"; payload: Category }
+  | { type: "UPDATE_CATEGORY"; payload: Category }
   | { type: "REMOVE_CATEGORY"; payload: { id: number } }
   | { type: "SET_DEFAULT_CATEGORY"; payload: { categoryId: number } };
 
@@ -125,6 +126,13 @@ function appReducer(state: State, action: Action): State {
         ...state,
         categories: state.categories.filter(
           (category) => category.id !== action.payload.id
+        ),
+      };
+    case "UPDATE_CATEGORY":
+      return {
+        ...state,
+        categories: state.categories.map((category) =>
+          category.id === action.payload.id ? action.payload : category
         ),
       };
     default:
