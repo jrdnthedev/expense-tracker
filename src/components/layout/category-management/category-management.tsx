@@ -4,12 +4,15 @@ import Button from '../../ui/button/button';
 import EditCategoryForm from '../../forms/edit-category-form/edit-category-form';
 import type { Category } from '../../../types/category';
 import { useAppState } from '../../../context/app-state-context';
+import Modal from '../../ui/modal/modal';
+import AddCategoryForm from '../../forms/add-category-form/add-category-form';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
@@ -25,9 +28,17 @@ export default function CategoryManagement() {
           Expense Categories
         </h3>
         <span className="w-auto">
-          <Button onClick={() => console.log('Add new category')} primary>
+          <Button onClick={() => setIsModalOpen(true)} primary>
             Add New Category
           </Button>
+          {isModalOpen && (
+            <Modal onClose={() => setIsModalOpen(false)} isOpen={isModalOpen}>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                Add New Category
+              </h2>
+              <AddCategoryForm />
+            </Modal>
+          )}
         </span>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">

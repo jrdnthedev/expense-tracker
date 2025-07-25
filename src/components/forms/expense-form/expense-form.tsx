@@ -2,7 +2,6 @@ import { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import Button from '../../ui/button/button';
-import Card from '../../ui/card/card';
 import DatePicker from '../../ui/date-picker/date-picker';
 import { useAppState } from '../../../context/app-state-context';
 
@@ -11,9 +10,13 @@ export default function ExpenseForm() {
   const [selectedCategory, setSelectedCategory] = useState<number>(
     defaultCategory
   );
+  const [date, setDate] = useState<string>('2024-12-17');
+  const [time, setTime] = useState<string>('14:30');
+  const [amount, setAmount] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
 
   return (
-    <Card>
+    <>
       <div className="text-lg font-semibold text-gray-900 mb-2">
         ➕ Add Expense Form
       </div>
@@ -38,6 +41,8 @@ export default function ExpenseForm() {
             id="amount"
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder={`${currency.symbol}0.00`}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
           />
         </div>
 
@@ -53,6 +58,8 @@ export default function ExpenseForm() {
             id="description"
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="What did you spend on?"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
         </div>
 
@@ -89,8 +96,8 @@ export default function ExpenseForm() {
             </label>
             <DatePicker
               id="date"
-              defaultValue="2024-12-17"
-              onChange={(date) => console.log('Date:', date)}
+              defaultValue={date}
+              onChange={(date: string) => setDate(date)}
             />
           </div>
           <div className="w-full flex-1">
@@ -105,6 +112,8 @@ export default function ExpenseForm() {
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               id="time"
               defaultValue="14:30"
+              onChange={(e) => setTime(e.target.value)}
+              value={time}
             />
           </div>
         </div>
@@ -112,9 +121,7 @@ export default function ExpenseForm() {
         <div className="flex max-sm:flex-col gap-4 mt-6">
           <Button
             type="submit"
-            onClick={() => {
-              console.log('Expense saved');
-            }}
+            onClick={() => console.log('Expense saved' + JSON.stringify({ amount, description, selectedCategory, date, time }))}
             primary
           >
             Save Expense
@@ -128,6 +135,6 @@ export default function ExpenseForm() {
           </Button>
         </div>
       </div>
-    </Card>
+    </>
   );
 }

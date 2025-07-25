@@ -1,4 +1,3 @@
-import ExpenseForm from './components/forms/expense-form/expense-form';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Dashboard from './components/layout/dashboard/dashboard';
 import BudgetManager from './components/layout/budget-manager/budget-manager';
@@ -7,6 +6,8 @@ import Settings from './components/layout/settings/settings';
 import ExpenseList from './components/layout/expense-list/expense-list';
 import CategoryManagement from './components/layout/category-management/category-management';
 import { AppProvider } from './context/app-state-context';
+import Landing from './components/layout/landing/landing';
+import Onboarding from './components/layout/onboarding/onboarding';
 
 function App() {
   return (
@@ -15,7 +16,6 @@ function App() {
         <Router>
           <nav>
             <Link to="/">Home</Link>
-            <Link to="/expenseform">Form</Link>
             <Link to="/budgetmanager">Budget Manager</Link>
             <Link to="/analytics">Analytics</Link>
             <Link to="/settings">Settings</Link>
@@ -23,8 +23,9 @@ function App() {
             <Link to="/categorymanagement">Category Management</Link>
           </nav>
           <Routes>
-            <Route path="/expenseform" element={<ExpenseForm />} />
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/budgetmanager" element={<BudgetManager />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
             <Route path="/settings" element={<Settings />} />
