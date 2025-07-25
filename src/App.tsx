@@ -7,6 +7,8 @@ import Settings from './components/layout/settings/settings';
 import ExpenseList from './components/layout/expense-list/expense-list';
 import CategoryManagement from './components/layout/category-management/category-management';
 import { AppProvider } from './context/app-state-context';
+import Landing from './components/layout/landing/landing';
+import Onboarding from './components/layout/onboarding/onboarding';
 
 function App() {
   return (
@@ -24,7 +26,9 @@ function App() {
           </nav>
           <Routes>
             <Route path="/expenseform" element={<ExpenseForm />} />
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/budgetmanager" element={<BudgetManager />} />
             <Route path="/analytics" element={<AnalyticsDashboard />} />
             <Route path="/settings" element={<Settings />} />
