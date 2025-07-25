@@ -111,7 +111,6 @@ export default function ExpenseForm() {
               type="time"
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               id="time"
-              defaultValue="14:30"
               onChange={(e) => setTime(e.target.value)}
               value={time}
             />
