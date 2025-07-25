@@ -7,7 +7,7 @@ import DatePicker from '../../ui/date-picker/date-picker';
 import { useAppState } from '../../../context/app-state-context';
 
 export default function ExpenseForm() {
-  const { defaultCategory,categories } = useAppState();
+  const { defaultCategory,categories,currency } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<number>(
     defaultCategory
   );
@@ -37,7 +37,7 @@ export default function ExpenseForm() {
             type="number"
             id="amount"
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="$0.00"
+            placeholder={`${currency.symbol}0.00`}
           />
         </div>
 

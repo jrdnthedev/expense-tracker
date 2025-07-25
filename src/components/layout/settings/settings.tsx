@@ -1,29 +1,37 @@
 import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
-import { useAppDispatch, useAppState } from '../../../context/app-state-context';
+import {
+  useAppDispatch,
+  useAppState,
+} from '../../../context/app-state-context';
+import type { Currency } from '../../../types/currency';
 
 export default function Settings() {
-  const { currency, defaultCategory: stateDefaultCategory, categories } = useAppState();
-  const [settingCurrency, setCurrency] = useState(currency);
+  const {
+    currency,
+    defaultCategory: stateDefaultCategory,
+    categories,
+  } = useAppState();
+  const [settingCurrency, setCurrency] = useState<Currency>(currency);
   const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
   const dispatch = useAppDispatch();
-    
+
   const currencies = [
     { value: 'usd', label: 'USD', id: 1, symbol: '$' },
     { value: 'eur', label: 'EUR', id: 2, symbol: '€' },
     { value: 'gbp', label: 'GBP', id: 3, symbol: '£' },
   ];
-  const handleCurrencyChange = (value: string) => {
-    setCurrency(value);
-    dispatch({ type: 'SET_CURRENCY', payload: value });
+  const handleCurrencyChange = (currency: Currency) => {
+    setCurrency(currency);
+    dispatch({ type: 'SET_CURRENCY', payload: currency });
   };
-  const handleDefaultCategoryChange = (value: string,id: number) => {
+  const handleDefaultCategoryChange = (value: string, id: number) => {
     setDefaultCategory(id);
     dispatch({ type: 'SET_DEFAULT_CATEGORY', payload: { categoryId: id } });
   };
   const getCategoryById = (id: number) => {
-    return categories.find(cat => cat.id === id)?.name || '';
+    return categories.find((cat) => cat.id === id)?.name || '';
   };
   return (
     <div className="settings-container">
@@ -48,15 +56,18 @@ export default function Settings() {
               </div>
               <div className="w-auto">
                 <Select
-                name="currency"
-                id="currency"
-                options={currencies}
-                value={settingCurrency}
-                onChange={handleCurrencyChange}
-                getOptionValue={(option) => option.value}
-                getOptionLabel={(option) => option.label}
-                getOptionId={(option) => option.id}
-              />
+                  name="currency"
+                  id="currency"
+                  options={currencies}
+                  value={settingCurrency.value}
+                  onChange={(value, id) => {
+                    const selected = currencies.find((c) => c.id === id);
+                    if (selected) handleCurrencyChange(selected);
+                  }}
+                  getOptionValue={(option) => option.value}
+                  getOptionLabel={(option) => option.label}
+                  getOptionId={(option) => option.id}
+                />
               </div>
             </div>
             <div className="flex items-center gap-2 justify-between">
@@ -68,17 +79,17 @@ export default function Settings() {
                   </span>
                 </div>
               </div>
-              <div className='w-auto'>
+              <div className="w-auto">
                 <Select
-                name="default-category"
-                id="default-category"
-                options={categories}
-                value={getCategoryById(defaultCategory)}
-                onChange={handleDefaultCategoryChange}
-                getOptionValue={(cat) => cat.name}
-                getOptionLabel={(cat) => cat.name}
-                getOptionId={(cat) => cat.id}
-              />
+                  name="default-category"
+                  id="default-category"
+                  options={categories}
+                  value={getCategoryById(defaultCategory)}
+                  onChange={handleDefaultCategoryChange}
+                  getOptionValue={(cat) => cat.name}
+                  getOptionLabel={(cat) => cat.name}
+                  getOptionId={(cat) => cat.id}
+                />
               </div>
             </div>
           </div>
@@ -91,11 +102,11 @@ export default function Settings() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 justify-between pb-2">
             <div className="flex flex-col">
-                <span className="font-medium">Budget Alerts</span>
-                <span className="text-gray-600">
-                  Notify when approaching budget limits
-                </span>
-              </div>
+              <span className="font-medium">Budget Alerts</span>
+              <span className="text-gray-600">
+                Notify when approaching budget limits
+              </span>
+            </div>
           </div>
         </div>
       </Card>

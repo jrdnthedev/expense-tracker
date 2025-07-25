@@ -3,9 +3,10 @@ import type { Dispatch } from "react";
 import type { Category } from "../types/category";
 import type { Expense } from "../types/expense";
 import type { Budget } from "../types/budget";
+import type { Currency } from "../types/currency";
 
 type State = {
-  currency: string,
+  currency: Currency,
   defaultCategory: number,
   budgets: Budget[],
   categories: Category[],
@@ -13,7 +14,7 @@ type State = {
 };
 
 type Action =
-  | { type: "SET_CURRENCY"; payload: string }
+  | { type: "SET_CURRENCY"; payload: Currency }
   // Add other actions here
 //   | { type: "RESET_STATE" }
 //   | { type: "UPDATE_SETTING"; payload: { key: string; value: any } }
@@ -25,7 +26,7 @@ type Action =
   | { type: "SET_DEFAULT_CATEGORY"; payload: { categoryId: number } };
 
 const initialState: State = {
-  currency: "usd",
+  currency: { value: 'usd', label: 'USD', id: 1, symbol: '$' },
   defaultCategory: 1,
   budgets: [
     {
