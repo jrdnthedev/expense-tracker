@@ -5,14 +5,15 @@ import Button from '../../ui/button/button';
 import DatePicker from '../../ui/date-picker/date-picker';
 import { useAppDispatch, useAppState } from '../../../context/app-state-context';
 import Input from '../../ui/input/input';
+import type { Expense } from '../../../types/expense';
 
-export default function ExpenseForm({amount, description, date, time, categoryId}: ExpenseProps) {
+export default function ExpenseForm({...expense}: Expense) {
   const {categories, currency } = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState<number>(categoryId);
-  const [expenseDate, setExpenseDate] = useState<string>(date);
-  const [expenseTime, setExpenseTime] = useState<string>(time);
-  const [expenseAmount, setExpenseAmount] = useState<number>(amount);
-  const [expenseDescription, setExpenseDescription] = useState<string>(description);
+  const [selectedCategory, setSelectedCategory] = useState<number>(expense.categoryId);
+  const [expenseDate, setExpenseDate] = useState<string>(expense.date);
+  const [expenseTime, setExpenseTime] = useState<string>(expense.createdAt.substring(11, 16));
+  const [expenseAmount, setExpenseAmount] = useState<number>(expense.amount);
+  const [expenseDescription, setExpenseDescription] = useState<string>(expense.description);
   const dispatch = useAppDispatch();
   const handleSaveExpense = () => {
     console.log('Expense saved', {
@@ -24,14 +25,12 @@ export default function ExpenseForm({amount, description, date, time, categoryId
     });
     // Dispatch action to save the expense
     dispatch({type:'UPDATE_EXPENSE', payload: {
-      id: Date.now(), // Temporary ID, should be replaced with actual logic
+      ...expense,
       amount: expenseAmount,
       description: expenseDescription,
       categoryId: selectedCategory,
-      category: categories.find(cat => cat.id === selectedCategory)?.name || 'Uncategorized',
       date: expenseDate,
       createdAt: expenseTime,
-      tags: ['lunch', 'food'],
       updatedAt: new Date().toISOString(),
     }});
   };
@@ -155,10 +154,10 @@ export default function ExpenseForm({amount, description, date, time, categoryId
   );
 }
 
-interface ExpenseProps {
-  amount: number;
-  description: string;
-  date: string;
-  time: string;
-  categoryId: number;
-}
+// interface ExpenseProps {
+//   amount: number;
+//   description: string;
+//   date: string;
+//   time: string;
+//   categoryId: number;
+// }

@@ -129,11 +129,7 @@ export default function ExpenseList() {
               onClose={() => setExpenseToEdit(null)}
             >
               <ExpenseForm
-                amount={expenseToEdit.amount}
-                description={expenseToEdit.description}
-                date={expenseToEdit.date}
-                categoryId={expenseToEdit.categoryId}
-                time={expenseToEdit.createdAt.substring(11, 16)} // Assuming time is stored in createdAt
+                {...expenseToEdit}
               />
               <div className="flex justify-end mt-4 gap-4">
                 <Button
