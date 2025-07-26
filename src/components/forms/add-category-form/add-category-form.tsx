@@ -3,6 +3,7 @@ import { useState } from 'react';
 import ColourPicker from '../../ui/colour-picker/colour-picker';
 import Button from '../../ui/button/button';
 import { useAppDispatch } from '../../../context/app-state-context';
+import Input from '../../ui/input/input';
 
 export default function AddCategoryForm({onClick}: {onClick: () => void}) {
   const [categoryName, setCategoryName] = useState('');
@@ -12,6 +13,7 @@ export default function AddCategoryForm({onClick}: {onClick: () => void}) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!categoryName) return;
     dispatch({ type: 'ADD_CATEGORY', payload: { id: 5, name: categoryName, icon: categoryIcon, color: selectedColor } });
     onClick();
     setCategoryName('');
@@ -23,23 +25,23 @@ export default function AddCategoryForm({onClick}: {onClick: () => void}) {
       <div className="edit-category-form mb-4 flex flex-col gap-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="category-name">Category Name</label>
-          <input
-            type="text"
+          <Input
+            id="category-name"
             value={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
             placeholder="Category Name"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="text"
             required
           />
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="icon-picker">Category Icon</label>
-          <input
-            type="text"
+          <Input
+            id="category-icon"
             value={categoryIcon}
             onChange={() => void 0}
             placeholder="Category Icon"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="text"
             required
           />
         </div>
