@@ -64,18 +64,18 @@ const initialState: State = {
     },
   ],
   categories: [
-    { name: 'Food', icon: '🍕', color: 'bg-red-100', id: 1 },
+    { name: 'Food', icon: '🍕', color: '#f0c0c0', id: 1 },
     {
       name: 'Transport',
       icon: '🚗',
-      color: 'bg-blue-100',
+      color: '#f0f0f0',
       id: 2,
     },
-    { name: 'Fun', icon: '🎬', color: 'bg-green-100', id: 3 },
+    { name: 'Fun', icon: '🎬', color: '#c0f0c0', id: 3 },
     {
       name: 'Shopping',
       icon: '🛍️',
-      color: 'bg-yellow-100',
+      color: '#f0f0c0',
       id: 4,
     },
   ],
