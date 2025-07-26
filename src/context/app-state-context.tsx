@@ -18,8 +18,9 @@ type Action =
   // Add other actions here
 //   | { type: "RESET_STATE" }
 //   | { type: "UPDATE_SETTING"; payload: { key: string; value: any } }
-//   | { type: "ADD_EXPENSE"; payload: { amount: number; description: string; category: string } }
-//   | { type: "REMOVE_EXPENSE"; payload: { id: string } }
+  | { type: "ADD_EXPENSE"; payload: Expense }
+  | { type: "REMOVE_EXPENSE"; payload: { id: number } }
+  | { type: "UPDATE_EXPENSE"; payload: Expense }
 //   | { type: "UPDATE_BUDGET"; payload: { amount: number } }
   | { type: "ADD_CATEGORY"; payload: Category }
   | { type: "UPDATE_CATEGORY"; payload: Category }
@@ -133,6 +134,28 @@ function appReducer(state: State, action: Action): State {
         ...state,
         categories: state.categories.map((category) =>
           category.id === action.payload.id ? action.payload : category
+        ),
+      };
+    case "ADD_EXPENSE":
+      return {
+        ...state,
+        expenses: [
+          ...state.expenses,
+          action.payload
+        ]
+      };
+    case "UPDATE_EXPENSE":
+      return {
+        ...state,
+        expenses: state.expenses.map((expense) =>
+          expense.id === action.payload.id ? action.payload : expense
+        ),
+      };
+    case "REMOVE_EXPENSE":
+      return {
+        ...state,
+        expenses: state.expenses.filter(
+          (expense) => expense.id !== action.payload.id
         ),
       };
     default:
