@@ -7,6 +7,7 @@ import type { Category } from '../../../types/category';
 import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
 import Modal from '../../ui/modal/modal';
+import ExpenseForm from '../../forms/expense-form/expense-form';
 
 export default function ExpenseList() {
   const { categories, expenses } = useAppState();
@@ -24,9 +25,7 @@ export default function ExpenseList() {
     ...categories,
   ];
   const handleDeleteExpense = (id: number) => {
-    // Dispatch action to delete expense
     dispatch({ type: 'REMOVE_EXPENSE', payload: { id } });
-    console.log(`Deleting expense with id: ${id}`);
     setExpenseToDelete(null);
   };
   const handleEditExpense = (expense: Expense) => {
@@ -129,7 +128,13 @@ export default function ExpenseList() {
               isOpen={true}
               onClose={() => setExpenseToEdit(null)}
             >
-              <p>Are you sure you want to delete this expense?</p>
+              <ExpenseForm
+                amount={expenseToEdit.amount}
+                description={expenseToEdit.description}
+                date={expenseToEdit.date}
+                categoryId={expenseToEdit.categoryId}
+                time={expenseToEdit.createdAt.substring(11, 16)} // Assuming time is stored in createdAt
+              />
               <div className="flex justify-end mt-4 gap-4">
                 <Button
                   onClick={() => handleEditExpense(expenseToEdit)}
