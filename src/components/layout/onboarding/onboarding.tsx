@@ -6,6 +6,8 @@ import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
+import AddBudget from '../../forms/add-budget/add-budget';
+import Button from '../../ui/button/button';
 
 export default function Onboarding() {
   const { categories, currency, defaultCategory } = useAppState();
@@ -18,10 +20,28 @@ export default function Onboarding() {
     date: '',
     time: '00:00',
   });
+  const [budgetFormState, setBudgetFormState] = useState({
+    id: 0,
+    limit: 0,
+    category: '',
+    period: 'weekly',
+    startDate: '',
+    endDate: '',
+  });
   const navigate = useNavigate();
-
+  const periodOptions = [
+    { value: 'weekly', label: 'Weekly', id: 1 },
+    { value: 'monthly', label: 'Monthly', id: 2 },
+    { value: 'yearly', label: 'Yearly', id: 3 },
+  ];
   const handleFieldChange = (field: string, value: string | number) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
+  };
+  const handleSaveBudget = () => {
+    // Logic to save the budget can be added here
+    console.log('Budget saved:', budgetFormState);
+    // Navigate to the dashboard after saving
+    navigate('/dashboard');
   };
   return (
     <div className="max-w-lg mx-auto mt-12">
@@ -104,12 +124,21 @@ export default function Onboarding() {
           <>
             <h2 className="text-xl font-bold mb-2">Set Up Your First Budget</h2>
             <p className="mb-6">Let’s help you set a budget for a category.</p>
-            <button
-              className="bg-green-600 text-white px-4 py-2 rounded"
-              onClick={() => navigate('/dashboard')}
-            >
-              Finish & Go to Dashboard
-            </button>
+            <div className="flex flex-col gap-4">
+              <AddBudget
+                categories={categories}
+                formState={budgetFormState}
+                onFieldChange={(field, value) =>
+                  setBudgetFormState((prev) => ({ ...prev, [field]: value }))
+                }
+                periodOptions={periodOptions}
+              />
+              <div>
+                <Button onClick={handleSaveBudget} variant="primary">
+                  Save Budget
+                </Button>
+              </div>
+            </div>
           </>
         )}
       </Card>
