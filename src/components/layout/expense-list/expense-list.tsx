@@ -13,7 +13,7 @@ import Modal from '../../ui/modal/modal';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 
 export default function ExpenseList() {
-  const { categories, expenses } = useAppState();
+  const { categories, expenses, currency } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -191,6 +191,7 @@ export default function ExpenseList() {
                 categories={categories}
                 formState={formState}
                 onFieldChange={handleFieldChange}
+                currency={currency}
               />
               <div className="flex justify-end mt-4 gap-4">
                 <Button onClick={handleSave} variant="primary">

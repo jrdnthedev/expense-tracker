@@ -1,15 +1,15 @@
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import DatePicker from '../../ui/date-picker/date-picker';
-import { useAppState } from '../../../context/app-state-context';
 import Input from '../../ui/input/input';
+import type { Currency } from '../../../types/currency';
 
 export default function ExpenseForm({
   categories,
   formState,
+  currency,
   onFieldChange,
 }: ExpenseFormProps) {
-  const { currency } = useAppState();
   return (
     <>
       <div className="text-lg font-semibold text-gray-900 mb-2">
@@ -33,7 +33,7 @@ export default function ExpenseForm({
           </label>
           <Input
             value={formState.amount}
-            onChange={(e) => onFieldChange('amount', e.target.value)}
+            onChange={(e) => onFieldChange?.('amount', e.target.value)}
             placeholder={`${currency.symbol}0.00`}
             id="amount"
             type="number"
@@ -49,7 +49,7 @@ export default function ExpenseForm({
           </label>
           <Input
             value={formState.description}
-            onChange={(e) => onFieldChange('description', e.target.value)}
+            onChange={(e) => onFieldChange?.('description', e.target.value)}
             placeholder="What did you spend on?"
             id="description"
             type="text"
@@ -74,8 +74,8 @@ export default function ExpenseForm({
                 icon={category.icon}
                 selected={formState.categoryId === category.id}
                 onClick={() => {
-                  onFieldChange('categoryId', category.id);
-                  onFieldChange('category', category.name);
+                  onFieldChange?.('categoryId', category.id);
+                  onFieldChange?.('category', category.name);
                 }}
               />
             ))}
@@ -93,7 +93,7 @@ export default function ExpenseForm({
             <DatePicker
               id="date"
               defaultValue={formState.date}
-              onChange={(date: string) => onFieldChange('date', date)}
+              onChange={(date: string) => onFieldChange?.('date', date)}
             />
           </div>
           <div className="w-full flex-1">
@@ -107,7 +107,7 @@ export default function ExpenseForm({
               type="time"
               id="time"
               value={formState.time}
-              onChange={(e) => onFieldChange('time', e.target.value)}
+              onChange={(e) => onFieldChange?.('time', e.target.value)}
             />
           </div>
         </div>
@@ -125,5 +125,6 @@ interface ExpenseFormProps {
     date: string;
     time: string;
   };
-  onFieldChange: (field: string, value: string | number) => void;
+  onFieldChange?: (field: string, value: string | number) => void;
+  currency: Currency;
 }
