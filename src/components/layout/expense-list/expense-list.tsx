@@ -14,7 +14,7 @@ import ExpenseForm from '../../forms/expense-form/expense-form';
 
 export default function ExpenseList() {
   const { categories, expenses, currency } = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<Category>({ id: 0, name: 'All', color: '', icon: '📦' });
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
@@ -58,9 +58,6 @@ export default function ExpenseList() {
     };
     dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
     setExpenseToEdit(null);
-  };
-  const handleFieldChange = (field: string, value: string | number) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
   };
   const handleReset = () => {
     setFormState({
@@ -110,8 +107,11 @@ export default function ExpenseList() {
             name="sort"
             id="sort"
             options={categoriesWithAll}
-            onChange={setSelectedCategory}
-            value={selectedCategory}
+            onChange={(_value: string, dataId: number) => {
+              const category = categoriesWithAll.find(cat => cat.id === dataId);
+              if (category) setSelectedCategory(category);
+            }}
+            value={selectedCategory.name}
             getOptionValue={(cat: Category) => cat.name}
             getOptionLabel={(cat: Category) => cat.name}
             getOptionId={(cat: Category) => cat.id}
@@ -124,8 +124,8 @@ export default function ExpenseList() {
             {expenses
               .filter(
                 (expense: Expense) =>
-                  (selectedCategory.toLowerCase() === 'all' ||
-                    expense.category === selectedCategory.toLowerCase()) &&
+                  (selectedCategory.id === 0 ||
+                    expense.categoryId === selectedCategory.id) &&
                   (debouncedSearchTerm === '' ||
                     expense.description
                       .toLowerCase()
@@ -190,7 +190,7 @@ export default function ExpenseList() {
               <ExpenseForm
                 categories={categories}
                 formState={formState}
-                onFieldChange={handleFieldChange}
+                onFieldChange={(field, value) => setFormState((prev) => ({ ...prev, [field]: value }))}
                 currency={currency}
               />
               <div className="flex justify-end mt-4 gap-4">
