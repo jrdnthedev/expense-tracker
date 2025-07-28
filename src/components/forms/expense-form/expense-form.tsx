@@ -11,13 +11,19 @@ export default function ExpenseForm({...expense}: Expense) {
   const {categories, currency } = useAppState();
   const [selectedCategory, setSelectedCategory] = useState<number>(expense.categoryId);
   const [expenseDate, setExpenseDate] = useState<string>(expense.date);
-  const [expenseTime, setExpenseTime] = useState<string>(expense.createdAt.substring(11, 16));
-  const [expenseAmount, setExpenseAmount] = useState<number>(expense.amount);
+  const [expenseTime, setExpenseTime] = useState<string>(
+    typeof expense.createdAt === 'string' && expense.createdAt.length >= 16
+      ? expense.createdAt.substring(11, 16)
+      : '00:00'
+  );
+  const [expenseAmount, setExpenseAmount] = useState<string>(expense.amount.toString());
   const [expenseDescription, setExpenseDescription] = useState<string>(expense.description);
   const dispatch = useAppDispatch();
-  const handleSaveExpense = () => {
+  const handleSaveExpense = (e: React.FormEvent) => {
+    const amountNumber = Number(expenseAmount);
+    e.preventDefault();
     console.log('Expense saved', {
-      amount: expenseAmount,
+      amount: amountNumber,
       description: expenseDescription,
       categoryId: selectedCategory,
       date: expenseDate,
@@ -26,11 +32,11 @@ export default function ExpenseForm({...expense}: Expense) {
     // Dispatch action to save the expense
     dispatch({type:'UPDATE_EXPENSE', payload: {
       ...expense,
-      amount: expenseAmount,
+      amount: amountNumber,
+      createdAt: new Date(`${expenseDate}T${expenseTime}`).toISOString(),
       description: expenseDescription,
       categoryId: selectedCategory,
       date: expenseDate,
-      createdAt: expenseTime,
       updatedAt: new Date().toISOString(),
     }});
   };
@@ -43,7 +49,10 @@ export default function ExpenseForm({...expense}: Expense) {
         Quick expense entry form with smart defaults and category selection.
         Optimized for fast data entry with minimal friction.
       </div>
-      <div className="mb-8">
+      <form
+        className="mb-8"
+        onSubmit={handleSaveExpense}
+      >
         <h3 className="text-xl font-bold text-gray-800 mb-6">
           Add New Expense
         </h3>
@@ -57,7 +66,7 @@ export default function ExpenseForm({...expense}: Expense) {
           </label>
           <Input
             value={expenseAmount}
-            onChange={(e) => setExpenseAmount(Number(e.target.value))}
+            onChange={(e) => setExpenseAmount(e.target.value)}
             placeholder={`${currency.symbol}0.00`}
             id="amount"
             type="number"
@@ -135,22 +144,21 @@ export default function ExpenseForm({...expense}: Expense) {
 
         <div className="flex max-sm:flex-col gap-4 mt-6">
           <Button
-            type="submit"
-            onClick={handleSaveExpense}
+            onClick={() => void 0} // No action needed here
+            type='submit'
             variant='primary'
           >
-            Save Expense
+            Save
           </Button>
           <Button
-            onClick={() => {
-              console.log('Expense entry cancelled');
-            }}
+            type="button"
+            onClick={() => console.log('Expense entry cancelled')}
             variant='secondary'
           >
             Cancel
           </Button>
         </div>
-      </div>
+      </form>
     </>
   );
 }
