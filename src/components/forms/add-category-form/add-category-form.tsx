@@ -1,8 +1,10 @@
 import ColourPicker from '../../ui/colour-picker/colour-picker';
 import Input from '../../ui/input/input';
 
-export default function AddCategoryForm({onFieldChange,formState}: AddCategoryFormProps) {
-
+export default function AddCategoryForm({
+  onFieldChange,
+  formState,
+}: AddCategoryFormProps) {
   return (
     <>
       <div className="edit-category-form flex flex-col gap-2">
@@ -11,7 +13,9 @@ export default function AddCategoryForm({onFieldChange,formState}: AddCategoryFo
           <Input
             id="category-name"
             value={formState.name}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFieldChange('name', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onFieldChange('name', e.target.value)
+            }
             placeholder="Category Name"
             type="text"
             required
@@ -29,7 +33,9 @@ export default function AddCategoryForm({onFieldChange,formState}: AddCategoryFo
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="block font-medium" htmlFor="color-picker">Pick Color</label>
+          <label className="block font-medium" htmlFor="color-picker">
+            Pick Color
+          </label>
           <ColourPicker
             selectedColor={formState.color}
             onChange={(color: string) => onFieldChange('color', color)}

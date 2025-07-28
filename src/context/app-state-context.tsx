@@ -17,11 +17,11 @@ type Action =
   | { type: "SET_CURRENCY"; payload: Currency }
   // Add other actions here
 //   | { type: "RESET_STATE" }
-//   | { type: "UPDATE_SETTING"; payload: { key: string; value: any } }
+| {type: "ADD_BUDGET"; payload: Budget }
+// | { type: "UPDATE_BUDGET"; payload: Budget }
   | { type: "ADD_EXPENSE"; payload: Expense }
   | { type: "REMOVE_EXPENSE"; payload: { id: number } }
   | { type: "UPDATE_EXPENSE"; payload: Expense }
-//   | { type: "UPDATE_BUDGET"; payload: { amount: number } }
   | { type: "ADD_CATEGORY"; payload: Category }
   | { type: "UPDATE_CATEGORY"; payload: Category }
   | { type: "REMOVE_CATEGORY"; payload: { id: number } }
@@ -36,32 +36,32 @@ const initialState: State = {
       category: 'Food',
       limit: 500,
       period: 'monthly',
-      startDate: new Date('2023-01-01'),
-      endDate: new Date('2023-01-31'),
+      startDate: '2023-01-01',
+      endDate: '2023-01-31',
     },
     {
       id: 2,
       category: 'Transport',
       limit: 200,
       period: 'monthly',
-      startDate: new Date('2023-02-01'),
-      endDate: new Date('2023-02-28'),
+      startDate: '2023-02-01',
+      endDate: '2023-02-28',
     },
     {
       id: 3,
       category: 'Entertainment',
       limit: 300,
       period: 'monthly',
-      startDate: new Date('2023-03-01'),
-      endDate: new Date('2023-03-31'),
+      startDate: '2023-03-01',
+      endDate: '2023-03-31',
     },
     {
       id: 4,
       category: 'Shopping',
       limit: 400,
       period: 'monthly',
-      startDate: new Date('2023-04-01'),
-      endDate: new Date('2023-04-30'),
+      startDate: '2023-04-01',
+      endDate: '2023-04-30',
     },
   ],
   categories: [
@@ -160,6 +160,11 @@ function appReducer(state: State, action: Action): State {
         expenses: state.expenses.filter(
           (expense) => expense.id !== action.payload.id
         ),
+      };
+    case "ADD_BUDGET":
+      return {
+        ...state,
+        budgets: [...state.budgets, action.payload]
       };
     default:
       return state;

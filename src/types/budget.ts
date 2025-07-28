@@ -3,7 +3,7 @@ export interface Budget {
   category: string,
   limit: number,
   period: 'weekly' | 'monthly' | 'yearly',
-  startDate: Date,
-  endDate: Date
+  startDate: string,
+  endDate: string
 }
 

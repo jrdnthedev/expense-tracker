@@ -15,7 +15,9 @@ export default function EditCategoryForm({
             type="text"
             id="category-name"
             value={formState.name}
-            onChange={(e) => onFieldChange('name', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onFieldChange('name', e.target.value)
+            }
             placeholder="Category Name"
           />
         </div>
@@ -25,7 +27,9 @@ export default function EditCategoryForm({
             type="text"
             id="category-icon"
             value={formState.icon}
-            onChange={(e) => onFieldChange('icon', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onFieldChange('icon', e.target.value)
+            }
             placeholder="Category Icon"
           />
         </div>
@@ -35,7 +39,7 @@ export default function EditCategoryForm({
           </label>
           <ColourPicker
             selectedColor={formState.color}
-            onChange={(color) => onFieldChange('color', color)}
+            onChange={(color: string) => onFieldChange('color', color)}
           />
           <p>Selected Color: {formState.color}</p>
         </div>

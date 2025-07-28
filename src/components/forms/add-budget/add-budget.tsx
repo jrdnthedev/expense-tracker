@@ -1,98 +1,110 @@
-import { useState } from 'react';
 import Select from '../../ui/select/select';
 import DatePicker from '../../ui/date-picker/date-picker';
-import Button from '../../ui/button/button';
-import { useAppState } from '../../../context/app-state-context';
+import type { Category } from '../../../types/category';
+import Input from '../../ui/input/input';
 
-export default function AddBudget() {
-  const {categories} = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState('food');
-  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
-  const startDate = 'start-date';
-  const endDate = 'end-date';
+export default function AddBudget({
+  categories,
+  formState,
+  onFieldChange,
+  periodOptions,
+}: BudgetFormProps) {
+  
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold ">Add Budget</h1>
-        <div>
-          <label htmlFor="limit">Limit</label>
-          <input
-            type="number"
-            id="limit"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="$0.00"
+    <div className="flex flex-col gap-4">
+      <h1 className="text-2xl font-bold ">Add Budget</h1>
+      <div>
+        <label htmlFor="limit">Limit</label>
+        <Input  
+          type="number"
+          id="limit"
+          value={formState.limit}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onFieldChange('limit', e.target.value)
+          }
+          placeholder="Enter budget limit"
+        />
+      </div>
+
+      <div className="flex gap-4">
+        <div className="w-full flex-1 flex flex-col">
+          <label htmlFor="category">Category</label>
+          <Select
+            id="category"
+            name="Select Category"
+            options={categories}
+            onChange={(_value: string, dataId: number) => {
+              const category = categories.find((cat: Category) => cat.id === dataId);
+              if (category) {
+                onFieldChange('category', category.name);
+              }
+            }}
+            value={formState.category}
+            getOptionValue={(option) => option.name}
+            getOptionLabel={(option) => option.name}
+            getOptionId={(option) => option.id}
           />
         </div>
-
-        <div className="flex gap-4">
-          <div className="w-full flex-1 flex flex-col">
-            <label htmlFor="category">Category</label>
-            <Select
-              id="category"
-              value={selectedCategory}
-              name="Select Category"
-              options={categories}
-              onChange={(selectedOption) => setSelectedCategory(selectedOption)}
-              getOptionValue={(option) => option.name}
-              getOptionLabel={(option) => option.name}
-              getOptionId={(option) => option.id}
-            />
-          </div>
-          <div className="w-full flex-1 flex flex-col">
-            <label htmlFor="period">Period</label>
-            <Select
-              id="period"
-              value={selectedPeriod}
-              name="Select Period"
-              options={[
-                { value: 'weekly', label: 'Weekly', id: 1 },
-                { value: 'monthly', label: 'Monthly', id: 2 },
-                { value: 'yearly', label: 'Yearly', id: 3 },
-              ]}
-              onChange={(selectedOption) => setSelectedPeriod(selectedOption)}
-              getOptionValue={(option) => option.value}
-              getOptionLabel={(option) => option.label}
-              getOptionId={(option) => option.id}
-            />
-          </div>
-        </div>
-        <div className="flex max-sm:flex-col gap-4 mb-4">
-          <div className="w-full flex-1">
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor={startDate}
-            >
-              Start Date
-            </label>
-            <DatePicker
-              id={startDate}
-              defaultValue="2024-12-17"
-              onChange={(date) => console.log('Start Date:', date)}
-            />
-          </div>
-          <div className="w-full flex-1">
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor={endDate}
-            >
-              End Date
-            </label>
-            <DatePicker
-              id={endDate}
-              defaultValue="2025-01-17"
-              onChange={(date) => console.log('End Date:', date)}
-            />
-          </div>
-        </div>
-        <div className="flex gap-4 justify-end">
-          <Button onClick={() => console.log('Budget Added')} variant='primary'>
-            Add Budget
-          </Button>
-          <Button onClick={() => console.log('Budget Cancelled')} variant='secondary'>
-            Cancel
-          </Button>
+        <div className="w-full flex-1 flex flex-col">
+          <label htmlFor="period">Period</label>
+          <Select
+            id="period"
+            value={formState.period}
+            name="Select Period"
+            options={periodOptions}
+            onChange={(_value: string, dataId: number) =>{
+              const option = periodOptions.find(opt => opt.id === dataId);
+              if (option) {
+                onFieldChange('period', option.value);
+              }
+            }}
+            getOptionValue={(option) => option.value}
+            getOptionLabel={(option) => option.label}
+            getOptionId={(option) => option.id}
+          />
         </div>
       </div>
-    </>
+      <div className="flex max-sm:flex-col gap-4 mb-4">
+        <div className="w-full flex-1">
+          <label
+            className="block text-sm font-medium text-gray-700 mb-1"
+            htmlFor="startDate"
+          >
+            Start Date
+          </label>
+          <DatePicker
+            id="startDate"
+            defaultValue={formState.startDate}
+            onChange={(date: string) => onFieldChange('startDate', date)}
+          />
+        </div>
+        <div className="w-full flex-1">
+          <label
+            className="block text-sm font-medium text-gray-700 mb-1"
+            htmlFor="endDate"
+          >
+            End Date
+          </label>
+          <DatePicker
+            id="endDate"
+            defaultValue={formState.endDate}
+            onChange={(date: string) => onFieldChange('endDate', date)}
+          />
+        </div>
+      </div>
+    </div>
   );
+}
+
+interface BudgetFormProps {
+  categories: Category[];
+  formState: {
+    limit: number;
+    category: string;
+    period: string;
+    startDate: string;
+    endDate: string;
+  };
+  periodOptions: { value: string; label: string; id: number }[];
+  onFieldChange: (field: string, value: string | number) => void;
 }
