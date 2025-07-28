@@ -83,15 +83,9 @@ export default function ExpenseList() {
   };
 
   return (
-    <div className="expense-list-container">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold flex-1">📝 Expense List</h1>
-      </div>
-      <p className="text-gray-600 mb-6">
-        Keep track of your expenses and stay within budget.
-      </p>
+    <>
       <div className="flex items-center justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-bold flex-1">Budget Overview</h2>
+        <h1 className="text-2xl font-bold flex-1">📝 Expense List</h1>
         <input
           type="text"
           name="search"
@@ -205,6 +199,6 @@ export default function ExpenseList() {
           )}
         </Card>
       </div>
-    </div>
+    </>
   );
 }
