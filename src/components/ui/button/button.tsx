@@ -1,8 +1,12 @@
 import type React from "react";
 
-export default function Button({ children, onClick, type = 'button', primary }: ButtonProps) {
+export default function Button({ children, onClick, type = 'button', variant }: ButtonProps) {
+    const classNames = {
+        primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+        secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800',
+    }
     return (
-        <button onClick={onClick} className={`flex-1 font-semibold py-2 px-4 rounded-md shadow transition-colors cursor-pointer${primary? ' bg-blue-600 hover:bg-blue-700 text-white':' bg-gray-200 hover:bg-gray-300 text-gray-800'}`} type={type}>
+        <button onClick={onClick} className={`flex-1 font-semibold py-2 px-4 rounded-md shadow transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 ${classNames[variant]}`} type={type}>
             {children}
         </button>
     );
@@ -11,6 +15,6 @@ export default function Button({ children, onClick, type = 'button', primary }: 
 interface ButtonProps {
     children: React.ReactNode;
     type?: 'button' | 'submit' | 'reset';
-    primary?: boolean;
+    variant: 'primary' | 'secondary';
     onClick: () => void;
 }

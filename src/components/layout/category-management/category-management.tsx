@@ -28,7 +28,7 @@ export default function CategoryManagement() {
           Expense Categories
         </h3>
         <span className="w-auto">
-          <Button onClick={() => setIsModalOpen(true)} primary>
+          <Button onClick={() => setIsModalOpen(true)} variant='primary'>
             Add New Category
           </Button>
           {isModalOpen && (
@@ -36,7 +36,7 @@ export default function CategoryManagement() {
               <h2 className="text-lg font-semibold text-gray-900 mb-2">
                 Add New Category
               </h2>
-              <AddCategoryForm />
+              <AddCategoryForm onClick={() => setIsModalOpen(false)} />
             </Modal>
           )}
         </span>
@@ -58,6 +58,7 @@ export default function CategoryManagement() {
             name={selectedCategory?.name}
             icon={selectedCategory?.icon}
             color={selectedCategory?.color}
+            id={selectedCategory?.id}
           />
         ) : (
           <p>Select a category to edit</p>

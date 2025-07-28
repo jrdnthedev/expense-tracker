@@ -3,6 +3,7 @@ export interface Expense {
   amount: number,
   description: string,
   category: string,
+  categoryId: number,
   date: string,
   tags: string[],
   createdAt: string,

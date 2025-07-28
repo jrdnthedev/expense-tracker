@@ -85,10 +85,10 @@ export default function AddBudget() {
           </div>
         </div>
         <div className="flex gap-4 justify-end">
-          <Button onClick={() => console.log('Budget Added')} primary>
+          <Button onClick={() => console.log('Budget Added')} variant='primary'>
             Add Budget
           </Button>
-          <Button onClick={() => console.log('Budget Cancelled')}>
+          <Button onClick={() => console.log('Budget Cancelled')} variant='secondary'>
             Cancel
           </Button>
         </div>

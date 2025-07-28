@@ -18,10 +18,12 @@ type Action =
   // Add other actions here
 //   | { type: "RESET_STATE" }
 //   | { type: "UPDATE_SETTING"; payload: { key: string; value: any } }
-//   | { type: "ADD_EXPENSE"; payload: { amount: number; description: string; category: string } }
-//   | { type: "REMOVE_EXPENSE"; payload: { id: string } }
+  | { type: "ADD_EXPENSE"; payload: Expense }
+  | { type: "REMOVE_EXPENSE"; payload: { id: number } }
+  | { type: "UPDATE_EXPENSE"; payload: Expense }
 //   | { type: "UPDATE_BUDGET"; payload: { amount: number } }
   | { type: "ADD_CATEGORY"; payload: Category }
+  | { type: "UPDATE_CATEGORY"; payload: Category }
   | { type: "REMOVE_CATEGORY"; payload: { id: number } }
   | { type: "SET_DEFAULT_CATEGORY"; payload: { categoryId: number } };
 
@@ -63,18 +65,18 @@ const initialState: State = {
     },
   ],
   categories: [
-    { name: 'Food', icon: '🍕', color: 'bg-red-100', id: 1 },
+    { name: 'Food', icon: '🍕', color: '#f0c0c0', id: 1 },
     {
       name: 'Transport',
       icon: '🚗',
-      color: 'bg-blue-100',
+      color: '#f0f0f0',
       id: 2,
     },
-    { name: 'Fun', icon: '🎬', color: 'bg-green-100', id: 3 },
+    { name: 'Fun', icon: '🎬', color: '#c0f0c0', id: 3 },
     {
       name: 'Shopping',
       icon: '🛍️',
-      color: 'bg-yellow-100',
+      color: '#f0f0c0',
       id: 4,
     },
   ],
@@ -84,6 +86,7 @@ const initialState: State = {
       description: 'Lunch at Cafe',
       amount: 15,
       category: 'food',
+      categoryId: 1,
       date: '2023-10-01',
       tags: ['lunch', 'food'],
       createdAt: '2023-10-01T12:00:00Z',
@@ -94,6 +97,7 @@ const initialState: State = {
       description: 'Bus Ticket',
       amount: 2.5,
       category: 'transport',
+      categoryId: 2,
       date: '2023-10-02',
       tags: ['transport'],
       createdAt: '2023-10-01T12:00:00Z',
@@ -104,6 +108,7 @@ const initialState: State = {
       description: 'Movie Night',
       amount: 12,
       category: 'fun',
+      categoryId: 3,
       date: '2023-10-03',
       tags: ['movie', 'entertainment'],
       createdAt: '2023-10-01T12:00:00Z',
@@ -125,6 +130,35 @@ function appReducer(state: State, action: Action): State {
         ...state,
         categories: state.categories.filter(
           (category) => category.id !== action.payload.id
+        ),
+      };
+    case "UPDATE_CATEGORY":
+      return {
+        ...state,
+        categories: state.categories.map((category) =>
+          category.id === action.payload.id ? action.payload : category
+        ),
+      };
+    case "ADD_EXPENSE":
+      return {
+        ...state,
+        expenses: [
+          ...state.expenses,
+          action.payload
+        ]
+      };
+    case "UPDATE_EXPENSE":
+      return {
+        ...state,
+        expenses: state.expenses.map((expense) =>
+          expense.id === action.payload.id ? action.payload : expense
+        ),
+      };
+    case "REMOVE_EXPENSE":
+      return {
+        ...state,
+        expenses: state.expenses.filter(
+          (expense) => expense.id !== action.payload.id
         ),
       };
     default:

@@ -6,12 +6,23 @@ import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
+import type { Expense } from '../../../types/expense';
 
 export default function Onboarding() {
     const { categories } = useAppState();
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
-
+  const expense: Expense = {
+    id: 0,
+    category: '',
+    amount: 0,
+    description: '',
+    categoryId: 0,
+    tags: [],
+    date: new Date().toISOString().split('T')[0],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
   return (
     <div className="max-w-lg mx-auto mt-12">
       <Card>
@@ -49,7 +60,7 @@ export default function Onboarding() {
           <h2 className="text-xl font-bold mb-2">Add Your First Expense</h2>
           <p className="mb-6">Let’s record your first expense together.</p>
           <div>
-            <ExpenseForm />
+            <ExpenseForm {...expense} />
           </div>
           <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => setStep(4)}>
             Next: View Dashboard

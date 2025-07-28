@@ -3,18 +3,37 @@ import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import Button from '../../ui/button/button';
 import DatePicker from '../../ui/date-picker/date-picker';
-import { useAppState } from '../../../context/app-state-context';
+import { useAppDispatch, useAppState } from '../../../context/app-state-context';
+import Input from '../../ui/input/input';
+import type { Expense } from '../../../types/expense';
 
-export default function ExpenseForm() {
-  const { defaultCategory,categories,currency } = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState<number>(
-    defaultCategory
-  );
-  const [date, setDate] = useState<string>('2024-12-17');
-  const [time, setTime] = useState<string>('14:30');
-  const [amount, setAmount] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-
+export default function ExpenseForm({...expense}: Expense) {
+  const {categories, currency } = useAppState();
+  const [selectedCategory, setSelectedCategory] = useState<number>(expense.categoryId);
+  const [expenseDate, setExpenseDate] = useState<string>(expense.date);
+  const [expenseTime, setExpenseTime] = useState<string>(expense.createdAt.substring(11, 16));
+  const [expenseAmount, setExpenseAmount] = useState<number>(expense.amount);
+  const [expenseDescription, setExpenseDescription] = useState<string>(expense.description);
+  const dispatch = useAppDispatch();
+  const handleSaveExpense = () => {
+    console.log('Expense saved', {
+      amount: expenseAmount,
+      description: expenseDescription,
+      categoryId: selectedCategory,
+      date: expenseDate,
+      time: expenseTime,
+    });
+    // Dispatch action to save the expense
+    dispatch({type:'UPDATE_EXPENSE', payload: {
+      ...expense,
+      amount: expenseAmount,
+      description: expenseDescription,
+      categoryId: selectedCategory,
+      date: expenseDate,
+      createdAt: expenseTime,
+      updatedAt: new Date().toISOString(),
+    }});
+  };
   return (
     <>
       <div className="text-lg font-semibold text-gray-900 mb-2">
@@ -36,13 +55,12 @@ export default function ExpenseForm() {
           >
             Amount
           </label>
-          <input
-            type="number"
-            id="amount"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <Input
+            value={expenseAmount}
+            onChange={(e) => setExpenseAmount(Number(e.target.value))}
             placeholder={`${currency.symbol}0.00`}
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            id="amount"
+            type="number"
           />
         </div>
 
@@ -53,13 +71,12 @@ export default function ExpenseForm() {
           >
             Description
           </label>
-          <input
-            type="text"
-            id="description"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <Input
+            value={expenseDescription}
+            onChange={(e) => setExpenseDescription(e.target.value)}
             placeholder="What did you spend on?"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            id="description"
+            type="text"
           />
         </div>
 
@@ -96,8 +113,8 @@ export default function ExpenseForm() {
             </label>
             <DatePicker
               id="date"
-              defaultValue={date}
-              onChange={(date: string) => setDate(date)}
+              defaultValue={expenseDate}
+              onChange={(date: string) => setExpenseDate(date)}
             />
           </div>
           <div className="w-full flex-1">
@@ -107,13 +124,11 @@ export default function ExpenseForm() {
             >
               Time
             </label>
-            <input
+            <Input
               type="time"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               id="time"
-              defaultValue="14:30"
-              onChange={(e) => setTime(e.target.value)}
-              value={time}
+              value={expenseTime}
+              onChange={(e) => setExpenseTime(e.target.value)}
             />
           </div>
         </div>
@@ -121,8 +136,8 @@ export default function ExpenseForm() {
         <div className="flex max-sm:flex-col gap-4 mt-6">
           <Button
             type="submit"
-            onClick={() => console.log('Expense saved' + JSON.stringify({ amount, description, selectedCategory, date, time }))}
-            primary
+            onClick={handleSaveExpense}
+            variant='primary'
           >
             Save Expense
           </Button>
@@ -130,6 +145,7 @@ export default function ExpenseForm() {
             onClick={() => {
               console.log('Expense entry cancelled');
             }}
+            variant='secondary'
           >
             Cancel
           </Button>
