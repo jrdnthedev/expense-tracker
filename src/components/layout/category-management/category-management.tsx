@@ -3,7 +3,10 @@ import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
 import EditCategoryForm from '../../forms/edit-category-form/edit-category-form';
 import type { Category } from '../../../types/category';
-import { useAppDispatch, useAppState } from '../../../context/app-state-context';
+import {
+  useAppDispatch,
+  useAppState,
+} from '../../../context/app-state-context';
 import Modal from '../../ui/modal/modal';
 import AddCategoryForm from '../../forms/add-category-form/add-category-form';
 
@@ -13,9 +16,8 @@ export default function CategoryManagement() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
-  const [previousSelectedCategory, setPreviousSelectedCategory] = useState<Category | null>(
-    null
-  );
+  const [previousSelectedCategory, setPreviousSelectedCategory] =
+    useState<Category | null>(categories[0] ?? null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [formState, setFormState] = useState({
@@ -23,6 +25,12 @@ export default function CategoryManagement() {
     icon: '',
     color: '',
     id: 1,
+  });
+  const [addCategoryFormState, setAddCategoryFormState] = useState({
+    name: '',
+    icon: '➕',
+    color: '',
+    id: 5,
   });
   const handleSelectedCategoryChange = (category: Category) => {
     setSelectedCategory(category);
@@ -37,7 +45,10 @@ export default function CategoryManagement() {
   const handleDeleteCategory = () => {
     if (selectedCategory) {
       // Dispatch action to remove category
-      dispatch({ type: 'REMOVE_CATEGORY', payload: { id: selectedCategory.id } });
+      dispatch({
+        type: 'REMOVE_CATEGORY',
+        payload: { id: selectedCategory.id },
+      });
       setSelectedCategory(previousSelectedCategory);
     }
     setIsConfirmModalOpen(false);
@@ -45,8 +56,15 @@ export default function CategoryManagement() {
   const handleSaveChanges = () => {
     if (selectedCategory) {
       // Dispatch action to update category
-      dispatch({ type: 'UPDATE_CATEGORY', payload: { ...selectedCategory, ...formState } });
+      dispatch({
+        type: 'UPDATE_CATEGORY',
+        payload: { ...selectedCategory, ...formState },
+      });
     }
+  };
+
+  const handleAddCategory = () => {
+    dispatch({ type: 'ADD_CATEGORY', payload: addCategoryFormState });
   };
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
@@ -70,7 +88,26 @@ export default function CategoryManagement() {
               <h2 className="text-lg font-semibold text-gray-900 mb-2">
                 Add New Category
               </h2>
-              <AddCategoryForm onClick={() => setIsModalOpen(false)} />
+              <div className="flex flex-col gap-4">
+                <AddCategoryForm
+                  onFieldChange={(field, value) =>
+                    setAddCategoryFormState((prev) => ({
+                      ...prev,
+                      [field]: value,
+                    }))
+                  }
+                  formState={addCategoryFormState}
+                />
+                <Button
+                  onClick={() => {
+                    handleAddCategory();
+                    setIsModalOpen(false);
+                  }}
+                  variant="primary"
+                >
+                  Add Category
+                </Button>
+              </div>
             </Modal>
           )}
         </span>
@@ -111,8 +148,6 @@ export default function CategoryManagement() {
           <p>Select a category to edit</p>
         )}
       </div>
-      {/* modal here */}
-
       {isConfirmModalOpen && (
         <Modal
           isOpen={isConfirmModalOpen}
