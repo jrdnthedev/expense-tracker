@@ -7,13 +7,13 @@ import { useAppDispatch, useAppState } from '../../../context/app-state-context'
 import Input from '../../ui/input/input';
 import type { Expense } from '../../../types/expense';
 
-export default function ExpenseForm({expense}: ExpenseFormProps) {
-  const { categories, currency } = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState<number>(expense?.categoryId ?? categories[0]?.id ?? 0);
-  const [expenseDate, setExpenseDate] = useState<string>(expense?.date ?? '');
-  const [expenseTime, setExpenseTime] = useState<string>(expense?.createdAt?.substring(11, 16) ?? '');
-  const [expenseAmount, setExpenseAmount] = useState<number>(expense?.amount ?? 0);
-  const [expenseDescription, setExpenseDescription] = useState<string>(expense?.description ?? '');
+export default function ExpenseForm({...expense}: Expense) {
+  const {categories, currency } = useAppState();
+  const [selectedCategory, setSelectedCategory] = useState<number>(expense.categoryId);
+  const [expenseDate, setExpenseDate] = useState<string>(expense.date);
+  const [expenseTime, setExpenseTime] = useState<string>(expense.createdAt.substring(11, 16));
+  const [expenseAmount, setExpenseAmount] = useState<number>(expense.amount);
+  const [expenseDescription, setExpenseDescription] = useState<string>(expense.description);
   const dispatch = useAppDispatch();
   const handleSaveExpense = () => {
     console.log('Expense saved', {
@@ -24,15 +24,15 @@ export default function ExpenseForm({expense}: ExpenseFormProps) {
       time: expenseTime,
     });
     // Dispatch action to save the expense
-    // dispatch({type:'UPDATE_EXPENSE', payload: {
-    //   ...expense,
-    //   amount: expenseAmount,
-    //   description: expenseDescription,
-    //   categoryId: selectedCategory,
-    //   date: expenseDate,
-    //   createdAt: expenseTime,
-    //   updatedAt: new Date().toISOString(),
-    // }});
+    dispatch({type:'UPDATE_EXPENSE', payload: {
+      ...expense,
+      amount: expenseAmount,
+      description: expenseDescription,
+      categoryId: selectedCategory,
+      date: expenseDate,
+      createdAt: expenseTime,
+      updatedAt: new Date().toISOString(),
+    }});
   };
   return (
     <>
@@ -153,8 +153,4 @@ export default function ExpenseForm({expense}: ExpenseFormProps) {
       </div>
     </>
   );
-}
-
-interface ExpenseFormProps {
-  expense?: Expense;
 }
