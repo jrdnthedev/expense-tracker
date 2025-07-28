@@ -54,7 +54,7 @@ export default function AddCategoryForm({onClick}: {onClick: () => void}) {
         </div>
         <Button
           type="submit"
-          primary
+          variant='primary'
           onClick={() => void 0}
         >
           Add Category

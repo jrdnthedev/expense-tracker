@@ -22,7 +22,7 @@ export default function BudgetManager() {
         <div className="flex items-center justify-between mb-6 gap-4">
           <h2 className="text-2xl font-bold flex-1">Budget Overview</h2>
           <span className="w-auto">
-            <Button onClick={() => setIsModalOpen(true)} primary>
+            <Button onClick={() => setIsModalOpen(true)} variant='primary'>
               Add Budget
             </Button>
             {isModalOpen && (

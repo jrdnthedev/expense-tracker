@@ -75,19 +75,21 @@ export default function EditCategoryForm({
         </div>
       </div>
       <div className="flex justify-end gap-2 mt-4">
-        <Button onClick={handleSaveChanges} primary>
+        <Button onClick={handleSaveChanges} variant='primary'>
           Save Changes
         </Button>
-        <Button onClick={() => setIsModalOpen(true)}>Delete Category</Button>
+        <Button onClick={() => setIsModalOpen(true)} variant='secondary'>Delete Category</Button>
         {isModalOpen && (
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <h3 className="text-lg font-semibold">Confirm Deletion</h3>
               <p>Are you sure you want to delete this category?</p>
               <div className="flex justify-end mt-4 gap-4">
-                <Button onClick={handleDeleteCategory} primary>
+                <Button onClick={handleDeleteCategory} variant='primary'>
                   Delete
                 </Button>
-                <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                <Button onClick={() => setIsModalOpen(false)} variant='secondary'>
+                  Cancel
+                </Button>
               </div>
           </Modal>
         )}

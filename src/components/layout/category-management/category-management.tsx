@@ -28,7 +28,7 @@ export default function CategoryManagement() {
           Expense Categories
         </h3>
         <span className="w-auto">
-          <Button onClick={() => setIsModalOpen(true)} primary>
+          <Button onClick={() => setIsModalOpen(true)} variant='primary'>
             Add New Category
           </Button>
           {isModalOpen && (

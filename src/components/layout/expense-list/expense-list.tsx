@@ -97,11 +97,11 @@ export default function ExpenseList() {
                     <span className="text-xl text-green-700 font-semibold">
                       {expense.amount}
                     </span>
-                    <Button primary onClick={() => setExpenseToEdit(expense)}>
+                    <Button onClick={() => setExpenseToEdit(expense)} variant='primary'>
                       Edit
                     </Button>
 
-                    <Button onClick={() => setExpenseToDelete(expense.id)}>
+                    <Button onClick={() => setExpenseToDelete(expense.id)} variant='secondary'>
                       Delete
                     </Button>
                   </div>
@@ -115,11 +115,13 @@ export default function ExpenseList() {
               <div className="flex justify-end mt-4 gap-4">
                 <Button
                   onClick={() => handleDeleteExpense(expenseToDelete)}
-                  primary
+                  variant='primary'
                 >
                   Delete
                 </Button>
-                <Button onClick={() => setExpenseToDelete(null)}>Cancel</Button>
+                <Button onClick={() => setExpenseToDelete(null)} variant='secondary'>
+                  Cancel
+                </Button>
               </div>
             </Modal>
           )}
@@ -134,11 +136,13 @@ export default function ExpenseList() {
               <div className="flex justify-end mt-4 gap-4">
                 <Button
                   onClick={() => handleEditExpense(expenseToEdit)}
-                  primary
+                  variant='primary'
                 >
                   Save
                 </Button>
-                <Button onClick={() => setExpenseToEdit(null)}>Cancel</Button>
+                <Button onClick={() => setExpenseToEdit(null)} variant='secondary'>
+                  Cancel
+                </Button>
               </div>
             </Modal>
           )}
