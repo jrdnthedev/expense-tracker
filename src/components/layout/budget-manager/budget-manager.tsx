@@ -28,6 +28,10 @@ export default function BudgetManager() {
     { value: 'monthly', label: 'Monthly', id: 2 },
     { value: 'yearly', label: 'Yearly', id: 3 },
   ];
+  const isEndDateValid =
+    !formState.startDate ||
+    !formState.endDate ||
+    new Date(formState.endDate) > new Date(formState.startDate);
   const handleSaveBudget = () => {
     const newBudget = {
       ...formState,
@@ -62,6 +66,11 @@ export default function BudgetManager() {
                     }
                     periodOptions={periodOptions}
                   />
+                  {!isEndDateValid && (
+                    <div className="text-red-500 text-sm">
+                      End date must be after start date.
+                    </div>
+                  )}
                   <Button onClick={handleSaveBudget} variant="primary">
                     Save
                   </Button>

@@ -64,7 +64,7 @@ export default function AddBudget({
           />
         </div>
       </div>
-      <div className="flex max-sm:flex-col gap-4 mb-4">
+      <div className="flex max-sm:flex-col gap-4">
         <div className="w-full flex-1">
           <label
             className="block text-sm font-medium text-gray-700 mb-1"
@@ -89,6 +89,7 @@ export default function AddBudget({
             id="endDate"
             defaultValue={formState.endDate}
             onChange={(date: string) => onFieldChange('endDate', date)}
+            min={formState.startDate || undefined}
           />
         </div>
       </div>
