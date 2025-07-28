@@ -4,7 +4,11 @@ import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
 import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
-import { useAppDispatch, useAppState } from '../../../context/app-state-context';
+import {
+  useAppDispatch,
+  useAppState,
+} from '../../../context/app-state-context';
+import { useNextId } from '../../../hooks/nextId/next-id';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,6 +21,7 @@ export default function BudgetManager() {
     startDate: '',
     endDate: '',
   });
+  const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
   const periodOptions = [
     { value: 'weekly', label: 'Weekly', id: 1 },
@@ -24,9 +29,11 @@ export default function BudgetManager() {
     { value: 'yearly', label: 'Yearly', id: 3 },
   ];
   const handleSaveBudget = () => {
-    // Handle budget submission logic here
-    console.log('Budget saved:', formState);
-    dispatch({ type: 'ADD_BUDGET', payload: formState });
+    const newBudget = {
+      ...formState,
+      id: nextBudgetId,
+    };
+    dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setIsModalOpen(false);
   };
   return (
