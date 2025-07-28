@@ -8,13 +8,13 @@ import ExpenseForm from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
 
 export default function Onboarding() {
-  const { categories, currency } = useAppState();
+  const { categories, currency, defaultCategory } = useAppState();
   const [step, setStep] = useState(1);
   const [formState, setFormState] = useState({
     amount: '',
     description: '',
     category: '',
-    categoryId: categories[0]?.id ?? 1,
+    categoryId: defaultCategory,
     date: '',
     time: '00:00',
   });

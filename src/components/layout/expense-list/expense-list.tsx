@@ -108,7 +108,7 @@ export default function ExpenseList() {
             id="sort"
             options={categoriesWithAll}
             onChange={(_value: string, dataId: number) => {
-              const category = categoriesWithAll.find(cat => cat.id === dataId);
+              const category = categoriesWithAll.find((cat: Category) => cat.id === dataId);
               if (category) setSelectedCategory(category);
             }}
             value={selectedCategory.name}
