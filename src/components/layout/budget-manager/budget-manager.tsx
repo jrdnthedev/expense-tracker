@@ -4,12 +4,31 @@ import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
 import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
-import { useAppState } from '../../../context/app-state-context';
+import { useAppDispatch, useAppState } from '../../../context/app-state-context';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { budgets } = useAppState();
-
+  const { budgets, categories } = useAppState();
+  const [formState, setFormState] = useState<Budget>({
+    id: 0,
+    limit: 0,
+    category: '',
+    period: 'weekly',
+    startDate: '',
+    endDate: '',
+  });
+  const dispatch = useAppDispatch();
+  const periodOptions = [
+    { value: 'weekly', label: 'Weekly', id: 1 },
+    { value: 'monthly', label: 'Monthly', id: 2 },
+    { value: 'yearly', label: 'Yearly', id: 3 },
+  ];
+  const handleSaveBudget = () => {
+    // Handle budget submission logic here
+    console.log('Budget saved:', formState);
+    dispatch({ type: 'ADD_BUDGET', payload: formState });
+    setIsModalOpen(false);
+  };
   return (
     <div className="budget-manager-container">
       <div className="mb-6">
@@ -22,19 +41,31 @@ export default function BudgetManager() {
         <div className="flex items-center justify-between mb-6 gap-4">
           <h2 className="text-2xl font-bold flex-1">Budget Overview</h2>
           <span className="w-auto">
-            <Button onClick={() => setIsModalOpen(true)} variant='primary'>
+            <Button onClick={() => setIsModalOpen(true)} variant="primary">
               Add Budget
             </Button>
             {isModalOpen && (
               <Modal onClose={() => setIsModalOpen(false)} isOpen={isModalOpen}>
-                <AddBudget />
+                <div className="flex flex-col gap-4">
+                  <AddBudget
+                    categories={categories}
+                    formState={formState}
+                    onFieldChange={(field, value) =>
+                      setFormState((prev) => ({ ...prev, [field]: value }))
+                    }
+                    periodOptions={periodOptions}
+                  />
+                  <Button onClick={handleSaveBudget} variant="primary">
+                    Save
+                  </Button>
+                </div>
               </Modal>
             )}
           </span>
         </div>
         <ul>
           {budgets.map((budget: Budget) => (
-            <li key={budget.category} className="mb-4">
+            <li key={budget.id} className="mb-4">
               <Card>
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
@@ -49,15 +80,21 @@ export default function BudgetManager() {
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                    <div className="bg-blue-600 h-2.5 rounded-full" style={{
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full"
+                      style={{
                         width: `${(budget.limit / budget.limit) * 100}%`,
-                      }}></div>
+                      }}
+                    ></div>
                   </div>
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-600">
                       Remaining: {budget.limit - budget.limit}
                     </p>
-                    <p className="text-sm text-gray-600">{budget.startDate.toDateString()} - {budget.endDate.toDateString()}</p>
+                    <p className="text-sm text-gray-600">
+                      {new Date(budget.startDate).toDateString()} -{' '}
+                      {new Date(budget.endDate).toDateString()}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -68,4 +105,3 @@ export default function BudgetManager() {
     </div>
   );
 }
-

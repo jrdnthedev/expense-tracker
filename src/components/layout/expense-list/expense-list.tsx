@@ -2,7 +2,10 @@ import { useState } from 'react';
 import Select from '../../ui/select/select';
 import Card from '../../ui/card/card';
 import { useDebounce } from '../../../hooks/debounce/use-debounce';
-import { useAppDispatch, useAppState } from '../../../context/app-state-context';
+import {
+  useAppDispatch,
+  useAppState,
+} from '../../../context/app-state-context';
 import type { Category } from '../../../types/category';
 import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
@@ -10,12 +13,20 @@ import Modal from '../../ui/modal/modal';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 
 export default function ExpenseList() {
-  const { categories, expenses } = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const { categories, expenses, currency } = useAppState();
+  const [selectedCategory, setSelectedCategory] = useState<Category>({ id: 0, name: 'All', color: '', icon: '📦' });
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<number | null>(null);
+  const [formState, setFormState] = useState({
+    amount: expenseToEdit?.amount?.toString() ?? '',
+    description: expenseToEdit?.description ?? '',
+    category: expenseToEdit?.category ?? '',
+    categoryId: expenseToEdit?.categoryId ?? categories[0]?.id ?? 1,
+    date: expenseToEdit?.date ?? '',
+    time: expenseToEdit?.createdAt?.substring(11, 16) ?? '00:00',
+  });
   const dispatch = useAppDispatch();
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -28,22 +39,53 @@ export default function ExpenseList() {
     dispatch({ type: 'REMOVE_EXPENSE', payload: { id } });
     setExpenseToDelete(null);
   };
-  const handleEditExpense = (expense: Expense) => {
-    // Dispatch action to edit expense
-    dispatch({ type: 'UPDATE_EXPENSE', payload: expense });
-    console.log(`Editing expense: ${JSON.stringify(expense)}`);
+  const handleSave = () => {
+    if (!expenseToEdit || typeof expenseToEdit.id !== 'number') {
+      return;
+    }
+    const newCategory =
+      categories.find((cat) => cat.id === formState.categoryId)?.name ?? '';
+    const updatedExpense: Expense = {
+      ...expenseToEdit,
+      id: expenseToEdit.id,
+      amount: Number(formState.amount),
+      description: formState.description,
+      category: newCategory.toLowerCase(),
+      categoryId: formState.categoryId,
+      date: formState.date,
+      createdAt: new Date(`${formState.date}T${formState.time}`).toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
     setExpenseToEdit(null);
   };
+  const handleReset = () => {
+    setFormState({
+      amount: '',
+      description: '',
+      category: '',
+      categoryId: categories[0]?.id ?? 1,
+      date: '',
+      time: '00:00',
+    });
+    setExpenseToEdit(null);
+  };
+  const handleFormEdit = (expense: Expense) => {
+    setExpenseToEdit(expense);
+    setFormState({
+      amount: expense.amount.toString(),
+      description: expense.description,
+      category: expense.category,
+      categoryId: expense.categoryId,
+      date: expense.date,
+      time: expense.createdAt?.substring(11, 16) ?? '00:00',
+    });
+  };
+
   return (
-    <div className="expense-list-container">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold flex-1">📝 Expense List</h1>
-      </div>
-      <p className="text-gray-600 mb-6">
-        Keep track of your expenses and stay within budget.
-      </p>
+    <>
       <div className="flex items-center justify-between mb-6 gap-4">
-        <h2 className="text-2xl font-bold flex-1">Budget Overview</h2>
+        <h1 className="text-2xl font-bold flex-1">📝 Expense List</h1>
         <input
           type="text"
           name="search"
@@ -59,8 +101,11 @@ export default function ExpenseList() {
             name="sort"
             id="sort"
             options={categoriesWithAll}
-            onChange={setSelectedCategory}
-            value={selectedCategory}
+            onChange={(_value: string, dataId: number) => {
+              const category = categoriesWithAll.find((cat: Category) => cat.id === dataId);
+              if (category) setSelectedCategory(category);
+            }}
+            value={selectedCategory.name}
             getOptionValue={(cat: Category) => cat.name}
             getOptionLabel={(cat: Category) => cat.name}
             getOptionId={(cat: Category) => cat.id}
@@ -73,8 +118,8 @@ export default function ExpenseList() {
             {expenses
               .filter(
                 (expense: Expense) =>
-                  (selectedCategory.toLowerCase() === 'all' ||
-                    expense.category === selectedCategory.toLowerCase()) &&
+                  (selectedCategory.id === 0 ||
+                    expense.categoryId === selectedCategory.id) &&
                   (debouncedSearchTerm === '' ||
                     expense.description
                       .toLowerCase()
@@ -97,11 +142,17 @@ export default function ExpenseList() {
                     <span className="text-xl text-green-700 font-semibold">
                       {expense.amount}
                     </span>
-                    <Button onClick={() => setExpenseToEdit(expense)} variant='primary'>
+                    <Button
+                      onClick={() => handleFormEdit(expense)}
+                      variant="primary"
+                    >
                       Edit
                     </Button>
 
-                    <Button onClick={() => setExpenseToDelete(expense.id)} variant='secondary'>
+                    <Button
+                      onClick={() => setExpenseToDelete(expense.id)}
+                      variant="secondary"
+                    >
                       Delete
                     </Button>
                   </div>
@@ -115,32 +166,32 @@ export default function ExpenseList() {
               <div className="flex justify-end mt-4 gap-4">
                 <Button
                   onClick={() => handleDeleteExpense(expenseToDelete)}
-                  variant='primary'
+                  variant="primary"
                 >
                   Delete
                 </Button>
-                <Button onClick={() => setExpenseToDelete(null)} variant='secondary'>
+                <Button
+                  onClick={() => setExpenseToDelete(null)}
+                  variant="secondary"
+                >
                   Cancel
                 </Button>
               </div>
             </Modal>
           )}
           {expenseToEdit !== null && (
-            <Modal
-              isOpen={true}
-              onClose={() => setExpenseToEdit(null)}
-            >
+            <Modal isOpen={true} onClose={handleReset}>
               <ExpenseForm
-                {...expenseToEdit}
+                categories={categories}
+                formState={formState}
+                onFieldChange={(field, value) => setFormState((prev) => ({ ...prev, [field]: value }))}
+                currency={currency}
               />
               <div className="flex justify-end mt-4 gap-4">
-                <Button
-                  onClick={() => handleEditExpense(expenseToEdit)}
-                  variant='primary'
-                >
+                <Button onClick={handleSave} variant="primary">
                   Save
                 </Button>
-                <Button onClick={() => setExpenseToEdit(null)} variant='secondary'>
+                <Button onClick={handleReset} variant="secondary">
                   Cancel
                 </Button>
               </div>
@@ -148,6 +199,6 @@ export default function ExpenseList() {
           )}
         </Card>
       </div>
-    </div>
+    </>
   );
 }
