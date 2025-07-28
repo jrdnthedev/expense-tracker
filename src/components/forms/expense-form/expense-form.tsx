@@ -1,45 +1,15 @@
-import { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
-import Button from '../../ui/button/button';
 import DatePicker from '../../ui/date-picker/date-picker';
-import { useAppDispatch, useAppState } from '../../../context/app-state-context';
+import { useAppState } from '../../../context/app-state-context';
 import Input from '../../ui/input/input';
-import type { Expense } from '../../../types/expense';
 
-export default function ExpenseForm({...expense}: Expense) {
-  const {categories, currency } = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState<number>(expense.categoryId);
-  const [expenseDate, setExpenseDate] = useState<string>(expense.date);
-  const [expenseTime, setExpenseTime] = useState<string>(
-    typeof expense.createdAt === 'string' && expense.createdAt.length >= 16
-      ? expense.createdAt.substring(11, 16)
-      : '00:00'
-  );
-  const [expenseAmount, setExpenseAmount] = useState<string>(expense.amount.toString());
-  const [expenseDescription, setExpenseDescription] = useState<string>(expense.description);
-  const dispatch = useAppDispatch();
-  const handleSaveExpense = (e: React.FormEvent) => {
-    const amountNumber = Number(expenseAmount);
-    e.preventDefault();
-    console.log('Expense saved', {
-      amount: amountNumber,
-      description: expenseDescription,
-      categoryId: selectedCategory,
-      date: expenseDate,
-      time: expenseTime,
-    });
-    // Dispatch action to save the expense
-    dispatch({type:'UPDATE_EXPENSE', payload: {
-      ...expense,
-      amount: amountNumber,
-      createdAt: new Date(`${expenseDate}T${expenseTime}`).toISOString(),
-      description: expenseDescription,
-      categoryId: selectedCategory,
-      date: expenseDate,
-      updatedAt: new Date().toISOString(),
-    }});
-  };
+export default function ExpenseForm({
+  categories,
+  formState,
+  onFieldChange,
+}: ExpenseFormProps) {
+  const { currency } = useAppState();
   return (
     <>
       <div className="text-lg font-semibold text-gray-900 mb-2">
@@ -49,10 +19,7 @@ export default function ExpenseForm({...expense}: Expense) {
         Quick expense entry form with smart defaults and category selection.
         Optimized for fast data entry with minimal friction.
       </div>
-      <form
-        className="mb-8"
-        onSubmit={handleSaveExpense}
-      >
+      <div className="mb-8">
         <h3 className="text-xl font-bold text-gray-800 mb-6">
           Add New Expense
         </h3>
@@ -65,8 +32,8 @@ export default function ExpenseForm({...expense}: Expense) {
             Amount
           </label>
           <Input
-            value={expenseAmount}
-            onChange={(e) => setExpenseAmount(e.target.value)}
+            value={formState.amount}
+            onChange={(e) => onFieldChange('amount', e.target.value)}
             placeholder={`${currency.symbol}0.00`}
             id="amount"
             type="number"
@@ -81,8 +48,8 @@ export default function ExpenseForm({...expense}: Expense) {
             Description
           </label>
           <Input
-            value={expenseDescription}
-            onChange={(e) => setExpenseDescription(e.target.value)}
+            value={formState.description}
+            onChange={(e) => onFieldChange('description', e.target.value)}
             placeholder="What did you spend on?"
             id="description"
             type="text"
@@ -105,8 +72,11 @@ export default function ExpenseForm({...expense}: Expense) {
                 key={category.id}
                 label={category.name}
                 icon={category.icon}
-                selected={selectedCategory === category.id}
-                onClick={() => setSelectedCategory(category.id)}
+                selected={formState.categoryId === category.id}
+                onClick={() => {
+                  onFieldChange('categoryId', category.id);
+                  onFieldChange('category', category.name);
+                }}
               />
             ))}
           </div>
@@ -122,8 +92,8 @@ export default function ExpenseForm({...expense}: Expense) {
             </label>
             <DatePicker
               id="date"
-              defaultValue={expenseDate}
-              onChange={(date: string) => setExpenseDate(date)}
+              defaultValue={formState.date}
+              onChange={(date: string) => onFieldChange('date', date)}
             />
           </div>
           <div className="w-full flex-1">
@@ -136,29 +106,24 @@ export default function ExpenseForm({...expense}: Expense) {
             <Input
               type="time"
               id="time"
-              value={expenseTime}
-              onChange={(e) => setExpenseTime(e.target.value)}
+              value={formState.time}
+              onChange={(e) => onFieldChange('time', e.target.value)}
             />
           </div>
         </div>
-
-        <div className="flex max-sm:flex-col gap-4 mt-6">
-          <Button
-            onClick={() => void 0} // No action needed here
-            type='submit'
-            variant='primary'
-          >
-            Save
-          </Button>
-          <Button
-            type="button"
-            onClick={() => console.log('Expense entry cancelled')}
-            variant='secondary'
-          >
-            Cancel
-          </Button>
-        </div>
-      </form>
+      </div>
     </>
   );
+}
+
+interface ExpenseFormProps {
+  categories: Category[];
+  formState: {
+    amount: string;
+    description: string;
+    categoryId: number;
+    date: string;
+    time: string;
+  };
+  onFieldChange: (field: string, value: string | number) => void;
 }
