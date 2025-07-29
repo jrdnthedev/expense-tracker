@@ -28,7 +28,7 @@ export default function ExpenseList() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-  const categoriesWithAll: Category[] = [
+  const categoriesWithAll: any[] = [
     { id: 0, name: 'All', color: '', icon: '📦' },
     ...categories,
   ];
