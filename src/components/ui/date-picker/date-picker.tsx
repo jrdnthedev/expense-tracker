@@ -2,6 +2,7 @@ export default function DatePicker({
   defaultValue,
   id,
   onChange,
+  min,
 }: DatePickerProps) {
   return (
     <input
@@ -10,6 +11,7 @@ export default function DatePicker({
       id={id}
       defaultValue={defaultValue}
       onChange={(e) => onChange && onChange(e.target.value)}
+      min={min}
     />
   );
 }
@@ -18,4 +20,5 @@ interface DatePickerProps {
   defaultValue?: string;
   id?: string;
   onChange?: (date: string) => void;
+  min?: string;
 }

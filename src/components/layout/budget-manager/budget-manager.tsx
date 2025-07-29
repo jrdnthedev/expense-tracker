@@ -4,36 +4,29 @@ import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
 import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
-import {
-  useAppDispatch,
-  useAppState,
-} from '../../../context/app-state-context';
+import { useNextId } from '../../../hooks/nextId/next-id';
+import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
+import {validateEndDate, validateForm} from '../../../utils/validators';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { budgets, categories } = useAppState();
-  const [formState, setFormState] = useState<Budget>({
-    id: 0,
-    limit: 0,
-    category: '',
-    period: 'weekly',
-    startDate: '',
-    endDate: '',
-  });
+  const [formState, setFormState] = useState<Budget>(budgetDefaultFormState);
+  const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
-  const periodOptions = [
-    { value: 'weekly', label: 'Weekly', id: 1 },
-    { value: 'monthly', label: 'Monthly', id: 2 },
-    { value: 'yearly', label: 'Yearly', id: 3 },
-  ];
+
   const handleSaveBudget = () => {
-    // Handle budget submission logic here
-    console.log('Budget saved:', formState);
-    dispatch({ type: 'ADD_BUDGET', payload: formState });
+    const newBudget = {
+      ...formState,
+      id: nextBudgetId,
+    };
+    dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setIsModalOpen(false);
   };
+
   return (
-    <div className="budget-manager-container">
+    <>
       <div className="mb-6">
         <h1 className="text-2xl font-bold flex-1">🎯 Budget Manager</h1>
       </div>
@@ -58,7 +51,16 @@ export default function BudgetManager() {
                     }
                     periodOptions={periodOptions}
                   />
-                  <Button onClick={handleSaveBudget} variant="primary">
+                  {!validateEndDate(formState) && (
+                    <div className="text-red-500 text-sm">
+                      End date must be after start date.
+                    </div>
+                  )}
+                  <Button
+                    onClick={handleSaveBudget}
+                    variant="primary"
+                    disabled={!validateForm(formState) || !validateEndDate(formState)}
+                  >
                     Save
                   </Button>
                 </div>
@@ -105,6 +107,7 @@ export default function BudgetManager() {
           ))}
         </ul>
       </div>
-    </div>
+    </>
   );
 }
+

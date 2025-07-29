@@ -3,12 +3,9 @@ import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
 import EditCategoryForm from '../../forms/edit-category-form/edit-category-form';
 import type { Category } from '../../../types/category';
-import {
-  useAppDispatch,
-  useAppState,
-} from '../../../context/app-state-context';
 import Modal from '../../ui/modal/modal';
 import AddCategoryForm from '../../forms/add-category-form/add-category-form';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();

@@ -1,48 +1,45 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../ui/card/card';
-import { useAppState } from '../../../context/app-state-context';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
 import AddBudget from '../../forms/add-budget/add-budget';
 import Button from '../../ui/button/button';
+import { useNextId } from '../../../hooks/nextId/next-id';
+import type { Budget } from '../../../types/budget';
+import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
+import { validateEndDate, validateForm } from '../../../utils/validators';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function Onboarding() {
-  const { categories, currency, defaultCategory } = useAppState();
+  const { categories, currency, defaultCategory, budgets } = useAppState();
   const [step, setStep] = useState(1);
   const [formState, setFormState] = useState({
     amount: '',
     description: '',
-    category: '',
+    category: categories[0]?.name ?? '',
     categoryId: defaultCategory,
     date: '',
     time: '00:00',
   });
-  const [budgetFormState, setBudgetFormState] = useState({
-    id: 0,
-    limit: 0,
-    category: '',
-    period: 'weekly',
-    startDate: '',
-    endDate: '',
-  });
+  const [budgetFormState, setBudgetFormState] = useState<Budget>(budgetDefaultFormState);
+  const nextBudgetId = useNextId<Budget>(budgets);
   const navigate = useNavigate();
-  const periodOptions = [
-    { value: 'weekly', label: 'Weekly', id: 1 },
-    { value: 'monthly', label: 'Monthly', id: 2 },
-    { value: 'yearly', label: 'Yearly', id: 3 },
-  ];
-  const handleFieldChange = (field: string, value: string | number) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
-  };
+  const dispatch = useAppDispatch();
+
   const handleSaveBudget = () => {
-    // Logic to save the budget can be added here
-    console.log('Budget saved:', budgetFormState);
-    // Navigate to the dashboard after saving
-    navigate('/dashboard');
+    if (budgetFormState) {
+      const budgetState = {
+        ...budgetFormState,
+        id: nextBudgetId,
+      };
+      dispatch({ type: 'ADD_BUDGET', payload: budgetState });
+      navigate('/dashboard');
+    }
   };
+
   return (
     <div className="max-w-lg mx-auto mt-12">
       <Card>
@@ -91,7 +88,9 @@ export default function Onboarding() {
               <ExpenseForm
                 categories={categories}
                 formState={formState}
-                onFieldChange={handleFieldChange}
+                onFieldChange={(field, value) =>
+                  setFormState((prev) => ({ ...prev, [field]: value }))
+                }
                 currency={currency}
               />
             </div>
@@ -133,8 +132,13 @@ export default function Onboarding() {
                 }
                 periodOptions={periodOptions}
               />
+              {!validateEndDate(budgetFormState) && (
+                <div className="text-red-500 text-sm">
+                  End date must be after start date.
+                </div>
+              )}
               <div>
-                <Button onClick={handleSaveBudget} variant="primary">
+                <Button onClick={handleSaveBudget} variant="primary" disabled={!validateForm(budgetFormState) || !validateEndDate(budgetFormState)}>
                   Save Budget
                 </Button>
               </div>
