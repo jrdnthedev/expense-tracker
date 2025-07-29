@@ -29,7 +29,7 @@ export default function BudgetManager() {
   };
 
   return (
-    <div className="budget-manager-container">
+    <>
       <div className="mb-6">
         <h1 className="text-2xl font-bold flex-1">🎯 Budget Manager</h1>
       </div>
@@ -110,7 +110,7 @@ export default function BudgetManager() {
           ))}
         </ul>
       </div>
-    </div>
+    </>
   );
 }
 
