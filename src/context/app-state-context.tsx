@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext } from "react";
+import React, { createContext, useReducer } from "react";
 import type { Dispatch } from "react";
 import type { Category } from "../types/category";
 import type { Expense } from "../types/expense";
@@ -171,8 +171,8 @@ function appReducer(state: State, action: Action): State {
   }
 }
 
-const AppStateContext = createContext<State>(initialState);
-const AppDispatchContext = createContext<Dispatch<Action>>(() => {});
+export const AppStateContext = createContext<State>(initialState);
+export const AppDispatchContext = createContext<Dispatch<Action>>(() => {});
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
@@ -185,5 +185,3 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useAppState = () => useContext(AppStateContext);
-export const useAppDispatch = () => useContext(AppDispatchContext);
