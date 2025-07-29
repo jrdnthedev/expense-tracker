@@ -15,7 +15,6 @@ export const budgetDefaultFormState = {
 };
 
 export const navLinks = [
-  { to: '/', label: 'Home' },
   { to: '/budgetmanager', label: 'Budget Manager' },
   { to: '/analytics', label: 'Analytics' },
   { to: '/settings', label: 'Settings' },
