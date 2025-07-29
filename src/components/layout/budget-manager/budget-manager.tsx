@@ -9,21 +9,13 @@ import {
   useAppState,
 } from '../../../context/app-state-context';
 import { useNextId } from '../../../hooks/nextId/next-id';
-import { periodOptions } from '../../../constants/data';
+import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
 import {validateEndDate, validateForm} from '../../../utils/validators';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { budgets, categories } = useAppState();
-  const [formState, setFormState] = useState<Budget>({
-    id: 0,
-    limit: 0,
-    category: categories[0]?.name ?? '',
-    period:
-      (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
-    startDate: '',
-    endDate: '',
-  });
+  const [formState, setFormState] = useState<Budget>(budgetDefaultFormState);
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
 

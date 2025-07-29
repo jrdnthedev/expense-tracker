@@ -13,7 +13,7 @@ import AddBudget from '../../forms/add-budget/add-budget';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
-import { periodOptions } from '../../../constants/data';
+import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
 import { validateEndDate, validateForm } from '../../../utils/validators';
 
 export default function Onboarding() {
@@ -22,19 +22,12 @@ export default function Onboarding() {
   const [formState, setFormState] = useState({
     amount: '',
     description: '',
-    category: '',
+    category: categories[0]?.name ?? '',
     categoryId: defaultCategory,
     date: '',
     time: '00:00',
   });
-  const [budgetFormState, setBudgetFormState] = useState<Budget>({
-    id: 0,
-    limit: 0,
-    category: '',
-    period: 'weekly',
-    startDate: '',
-    endDate: '',
-  });
+  const [budgetFormState, setBudgetFormState] = useState<Budget>(budgetDefaultFormState);
   const nextBudgetId = useNextId<Budget>(budgets);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
