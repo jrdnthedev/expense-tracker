@@ -13,6 +13,8 @@ import AddBudget from '../../forms/add-budget/add-budget';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
+import { periodOptions } from '../../../constants/data';
+import { validateEndDate, validateForm } from '../../../utils/validators';
 
 export default function Onboarding() {
   const { categories, currency, defaultCategory, budgets } = useAppState();
@@ -36,11 +38,7 @@ export default function Onboarding() {
   const nextBudgetId = useNextId<Budget>(budgets);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const periodOptions = [
-    { value: 'weekly', label: 'Weekly', id: 1 },
-    { value: 'monthly', label: 'Monthly', id: 2 },
-    { value: 'yearly', label: 'Yearly', id: 3 },
-  ];
+
   const handleSaveBudget = () => {
     if (budgetFormState) {
       const budgetState = {
@@ -51,6 +49,7 @@ export default function Onboarding() {
       navigate('/dashboard');
     }
   };
+
   return (
     <div className="max-w-lg mx-auto mt-12">
       <Card>
@@ -99,7 +98,9 @@ export default function Onboarding() {
               <ExpenseForm
                 categories={categories}
                 formState={formState}
-                onFieldChange={(field, value) => setFormState((prev) => ({ ...prev, [field]: value }))}
+                onFieldChange={(field, value) =>
+                  setFormState((prev) => ({ ...prev, [field]: value }))
+                }
                 currency={currency}
               />
             </div>
@@ -141,8 +142,13 @@ export default function Onboarding() {
                 }
                 periodOptions={periodOptions}
               />
+              {!validateEndDate(budgetFormState) && (
+                <div className="text-red-500 text-sm">
+                  End date must be after start date.
+                </div>
+              )}
               <div>
-                <Button onClick={handleSaveBudget} variant="primary">
+                <Button onClick={handleSaveBudget} variant="primary" disabled={!validateForm(budgetFormState) || !validateEndDate(budgetFormState)}>
                   Save Budget
                 </Button>
               </div>

@@ -9,6 +9,8 @@ import {
   useAppState,
 } from '../../../context/app-state-context';
 import { useNextId } from '../../../hooks/nextId/next-id';
+import { periodOptions } from '../../../constants/data';
+import {validateEndDate, validateForm} from '../../../utils/validators';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,10 +26,7 @@ export default function BudgetManager() {
   });
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
-  const isEndDateValid =
-    !formState.startDate ||
-    !formState.endDate ||
-    new Date(formState.endDate) > new Date(formState.startDate);
+
   const handleSaveBudget = () => {
     const newBudget = {
       ...formState,
@@ -37,14 +36,6 @@ export default function BudgetManager() {
     setIsModalOpen(false);
   };
 
-  function validateForm(formState: Budget) {
-    return (
-      formState.limit > 0 &&
-      formState.category !== '' &&
-      formState.startDate !== '' &&
-      formState.endDate !== ''
-    );
-  }
   return (
     <div className="budget-manager-container">
       <div className="mb-6">
@@ -71,7 +62,7 @@ export default function BudgetManager() {
                     }
                     periodOptions={periodOptions}
                   />
-                  {!isEndDateValid && (
+                  {!validateEndDate(formState) && (
                     <div className="text-red-500 text-sm">
                       End date must be after start date.
                     </div>
@@ -79,7 +70,7 @@ export default function BudgetManager() {
                   <Button
                     onClick={handleSaveBudget}
                     variant="primary"
-                    disabled={!validateForm(formState) || !isEndDateValid}
+                    disabled={!validateForm(formState) || !validateEndDate(formState)}
                   >
                     Save
                   </Button>
@@ -131,8 +122,3 @@ export default function BudgetManager() {
   );
 }
 
-export const periodOptions = [
-  { value: 'weekly', label: 'Weekly', id: 1 },
-  { value: 'monthly', label: 'Monthly', id: 2 },
-  { value: 'yearly', label: 'Yearly', id: 3 },
-];
