@@ -19,7 +19,7 @@ export default function BudgetManager() {
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
 
-  const handleSaveBudget = (a) => {
+  const handleSaveBudget = () => {
     const newBudget = {
       ...formState,
       id: nextBudgetId,
