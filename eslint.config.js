@@ -24,6 +24,8 @@ export default tseslint.config([
       '@typescript-eslint/no-explicit-any': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      'react-refresh/only-export-components': 'error',
+      'react-refresh/unsafe-named-export': 'warn',
     },
   },
 ])
