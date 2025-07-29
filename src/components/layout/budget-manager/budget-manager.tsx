@@ -16,18 +16,14 @@ export default function BudgetManager() {
   const [formState, setFormState] = useState<Budget>({
     id: 0,
     limit: 0,
-    category: '',
-    period: 'weekly',
+    category: categories[0]?.name ?? '',
+    period:
+      (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
     startDate: '',
     endDate: '',
   });
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
-  const periodOptions = [
-    { value: 'weekly', label: 'Weekly', id: 1 },
-    { value: 'monthly', label: 'Monthly', id: 2 },
-    { value: 'yearly', label: 'Yearly', id: 3 },
-  ];
   const isEndDateValid =
     !formState.startDate ||
     !formState.endDate ||
@@ -38,8 +34,18 @@ export default function BudgetManager() {
       id: nextBudgetId,
     };
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
+    console.log('Budget saved:', newBudget);
     setIsModalOpen(false);
   };
+
+  function validateForm(formState: Budget) {
+    return (
+      formState.limit > 0 &&
+      formState.category !== '' &&
+      formState.startDate !== '' &&
+      formState.endDate !== ''
+    );
+  }
   return (
     <div className="budget-manager-container">
       <div className="mb-6">
@@ -71,7 +77,11 @@ export default function BudgetManager() {
                       End date must be after start date.
                     </div>
                   )}
-                  <Button onClick={handleSaveBudget} variant="primary">
+                  <Button
+                    onClick={handleSaveBudget}
+                    variant="primary"
+                    disabled={!validateForm(formState) || !isEndDateValid}
+                  >
                     Save
                   </Button>
                 </div>
@@ -121,3 +131,9 @@ export default function BudgetManager() {
     </div>
   );
 }
+
+export const periodOptions = [
+  { value: 'weekly', label: 'Weekly', id: 1 },
+  { value: 'monthly', label: 'Monthly', id: 2 },
+  { value: 'yearly', label: 'Yearly', id: 3 },
+];
