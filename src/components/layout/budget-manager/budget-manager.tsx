@@ -34,7 +34,6 @@ export default function BudgetManager() {
       id: nextBudgetId,
     };
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-    console.log('Budget saved:', newBudget);
     setIsModalOpen(false);
   };
 
