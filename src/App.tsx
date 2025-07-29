@@ -1,39 +1,61 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Dashboard from './components/layout/dashboard/dashboard';
-import BudgetManager from './components/layout/budget-manager/budget-manager';
-import AnalyticsDashboard from './components/layout/analytics-dashboard/analytics-dashboard';
-import Settings from './components/layout/settings/settings';
-import ExpenseList from './components/layout/expense-list/expense-list';
-import CategoryManagement from './components/layout/category-management/category-management';
 import { AppProvider } from './context/app-state-context';
 import Landing from './components/layout/landing/landing';
 import Onboarding from './components/layout/onboarding/onboarding';
+import { LocalStorage } from './utils/local-storage';
+import { navLinks } from './constants/data';
+import {
+  protectedRoutes,
+  type ProtectedRoute,
+} from './constants/protected-routes';
+import { useEffect, useState } from 'react';
+import { RequireOnboarding } from './components/routing/requireOnboarding';
 
 function App() {
+  const [onboardingComplete, setOnboardingComplete] = useState(
+    () => LocalStorage.get<boolean>('onboardingComplete') === true
+  );
+
+  useEffect(() => {
+    const handler = () => {
+      setOnboardingComplete(
+        LocalStorage.get<boolean>('onboardingComplete') === true
+      );
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
   return (
     <AppProvider>
       <div className="p-4 bg-gray-100 min-h-screen">
         <Router>
           <nav>
-            <Link to="/">Home</Link>
-            <Link to="/budgetmanager">Budget Manager</Link>
-            <Link to="/analytics">Analytics</Link>
-            <Link to="/settings">Settings</Link>
-            <Link to="/expenselist">Expense List</Link>
-            <Link to="/categorymanagement">Category Management</Link>
+            {onboardingComplete &&
+              navLinks.map((link) => (
+                <Link key={link.to} to={link.to}>
+                  {link.label}
+                </Link>
+              ))}
           </nav>
           <Routes>
             <Route path="/" element={<Landing />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/budgetmanager" element={<BudgetManager />} />
-            <Route path="/analytics" element={<AnalyticsDashboard />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/expenselist" element={<ExpenseList />} />
             <Route
-              path="/categorymanagement"
-              element={<CategoryManagement />}
+              path="/onboarding"
+              element={
+                <Onboarding setOnboardingComplete={setOnboardingComplete} />
+              }
             />
+            {protectedRoutes.map((route: ProtectedRoute) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={
+                    <RequireOnboarding onboardingComplete={onboardingComplete}>
+                      {route.element}
+                    </RequireOnboarding>
+                  }
+                />
+              ))}
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
         </Router>

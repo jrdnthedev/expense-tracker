@@ -12,8 +12,9 @@ import type { Budget } from '../../../types/budget';
 import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
 import { validateEndDate, validateForm } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { LocalStorage } from '../../../utils/local-storage';
 
-export default function Onboarding() {
+export default function Onboarding({ setOnboardingComplete }: { setOnboardingComplete: (complete: boolean) => void }) {
   const { categories, currency, defaultCategory, budgets } = useAppState();
   const [step, setStep] = useState(1);
   const [formState, setFormState] = useState({
@@ -24,7 +25,9 @@ export default function Onboarding() {
     date: '',
     time: '00:00',
   });
-  const [budgetFormState, setBudgetFormState] = useState<Budget>(budgetDefaultFormState);
+  const [budgetFormState, setBudgetFormState] = useState<Budget>(
+    budgetDefaultFormState
+  );
   const nextBudgetId = useNextId<Budget>(budgets);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -35,11 +38,17 @@ export default function Onboarding() {
         ...budgetFormState,
         id: nextBudgetId,
       };
+      LocalStorage.set('onboardingComplete', true);
+      setOnboardingComplete(true);
       dispatch({ type: 'ADD_BUDGET', payload: budgetState });
       navigate('/dashboard');
     }
   };
 
+  const handleSaveExpense = () => {
+    console.log('Expense saved:', formState);
+    setStep(4);
+  };
   return (
     <div className="max-w-lg mx-auto mt-12">
       <Card>
@@ -47,12 +56,9 @@ export default function Onboarding() {
           <>
             <h2 className="text-2xl font-bold mb-2">Welcome!</h2>
             <p className="mb-6">Let’s set up your default categories.</p>
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-              onClick={() => setStep(2)}
-            >
+            <Button onClick={() => setStep(2)} variant="primary" type="button">
               Continue
-            </button>
+            </Button>
           </>
         )}
         {step === 2 && (
@@ -72,12 +78,9 @@ export default function Onboarding() {
                 />
               ))}
             </div>
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-              onClick={() => setStep(3)}
-            >
+            <Button onClick={() => setStep(3)} variant="primary" type="button">
               Next: Add First Expense
-            </button>
+            </Button>
           </>
         )}
         {step === 3 && (
@@ -94,12 +97,20 @@ export default function Onboarding() {
                 currency={currency}
               />
             </div>
-            <button
+            {/* <button
               className="bg-blue-600 text-white px-4 py-2 rounded"
               onClick={() => setStep(4)}
             >
               Next: View Dashboard
-            </button>
+            </button> */}
+            <Button
+              onClick={handleSaveExpense}
+              variant="primary"
+              type="button"
+              // disabled={!validateForm(formState)}
+            >
+              Save Expense
+            </Button>
           </>
         )}
         {step === 4 && (
@@ -108,15 +119,18 @@ export default function Onboarding() {
             <p className="mb-6">
               Here’s how your dashboard will look with sample data.
             </p>
-            <div>
+            <div className="flex flex-col gap-4">
               <Dashboard />
+              <div className="w-auto">
+                <Button
+                  onClick={() => setStep(5)}
+                  variant="primary"
+                  type="button"
+                >
+                  Next: Set Up Budget
+                </Button>
+              </div>
             </div>
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-              onClick={() => setStep(5)}
-            >
-              Next: Set Up Budget
-            </button>
           </>
         )}
         {step === 5 && (
@@ -138,7 +152,14 @@ export default function Onboarding() {
                 </div>
               )}
               <div>
-                <Button onClick={handleSaveBudget} variant="primary" disabled={!validateForm(budgetFormState) || !validateEndDate(budgetFormState)}>
+                <Button
+                  onClick={handleSaveBudget}
+                  variant="primary"
+                  disabled={
+                    !validateForm(budgetFormState) ||
+                    !validateEndDate(budgetFormState)
+                  }
+                >
                   Save Budget
                 </Button>
               </div>
