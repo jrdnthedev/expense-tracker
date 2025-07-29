@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
-import {
-  useAppDispatch,
-  useAppState,
-} from '../../../context/app-state-context';
 import type { Currency } from '../../../types/currency';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function Settings() {
   const {
@@ -26,7 +23,7 @@ export default function Settings() {
     setCurrency(currency);
     dispatch({ type: 'SET_CURRENCY', payload: currency });
   };
-  const handleDefaultCategoryChange = (value: string, id: number) => {
+  const handleDefaultCategoryChange = (_value: string, id: number) => {
     setDefaultCategory(id);
     dispatch({ type: 'SET_DEFAULT_CATEGORY', payload: { categoryId: id } });
   };
@@ -60,7 +57,7 @@ export default function Settings() {
                   id="currency"
                   options={currencies}
                   value={settingCurrency.value}
-                  onChange={(value, id) => {
+                  onChange={(_value, id) => {
                     const selected = currencies.find((c) => c.id === id);
                     if (selected) handleCurrencyChange(selected);
                   }}

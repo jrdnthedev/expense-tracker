@@ -4,13 +4,10 @@ import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
 import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
-import {
-  useAppDispatch,
-  useAppState,
-} from '../../../context/app-state-context';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
 import {validateEndDate, validateForm} from '../../../utils/validators';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);

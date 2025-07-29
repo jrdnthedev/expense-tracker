@@ -2,15 +2,12 @@ import { useState } from 'react';
 import Select from '../../ui/select/select';
 import Card from '../../ui/card/card';
 import { useDebounce } from '../../../hooks/debounce/use-debounce';
-import {
-  useAppDispatch,
-  useAppState,
-} from '../../../context/app-state-context';
 import type { Category } from '../../../types/category';
 import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
 import Modal from '../../ui/modal/modal';
 import ExpenseForm from '../../forms/expense-form/expense-form';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function ExpenseList() {
   const { categories, expenses, currency } = useAppState();

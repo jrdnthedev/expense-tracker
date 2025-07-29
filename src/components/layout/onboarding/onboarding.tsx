@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../ui/card/card';
-import {
-  useAppDispatch,
-  useAppState,
-} from '../../../context/app-state-context';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import ExpenseForm from '../../forms/expense-form/expense-form';
@@ -15,6 +11,7 @@ import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
 import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
 import { validateEndDate, validateForm } from '../../../utils/validators';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function Onboarding() {
   const { categories, currency, defaultCategory, budgets } = useAppState();
