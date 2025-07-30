@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, test, expect, vi } from 'vitest';
 import Button from './button';
+import userEvent from '@testing-library/user-event';
 
 describe('Button', () => {
   test('renders button with text', () => {
@@ -51,16 +52,17 @@ describe('Button', () => {
     expect(buttonElement).toBeDisabled();
   });
 
-  test('calls onClick handler when clicked', () => {
+  test('calls onClick handler when clicked', async () => {
     const handleClick = vi.fn();
+     const user = userEvent.setup();
     render(
       <Button onClick={handleClick} variant="primary">
         Click Me
       </Button>
     );
 
-    const buttonElement = screen.getByRole('button', { name: /click me/i });
-    buttonElement.click();
+    const buttonElement = screen.getByRole('button');
+    await user.click(buttonElement);
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
