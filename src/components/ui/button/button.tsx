@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 
 export default function Button({ children, onClick, type = 'button', variant, disabled }: ButtonProps) {
     const classNames = {
