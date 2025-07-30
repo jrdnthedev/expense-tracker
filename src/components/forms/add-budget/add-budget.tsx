@@ -37,6 +37,7 @@ export default function AddBudget({
               const category = categories.find((cat: Category) => cat.id === dataId);
               if (category) {
                 onFieldChange('category', category.name);
+                onFieldChange('categoryId', category.id);
               }
             }}
             value={formState.category}
@@ -102,6 +103,7 @@ interface BudgetFormProps {
   formState: {
     limit: number;
     category: string;
+    categoryId: number;
     period: string;
     startDate: string;
     endDate: string;

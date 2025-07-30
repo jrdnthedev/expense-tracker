@@ -8,6 +8,7 @@ export const budgetDefaultFormState = {
   id: 0,
   limit: 0,
   category: 'food',
+  categoryId: 1,
   period:
     (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
   startDate: '',

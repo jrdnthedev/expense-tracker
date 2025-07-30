@@ -6,12 +6,12 @@ import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
-import {validateEndDate, validateForm} from '../../../utils/validators';
+import { validateEndDate, validateForm } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { budgets, categories } = useAppState();
+  const { budgets, categories, expenses } = useAppState();
   const [formState, setFormState] = useState<Budget>(budgetDefaultFormState);
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
@@ -23,6 +23,17 @@ export default function BudgetManager() {
     };
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setIsModalOpen(false);
+  };
+
+  const calculateSpentAmount = (budget: Budget) => {
+    return expenses
+      .filter(
+        (expense) =>
+          expense.categoryId === budget.categoryId &&
+          new Date(expense.date) >= new Date(budget.startDate) &&
+          new Date(expense.date) <= new Date(budget.endDate)
+      )
+      .reduce((total, expense) => total + expense.amount, 0);
   };
 
   return (
@@ -59,7 +70,9 @@ export default function BudgetManager() {
                   <Button
                     onClick={handleSaveBudget}
                     variant="primary"
-                    disabled={!validateForm(formState) || !validateEndDate(formState)}
+                    disabled={
+                      !validateForm(formState) || !validateEndDate(formState)
+                    }
                   >
                     Save
                   </Button>
@@ -69,45 +82,54 @@ export default function BudgetManager() {
           </span>
         </div>
         <ul>
-          {budgets.map((budget: Budget) => (
-            <li key={budget.id} className="mb-4">
-              <Card>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {/* <span className="text-xl">{budget.icon}</span> */}
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        {budget.category}
-                      </h2>
+          {budgets.map((budget: Budget) => {
+            const spentAmount = calculateSpentAmount(budget);
+            const remainingAmount = budget.limit - spentAmount;
+            const percentageUsed = (spentAmount / budget.limit) * 100;
+            return (
+              <li key={budget.id} className="mb-4">
+                <Card>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {/* <span className="text-xl">{budget.icon}</span> */}
+                        <h2 className="text-lg font-semibold text-gray-900">
+                          {budget.category}
+                        </h2>
+                      </div>
+                      <span
+                        className="text-xl font-semibold"
+                        style={{ color: remainingAmount < 0 ? 'red' : 'green' }}
+                      >
+                        ${spentAmount.toFixed(2)}/${budget.limit.toFixed(2)}
+                      </span>
                     </div>
-                    <span className="text-xl text-green-700 font-semibold">
-                      {budget.limit}/{budget.limit}
-                    </span>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                      <div
+                        className={`h-2.5 rounded-full ${
+                          percentageUsed > 100 ? 'bg-red-600' : 'bg-blue-600'
+                        }`}
+                        style={{
+                          width: `${Math.min(percentageUsed, 100)}%`,
+                        }}
+                      ></div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-600">
+                        Remaining: ${remainingAmount.toFixed(2)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(budget.startDate).toDateString()} -{' '}
+                        {new Date(budget.endDate).toDateString()}
+                      </p>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                    <div
-                      className="bg-blue-600 h-2.5 rounded-full"
-                      style={{
-                        width: `${(budget.limit / budget.limit) * 100}%`,
-                      }}
-                    ></div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
-                      Remaining: {budget.limit - budget.limit}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(budget.startDate).toDateString()} -{' '}
-                      {new Date(budget.endDate).toDateString()}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </li>
-          ))}
+                </Card>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </>
   );
 }
-
