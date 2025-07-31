@@ -12,9 +12,8 @@ export default function ExpenseForm({
   minDate,
   onFieldChange,
 }: ExpenseFormProps) {
-
   useEffect(() => {
-    if(minDate) {
+    if (minDate) {
       onFieldChange('date', minDate);
     }
   }, [minDate, formState.date, onFieldChange]);

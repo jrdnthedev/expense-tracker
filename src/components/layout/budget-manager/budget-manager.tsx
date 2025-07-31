@@ -112,7 +112,8 @@ export default function BudgetManager() {
                         className="text-xl font-semibold"
                         style={{ color: remainingAmount < 0 ? 'red' : 'green' }}
                       >
-                        ${spentAmount.toFixed(2)}/${Number(budget.limit).toFixed(2)}
+                        ${spentAmount.toFixed(2)}/$
+                        {Number(budget.limit).toFixed(2)}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
