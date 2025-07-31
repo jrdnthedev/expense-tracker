@@ -1,4 +1,5 @@
 import type { Budget } from '../types/budget';
+import { format, parseISO } from 'date-fns';
 
 export function validateEndDate(formState: Budget) {
   return (
@@ -16,3 +17,7 @@ export function validateForm(formState: Budget) {
     formState.endDate !== ''
   );
 }
+
+export function formatDate (dateString: string): string {
+  return format(parseISO(dateString), 'MMM d, yyyy');
+};
