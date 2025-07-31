@@ -12,40 +12,9 @@ export default function AnalyticsDashboard() {
     { value: "last6months", label: "Last 6 Months", id: 3 },
   ];
 
-  const getDateRange = () => {
-    const now = new Date();
-    const end = now.toISOString().split('T')[0];
-    const start = new Date();
-    
-    switch (timeframe) {
-      case 'last30days':
-        start.setDate(now.getDate() - 30);
-        break;
-      case 'last3months':
-        start.setMonth(now.getMonth() - 3);
-        break;
-      case 'last6months':
-        start.setMonth(now.getMonth() - 6);
-        break;
-      default:
-        start.setDate(now.getDate() - 30);
-    }
-    return { start: start.toISOString().split('T')[0], end };
-  };
-
-  // Filter expenses by date range
-  const getFilteredExpenses = () => {
-    const { start, end } = getDateRange();
-    return expenses.filter(expense => {
-      const expenseDate = expense.date;
-      return expenseDate >= start && expenseDate <= end;
-    });
-  };
-
   // Calculate totals and statistics
-  const filteredExpenses = getFilteredExpenses();
-  const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-  
+  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+
   // Calculate monthly average
   const monthlyAverage = totalExpenses / (timeframe === 'last30days' ? 1 : 
     timeframe === 'last3months' ? 3 : 6);
@@ -53,7 +22,7 @@ export default function AnalyticsDashboard() {
   // Calculate category totals
   const categoryTotals = categories.map(category => ({
     ...category,
-    total: filteredExpenses
+    total: expenses
       .filter(exp => exp.categoryId === category.id)
       .reduce((sum, exp) => sum + exp.amount, 0)
   }));
@@ -65,7 +34,7 @@ export default function AnalyticsDashboard() {
   // Calculate monthly trends
   const getMonthlyTrends = () => {
     const trends: { [month: string]: number } = {};
-    filteredExpenses.forEach(expense => {
+    expenses.forEach(expense => {
       const month = new Date(expense.date).toLocaleString('default', { month: 'long' });
       trends[month] = (trends[month] || 0) + expense.amount;
     });
