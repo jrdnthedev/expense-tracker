@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Select from '../../ui/select/select';
 import Card from '../../ui/card/card';
 import { useDebounce } from '../../../hooks/debounce/use-debounce';
@@ -10,8 +10,13 @@ import ExpenseForm from '../../forms/expense-form/expense-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function ExpenseList() {
-  const { categories, expenses, currency } = useAppState();
-  const [selectedCategory, setSelectedCategory] = useState<Category>({ id: 0, name: 'All', color: '', icon: '📦' });
+  const { categories, expenses, currency, budgets } = useAppState();
+  const [selectedCategory, setSelectedCategory] = useState<Category>({
+    id: 0,
+    name: 'All',
+    color: '',
+    icon: '📦',
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
@@ -25,6 +30,11 @@ export default function ExpenseList() {
     time: expenseToEdit?.createdAt?.substring(11, 16) ?? '00:00',
   });
   const dispatch = useAppDispatch();
+  const handleFieldChange = useCallback(
+    (field: string, value: string | number) =>
+      setFormState((prev) => ({ ...prev, [field]: value })),
+    []
+  );
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
@@ -79,6 +89,13 @@ export default function ExpenseList() {
     });
   };
 
+  const getBudgetStartDate = (categoryId: number): string => {
+    const matchingBudget = budgets.find(
+      (budget) => budget.categoryId === categoryId
+    );
+    return matchingBudget!.startDate!;
+  };
+
   return (
     <>
       <div className="flex items-center justify-between mb-6 gap-4">
@@ -99,7 +116,9 @@ export default function ExpenseList() {
             id="sort"
             options={categoriesWithAll}
             onChange={(_value: string, dataId: number) => {
-              const category = categoriesWithAll.find((cat: Category) => cat.id === dataId);
+              const category = categoriesWithAll.find(
+                (cat: Category) => cat.id === dataId
+              );
               if (category) setSelectedCategory(category);
             }}
             value={selectedCategory.name}
@@ -181,8 +200,9 @@ export default function ExpenseList() {
               <ExpenseForm
                 categories={categories}
                 formState={formState}
-                onFieldChange={(field, value) => setFormState((prev) => ({ ...prev, [field]: value }))}
+                onFieldChange={handleFieldChange}
                 currency={currency}
+                minDate={getBudgetStartDate(formState.categoryId)}
               />
               <div className="flex justify-end mt-4 gap-4">
                 <Button onClick={handleSave} variant="primary">

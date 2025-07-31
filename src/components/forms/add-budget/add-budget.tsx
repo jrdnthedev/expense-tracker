@@ -37,6 +37,7 @@ export default function AddBudget({
               const category = categories.find((cat: Category) => cat.id === dataId);
               if (category) {
                 onFieldChange('category', category.name);
+                onFieldChange('categoryId', category.id);
               }
             }}
             value={formState.category}
@@ -74,7 +75,7 @@ export default function AddBudget({
           </label>
           <DatePicker
             id="startDate"
-            defaultValue={formState.startDate}
+            value={formState.startDate}
             onChange={(date: string) => onFieldChange('startDate', date)}
           />
         </div>
@@ -87,7 +88,7 @@ export default function AddBudget({
           </label>
           <DatePicker
             id="endDate"
-            defaultValue={formState.endDate}
+            value={formState.endDate}
             onChange={(date: string) => onFieldChange('endDate', date)}
             min={formState.startDate || undefined}
           />
@@ -102,6 +103,7 @@ interface BudgetFormProps {
   formState: {
     limit: number;
     category: string;
+    categoryId: number;
     period: string;
     startDate: string;
     endDate: string;

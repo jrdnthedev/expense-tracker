@@ -8,6 +8,8 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
       <div
         className="absolute inset-0 bg-gray-800 opacity-20"
         onClick={onClose}
+        role="presentation"
+        aria-label="Close modal overlay"
       ></div>
       <div className="w-full max-w-md mx-auto">
         <Card>
