@@ -8,7 +8,7 @@ describe('DatePicker', () => {
       render(
         <DatePicker
           id="test-date-picker"
-          defaultValue="2023-10-01"
+          value="2023-10-01"
           min="2022-10-01"
           onChange={() => {}}
         />

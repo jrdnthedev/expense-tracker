@@ -16,7 +16,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
           <div className="relative z-10">
             <button
               onClick={onClose}
-              className="absolute top-2 right-2"
+              className="absolute top-2 right-2 cursor-pointer text-gray-500 hover:text-gray-700"
               aria-label="Close modal"
             >
               <svg

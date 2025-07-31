@@ -61,6 +61,7 @@ export default function CategoryManagement() {
   };
 
   const handleAddCategory = () => {
+    console.log('Adding new category:', addCategoryFormState);
     dispatch({ type: 'ADD_CATEGORY', payload: addCategoryFormState });
   };
   return (

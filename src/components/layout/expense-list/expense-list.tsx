@@ -8,6 +8,7 @@ import Button from '../../ui/button/button';
 import Modal from '../../ui/modal/modal';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { useNextId } from '../../../hooks/nextId/next-id';
 
 export default function ExpenseList() {
   const { categories, expenses, currency, budgets } = useAppState();
@@ -29,12 +30,14 @@ export default function ExpenseList() {
     date: expenseToEdit?.date ?? '',
     time: expenseToEdit?.createdAt?.substring(11, 16) ?? '00:00',
   });
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const dispatch = useAppDispatch();
   const handleFieldChange = useCallback(
     (field: string, value: string | number) =>
       setFormState((prev) => ({ ...prev, [field]: value })),
     []
   );
+  const id = useNextId<Expense>(expenses);
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
@@ -88,44 +91,70 @@ export default function ExpenseList() {
       time: expense.createdAt?.substring(11, 16) ?? '00:00',
     });
   };
-
+  const handleAddExpense = () => {
+    const newExpense: Expense = {
+      id: id,
+      amount: Number(formState.amount),
+      description: formState.description,
+      category:
+        categories.find((cat) => cat.id === formState.categoryId)?.name || '',
+      categoryId: formState.categoryId,
+      date: formState.date,
+      tags: [],
+      createdAt: new Date(`${formState.date}T${formState.time}`).toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
+  };
   const getBudgetStartDate = (categoryId: number): string => {
     const matchingBudget = budgets.find(
       (budget) => budget.categoryId === categoryId
     );
-    return matchingBudget!.startDate!;
+    return matchingBudget?.startDate || new Date().toISOString().split('T')[0];
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-6 gap-4">
+    <div className="flex flex-col gap-4">
+      <div>
         <h1 className="text-2xl font-bold flex-1">📝 Expense List</h1>
-        <input
-          type="text"
-          name="search"
-          id="search"
-          aria-label="Search expenses"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Search expenses..."
-        />
+      </div>
+      <div className="flex items-center justify-between gap-4">
         <div className="w-auto">
-          <Select
-            name="sort"
-            id="sort"
-            options={categoriesWithAll}
-            onChange={(_value: string, dataId: number) => {
-              const category = categoriesWithAll.find(
-                (cat: Category) => cat.id === dataId
-              );
-              if (category) setSelectedCategory(category);
-            }}
-            value={selectedCategory.name}
-            getOptionValue={(cat: Category) => cat.name}
-            getOptionLabel={(cat: Category) => cat.name}
-            getOptionId={(cat: Category) => cat.id}
+          <Button
+            onClick={() => setIsAddExpenseModalOpen(true)}
+            variant="primary"
+          >
+            Add Expense
+          </Button>
+        </div>
+        <div className="flex items-center gap-4">
+          <input
+            type="text"
+            name="search"
+            id="search"
+            aria-label="Search expenses"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Search expenses..."
           />
+          <div className="w-auto">
+            <Select
+              name="sort"
+              id="sort"
+              options={categoriesWithAll}
+              onChange={(_value: string, dataId: number) => {
+                const category = categoriesWithAll.find(
+                  (cat: Category) => cat.id === dataId
+                );
+                if (category) setSelectedCategory(category);
+              }}
+              value={selectedCategory.name}
+              getOptionValue={(cat: Category) => cat.name}
+              getOptionLabel={(cat: Category) => cat.name}
+              getOptionId={(cat: Category) => cat.id}
+            />
+          </div>
         </div>
       </div>
       <div>
@@ -216,6 +245,26 @@ export default function ExpenseList() {
           )}
         </Card>
       </div>
-    </>
+      {isAddExpenseModalOpen && (
+        <Modal onClose={() => setIsAddExpenseModalOpen(false)} isOpen={true}>
+          <ExpenseForm
+            categories={categories}
+            formState={formState}
+            onFieldChange={handleFieldChange}
+            currency={currency}
+            minDate={getBudgetStartDate(formState.categoryId)}
+          />
+          <Button
+            onClick={() => {
+              handleAddExpense();
+              setIsAddExpenseModalOpen(false);
+            }}
+            variant="primary"
+          >
+            Add Expense
+          </Button>
+        </Modal>
+      )}
+    </div>
   );
 }
