@@ -3,13 +3,22 @@ import type { Category } from '../../../types/category';
 import DatePicker from '../../ui/date-picker/date-picker';
 import Input from '../../ui/input/input';
 import type { Currency } from '../../../types/currency';
+import { useEffect } from 'react';
 
 export default function ExpenseForm({
   categories,
   formState,
   currency,
+  minDate,
   onFieldChange,
 }: ExpenseFormProps) {
+
+  useEffect(() => {
+    if(minDate) {
+      onFieldChange('date', minDate);
+    }
+  }, [minDate, formState.date, onFieldChange]);
+
   return (
     <div className="mb-8">
       <h3 className="text-xl font-bold text-gray-800 mb-6">Add New Expense</h3>
@@ -86,8 +95,9 @@ export default function ExpenseForm({
           </label>
           <DatePicker
             id="date"
-            defaultValue={formState.date}
+            value={formState.date}
             onChange={(date: string) => onFieldChange('date', date)}
+            min={minDate}
           />
         </div>
         <div className="w-full flex-1">
@@ -122,4 +132,5 @@ interface ExpenseFormProps {
   };
   onFieldChange: (field: string, value: string | number) => void;
   currency: Currency;
+  minDate?: string;
 }
