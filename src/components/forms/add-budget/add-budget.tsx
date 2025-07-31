@@ -75,7 +75,7 @@ export default function AddBudget({
           </label>
           <DatePicker
             id="startDate"
-            defaultValue={formState.startDate}
+            value={formState.startDate}
             onChange={(date: string) => onFieldChange('startDate', date)}
           />
         </div>
@@ -88,7 +88,7 @@ export default function AddBudget({
           </label>
           <DatePicker
             id="endDate"
-            defaultValue={formState.endDate}
+            value={formState.endDate}
             onChange={(date: string) => onFieldChange('endDate', date)}
             min={formState.startDate || undefined}
           />
