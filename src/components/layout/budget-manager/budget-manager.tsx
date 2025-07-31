@@ -6,8 +6,13 @@ import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
-import { validateEndDate, validateForm } from '../../../utils/validators';
+import {
+  formatDate,
+  validateEndDate,
+  validateForm,
+} from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { startOfDay, parseISO, isWithinInterval } from 'date-fns';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,12 +32,18 @@ export default function BudgetManager() {
 
   const calculateSpentAmount = (budget: Budget) => {
     return expenses
-      .filter(
-        (expense) =>
-          expense.categoryId === budget.categoryId &&
-          new Date(expense.date) >= new Date(budget.startDate) &&
-          new Date(expense.date) <= new Date(budget.endDate)
-      )
+      .filter((expense) => {
+        if (expense.categoryId !== budget.categoryId) return false;
+
+        const expenseDate = startOfDay(parseISO(expense.date));
+        const budgetStart = startOfDay(parseISO(budget.startDate));
+        const budgetEnd = startOfDay(parseISO(budget.endDate));
+
+        return isWithinInterval(expenseDate, {
+          start: budgetStart,
+          end: budgetEnd,
+        });
+      })
       .reduce((total, expense) => total + expense.amount, 0);
   };
 
@@ -119,8 +130,8 @@ export default function BudgetManager() {
                         Remaining: ${remainingAmount.toFixed(2)}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {new Date(budget.startDate).toDateString()} -{' '}
-                        {new Date(budget.endDate).toDateString()}
+                        {formatDate(budget.startDate)} -{' '}
+                        {formatDate(budget.endDate)}
                       </p>
                     </div>
                   </div>
