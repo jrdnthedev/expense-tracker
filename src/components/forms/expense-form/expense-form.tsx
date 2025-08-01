@@ -55,6 +55,7 @@ export default function ExpenseForm({
           placeholder="What did you spend on?"
           id="description"
           type="text"
+          required={true}
         />
       </div>
 

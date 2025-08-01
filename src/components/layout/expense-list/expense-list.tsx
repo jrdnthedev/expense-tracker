@@ -10,6 +10,7 @@ import ExpenseForm from '../../forms/expense-form/expense-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { formatAmount } from '../../../utils/currency';
+import { getBudgetStartDate } from '../../../utils/budget';
 
 export default function ExpenseList() {
   const { categories, expenses, currency, budgets } = useAppState();
@@ -107,12 +108,7 @@ export default function ExpenseList() {
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
   };
-  const getBudgetStartDate = (categoryId: number): string => {
-    const matchingBudget = budgets.find(
-      (budget) => budget.categoryId === categoryId
-    );
-    return matchingBudget?.startDate || new Date().toISOString().split('T')[0];
-  };
+
 
   return (
     <div className="flex flex-col gap-4">
@@ -232,7 +228,7 @@ export default function ExpenseList() {
                 formState={formState}
                 onFieldChange={handleFieldChange}
                 currency={currency}
-                minDate={getBudgetStartDate(formState.categoryId)}
+                minDate={getBudgetStartDate(formState.categoryId, budgets)}
               />
               <div className="flex justify-end mt-4 gap-4">
                 <Button onClick={handleSave} variant="primary">
@@ -253,7 +249,7 @@ export default function ExpenseList() {
             formState={formState}
             onFieldChange={handleFieldChange}
             currency={currency}
-            minDate={getBudgetStartDate(formState.categoryId)}
+            minDate={getBudgetStartDate(formState.categoryId, budgets)}
           />
           <Button
             onClick={() => {
