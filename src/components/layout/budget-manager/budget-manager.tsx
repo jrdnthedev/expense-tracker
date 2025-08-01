@@ -16,7 +16,7 @@ import { startOfDay, parseISO, isWithinInterval } from 'date-fns';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { budgets, categories, expenses } = useAppState();
+  const { budgets, categories, expenses, currency } = useAppState();
   const [formState, setFormState] = useState<Budget>(budgetDefaultFormState);
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
@@ -112,7 +112,7 @@ export default function BudgetManager() {
                         className="text-xl font-semibold"
                         style={{ color: remainingAmount < 0 ? 'red' : 'green' }}
                       >
-                        ${spentAmount.toFixed(2)}/$
+                        {currency.symbol}{spentAmount.toFixed(2)}/{currency.symbol}
                         {Number(budget.limit).toFixed(2)}
                       </span>
                     </div>
@@ -128,7 +128,7 @@ export default function BudgetManager() {
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-gray-600">
-                        Remaining: ${remainingAmount.toFixed(2)}
+                        Remaining: {currency.symbol}{remainingAmount.toFixed(2)}
                       </p>
                       <p className="text-sm text-gray-600">
                         {formatDate(budget.startDate)} -{' '}
