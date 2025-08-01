@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../ui/card/card';
 import CardButton from '../../ui/card-btn/card-btn';
@@ -13,25 +13,48 @@ import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
 import { validateEndDate, validateForm } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
+import { getBudgetStartDate } from '../../../utils/budget';
+import AddCategoryForm from '../../forms/add-category-form/add-category-form';
+import type { Expense } from '../../../types/expense';
 
-export default function Onboarding({ setOnboardingComplete }: { setOnboardingComplete: (complete: boolean) => void }) {
-  const { categories, currency, defaultCategory, budgets } = useAppState();
+export default function Onboarding({
+  setOnboardingComplete,
+}: {
+  setOnboardingComplete: (complete: boolean) => void;
+}) {
+  const { categories, currency, defaultCategory, budgets, expenses } =
+    useAppState();
   const [step, setStep] = useState(1);
-  const [formState, setFormState] = useState({
-    amount: '',
+  const [formState, setFormState] = useState<Expense>({
+    amount: 0,
     description: '',
     category: categories[0]?.name ?? '',
     categoryId: defaultCategory,
     date: '',
-    time: '00:00',
+    tags: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    id: 0,
   });
   const [budgetFormState, setBudgetFormState] = useState<Budget>(
     budgetDefaultFormState
   );
+  const handleFieldChange = useCallback(
+    (field: string, value: string | number) =>
+      setFormState((prev) => ({ ...prev, [field]: value })),
+    []
+  );
   const nextBudgetId = useNextId<Budget>(budgets);
+  const nextCategoryId = useNextId<Category>(categories);
+  const nextExpenseId = useNextId<Expense>(expenses);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-
+  const [addCategoryFormState, setAddCategoryFormState] = useState<Category>({
+    name: '',
+    icon: '➕',
+    color: '#000000',
+    id: nextCategoryId,
+  });
   const handleSaveBudget = () => {
     if (budgetFormState) {
       const budgetState = {
@@ -47,6 +70,30 @@ export default function Onboarding({ setOnboardingComplete }: { setOnboardingCom
 
   const handleSaveExpense = () => {
     console.log('Expense saved:', formState);
+    const expenseState: Expense = {
+      ...formState,
+      amount: Number(formState.amount),
+      tags: [],
+      id: nextExpenseId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    dispatch({ type: 'ADD_EXPENSE', payload: expenseState });
+    setStep(5);
+  };
+
+  const handleAddCategory = () => {
+    console.log('Adding new category:', addCategoryFormState);
+    dispatch({
+      type: 'ADD_CATEGORY',
+      payload: addCategoryFormState,
+    });
+    setAddCategoryFormState({
+      name: '',
+      icon: '➕',
+      color: '#000000',
+      id: nextCategoryId,
+    });
     setStep(4);
   };
   return (
@@ -85,24 +132,41 @@ export default function Onboarding({ setOnboardingComplete }: { setOnboardingCom
         )}
         {step === 3 && (
           <>
+            <h2 className="text-xl font-bold mb-2">Add Your First Category</h2>
+            <p className="mb-6">Let’s create your first category together.</p>
+            <div>
+              <AddCategoryForm
+                formState={addCategoryFormState}
+                onFieldChange={(field, value) =>
+                  setAddCategoryFormState((prev) => ({
+                    ...prev,
+                    [field]: value,
+                  }))
+                }
+              />
+              <Button
+                onClick={handleAddCategory}
+                variant="primary"
+                type="button"
+              >
+                Save Category
+              </Button>
+            </div>
+          </>
+        )}
+        {step === 4 && (
+          <>
             <h2 className="text-xl font-bold mb-2">Add Your First Expense</h2>
             <p className="mb-6">Let’s record your first expense together.</p>
             <div>
               <ExpenseForm
                 categories={categories}
                 formState={formState}
-                onFieldChange={(field, value) =>
-                  setFormState((prev) => ({ ...prev, [field]: value }))
-                }
+                onFieldChange={handleFieldChange}
                 currency={currency}
+                minDate={getBudgetStartDate(formState.categoryId, budgets)}
               />
             </div>
-            {/* <button
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-              onClick={() => setStep(4)}
-            >
-              Next: View Dashboard
-            </button> */}
             <Button
               onClick={handleSaveExpense}
               variant="primary"
@@ -113,7 +177,7 @@ export default function Onboarding({ setOnboardingComplete }: { setOnboardingCom
             </Button>
           </>
         )}
-        {step === 4 && (
+        {step === 5 && (
           <>
             <h2 className="text-xl font-bold mb-2">Dashboard Preview</h2>
             <p className="mb-6">
@@ -123,7 +187,7 @@ export default function Onboarding({ setOnboardingComplete }: { setOnboardingCom
               <Dashboard />
               <div className="w-auto">
                 <Button
-                  onClick={() => setStep(5)}
+                  onClick={() => setStep(6)}
                   variant="primary"
                   type="button"
                 >
@@ -133,7 +197,7 @@ export default function Onboarding({ setOnboardingComplete }: { setOnboardingCom
             </div>
           </>
         )}
-        {step === 5 && (
+        {step === 6 && (
           <>
             <h2 className="text-xl font-bold mb-2">Set Up Your First Budget</h2>
             <p className="mb-6">Let’s help you set a budget for a category.</p>

@@ -4,6 +4,7 @@ import DatePicker from '../../ui/date-picker/date-picker';
 import Input from '../../ui/input/input';
 import type { Currency } from '../../../types/currency';
 import { useEffect } from 'react';
+import type { Expense } from '../../../types/expense';
 
 export default function ExpenseForm({
   categories,
@@ -55,6 +56,7 @@ export default function ExpenseForm({
           placeholder="What did you spend on?"
           id="description"
           type="text"
+          required={true}
         />
       </div>
 
@@ -100,7 +102,7 @@ export default function ExpenseForm({
           />
         </div>
         <div className="w-full flex-1">
-          <label
+          {/* <label
             className="block text-sm font-medium text-gray-700 mb-1"
             htmlFor="time"
           >
@@ -113,7 +115,7 @@ export default function ExpenseForm({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               onFieldChange('time', e.target.value)
             }
-          />
+          /> */}
         </div>
       </div>
     </div>
@@ -122,13 +124,7 @@ export default function ExpenseForm({
 
 interface ExpenseFormProps {
   categories: Category[];
-  formState: {
-    amount: string;
-    description: string;
-    categoryId: number;
-    date: string;
-    time: string;
-  };
+  formState: Expense;
   onFieldChange: (field: string, value: string | number) => void;
   currency: Currency;
   minDate?: string;

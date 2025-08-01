@@ -6,6 +6,7 @@ import type { Category } from '../../../types/category';
 import Modal from '../../ui/modal/modal';
 import AddCategoryForm from '../../forms/add-category-form/add-category-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { useNextId } from '../../../hooks/nextId/next-id';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();
@@ -23,11 +24,12 @@ export default function CategoryManagement() {
     color: '',
     id: 1,
   });
-  const [addCategoryFormState, setAddCategoryFormState] = useState({
+  const nextId = useNextId<Category>(categories);
+  const [addCategoryFormState, setAddCategoryFormState] = useState<Category>({
     name: '',
     icon: '➕',
     color: '',
-    id: 5,
+    id: nextId,
   });
   const handleSelectedCategoryChange = (category: Category) => {
     setSelectedCategory(category);
