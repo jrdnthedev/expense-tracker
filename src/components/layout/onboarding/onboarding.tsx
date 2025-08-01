@@ -22,7 +22,8 @@ export default function Onboarding({
 }: {
   setOnboardingComplete: (complete: boolean) => void;
 }) {
-  const { categories, currency, defaultCategory, budgets, expenses } = useAppState();
+  const { categories, currency, defaultCategory, budgets, expenses } =
+    useAppState();
   const [step, setStep] = useState(1);
   const [formState, setFormState] = useState({
     amount: '',
@@ -32,7 +33,6 @@ export default function Onboarding({
     date: '',
     tags: [],
     time: '00:00',
-
   });
   const [budgetFormState, setBudgetFormState] = useState<Budget>(
     budgetDefaultFormState
@@ -132,7 +132,6 @@ export default function Onboarding({
             </Button>
           </>
         )}
-        {/* include step to add category here */}
         {step === 3 && (
           <>
             <h2 className="text-xl font-bold mb-2">Add Your First Category</h2>
@@ -141,7 +140,10 @@ export default function Onboarding({
               <AddCategoryForm
                 formState={addCategoryFormState}
                 onFieldChange={(field, value) =>
-                  setAddCategoryFormState((prev) => ({ ...prev, [field]: value }))
+                  setAddCategoryFormState((prev) => ({
+                    ...prev,
+                    [field]: value,
+                  }))
                 }
               />
               <Button
