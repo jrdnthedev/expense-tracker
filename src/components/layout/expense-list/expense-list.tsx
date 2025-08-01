@@ -9,6 +9,7 @@ import Modal from '../../ui/modal/modal';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
+import { formatAmount } from '../../../utils/currency';
 
 export default function ExpenseList() {
   const { categories, expenses, currency, budgets } = useAppState();
@@ -185,7 +186,7 @@ export default function ExpenseList() {
 
                   <div className="flex items-center gap-3">
                     <span className="text-xl text-green-700 font-semibold">
-                      {expense.amount}
+                      {formatAmount(expense.amount, currency)}
                     </span>
                     <Button
                       onClick={() => handleFormEdit(expense)}

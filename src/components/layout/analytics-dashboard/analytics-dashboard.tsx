@@ -2,9 +2,10 @@ import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 import { useAppState } from '../../../context/app-state-hooks';
+import { formatAmount } from '../../../utils/currency';
 
 export default function AnalyticsDashboard() {
-  const { expenses, categories } = useAppState();
+  const { expenses, categories, currency } = useAppState();
   const [timeframe, setTimeframe] = useState('last30days');
   const timeframes = [
     { value: 'last30days', label: 'Last 30 Days', id: 1 },
@@ -74,13 +75,13 @@ export default function AnalyticsDashboard() {
             </div>
           </div>
           <p className="text-gray-700 mb-2">
-            Total Expenses: ${totalExpenses.toFixed(2)}
+            Total Expenses: {formatAmount(totalExpenses, currency)}
           </p>
           <p className="text-gray-700 mb-2">
-            Average Monthly Spending: ${monthlyAverage.toFixed(2)}
+            Average Monthly Spending: {formatAmount(monthlyAverage, currency)}
           </p>
           <p className="text-gray-700">
-            Top Category: {topCategory.name} (${topCategory.total.toFixed(2)})
+            Top Category: {topCategory.name} ({formatAmount(topCategory.total, currency)})
           </p>
         </Card>
       </div>
@@ -93,7 +94,7 @@ export default function AnalyticsDashboard() {
             .sort((a, b) => b.total - a.total)
             .map((cat) => (
               <p key={cat.id} className="text-gray-700 mb-2">
-                {cat.name}: ${cat.total.toFixed(2)}
+                {cat.name}: {formatAmount(cat.total, currency)}
               </p>
             ))}
         </Card>
@@ -103,7 +104,7 @@ export default function AnalyticsDashboard() {
           </h2>
           {Object.entries(monthlyTrends).map(([month, amount]) => (
             <p key={month} className="text-gray-700 mb-2">
-              {month}: ${(amount as number).toFixed(2)}
+              {month}: {formatAmount(amount, currency)}
             </p>
           ))}
         </Card>
