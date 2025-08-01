@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
-import type { Currency } from '../../../types/currency';
+import { CURRENCIES, type Currency } from '../../../types/currency';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 
 export default function Settings() {
@@ -14,11 +14,6 @@ export default function Settings() {
   const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
   const dispatch = useAppDispatch();
 
-  const currencies = [
-    { value: 'usd', label: 'USD', id: 1, symbol: '$' },
-    { value: 'eur', label: 'EUR', id: 2, symbol: '€' },
-    { value: 'gbp', label: 'GBP', id: 3, symbol: '£' },
-  ];
   const handleCurrencyChange = (currency: Currency) => {
     setCurrency(currency);
     dispatch({ type: 'SET_CURRENCY', payload: currency });
@@ -30,6 +25,7 @@ export default function Settings() {
   const getCategoryById = (id: number) => {
     return categories.find((cat) => cat.id === id)?.name || '';
   };
+  const currencyOptions = Object.values(CURRENCIES);
   return (
     <div className="settings-container">
       <h1 className="text-2xl font-bold mb-4">⚙️ Settings</h1>
@@ -55,13 +51,13 @@ export default function Settings() {
                 <Select
                   name="currency"
                   id="currency"
-                  options={currencies}
-                  value={settingCurrency.value}
+                  options={currencyOptions}
+                  value={settingCurrency.label}
                   onChange={(_value, id) => {
-                    const selected = currencies.find((c) => c.id === id);
+                    const selected = currencyOptions.find((c) => c.id === id);
                     if (selected) handleCurrencyChange(selected);
                   }}
-                  getOptionValue={(option) => option.value}
+                  getOptionValue={(option) => option.label}
                   getOptionLabel={(option) => option.label}
                   getOptionId={(option) => option.id}
                 />

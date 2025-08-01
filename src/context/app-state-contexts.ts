@@ -1,9 +1,10 @@
 import { createContext } from "react";
 import type { Dispatch } from "react";
 import type { State, Action } from "./app-state-context";
+import { CURRENCIES } from "../types/currency";
 
 export const initialState: State = {
-  currency: { value: 'usd', label: 'USD', id: 1, symbol: '$' },
+  currency: CURRENCIES.USD,
   defaultCategory: 1,
   budgets: [
     {

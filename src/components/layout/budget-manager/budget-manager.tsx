@@ -13,6 +13,7 @@ import {
 } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { startOfDay, parseISO, isWithinInterval } from 'date-fns';
+import { formatAmount } from '../../../utils/currency';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -112,8 +113,7 @@ export default function BudgetManager() {
                         className="text-xl font-semibold"
                         style={{ color: remainingAmount < 0 ? 'red' : 'green' }}
                       >
-                        {currency.symbol}{spentAmount.toFixed(2)}/{currency.symbol}
-                        {Number(budget.limit).toFixed(2)}
+                        {formatAmount(spentAmount,currency)}/{formatAmount(Number(budget.limit), currency)}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
