@@ -25,14 +25,16 @@ export default function Onboarding({
   const { categories, currency, defaultCategory, budgets, expenses } =
     useAppState();
   const [step, setStep] = useState(1);
-  const [formState, setFormState] = useState({
-    amount: '',
+  const [formState, setFormState] = useState<Expense>({
+    amount: 0,
     description: '',
     category: categories[0]?.name ?? '',
     categoryId: defaultCategory,
     date: '',
     tags: [],
-    time: '00:00',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    id: 0,
   });
   const [budgetFormState, setBudgetFormState] = useState<Budget>(
     budgetDefaultFormState
@@ -68,13 +70,9 @@ export default function Onboarding({
 
   const handleSaveExpense = () => {
     console.log('Expense saved:', formState);
-    const state: Pick<
-      typeof formState,
-      'amount' | 'description' | 'categoryId' | 'date' | 'category'
-    > = formState;
     const expenseState: Expense = {
-      ...state,
-      amount: Number(state.amount),
+      ...formState,
+      amount: Number(formState.amount),
       tags: [],
       id: nextExpenseId,
       createdAt: new Date().toISOString(),

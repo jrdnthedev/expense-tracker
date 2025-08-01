@@ -24,13 +24,16 @@ export default function ExpenseList() {
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<number | null>(null);
-  const [formState, setFormState] = useState({
-    amount: expenseToEdit?.amount?.toString() ?? '',
+  const [formState, setFormState] = useState<Expense>({
+    amount: expenseToEdit?.amount ?? 0,
     description: expenseToEdit?.description ?? '',
     category: expenseToEdit?.category ?? '',
     categoryId: expenseToEdit?.categoryId ?? categories[0]?.id ?? 1,
     date: expenseToEdit?.date ?? '',
-    time: expenseToEdit?.createdAt?.substring(11, 16) ?? '00:00',
+    tags: expenseToEdit?.tags ?? [],
+    createdAt: expenseToEdit?.createdAt ?? new Date().toISOString(),
+    updatedAt: expenseToEdit?.updatedAt ?? new Date().toISOString(),
+    id: expenseToEdit?.id ?? 0,
   });
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const dispatch = useAppDispatch();
@@ -55,17 +58,20 @@ export default function ExpenseList() {
     if (!expenseToEdit || typeof expenseToEdit.id !== 'number') {
       return;
     }
+
     const newCategory =
-      categories.find((cat) => cat.id === formState.categoryId)?.name ?? '';
+      categories.find((cat: Category) => cat.id === formState.categoryId)
+        ?.name ?? '';
+
     const updatedExpense: Expense = {
-      ...expenseToEdit,
-      id: expenseToEdit.id,
+      ...formState,
+      id: formState.id,
       amount: Number(formState.amount),
       description: formState.description,
       category: newCategory.toLowerCase(),
       categoryId: formState.categoryId,
       date: formState.date,
-      createdAt: new Date(`${formState.date}T${formState.time}`).toISOString(),
+      createdAt: formState.createdAt,
       updatedAt: new Date().toISOString(),
     };
     dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
@@ -73,24 +79,27 @@ export default function ExpenseList() {
   };
   const handleReset = () => {
     setFormState({
-      amount: '',
+      amount: 0,
       description: '',
       category: '',
       categoryId: categories[0]?.id ?? 1,
       date: '',
-      time: '00:00',
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      id: 0,
     });
     setExpenseToEdit(null);
   };
   const handleFormEdit = (expense: Expense) => {
     setExpenseToEdit(expense);
     setFormState({
-      amount: expense.amount.toString(),
+      ...expense,
+      amount: expense.amount,
       description: expense.description,
       category: expense.category,
       categoryId: expense.categoryId,
       date: expense.date,
-      time: expense.createdAt?.substring(11, 16) ?? '00:00',
     });
   };
   const handleAddExpense = () => {
@@ -103,12 +112,11 @@ export default function ExpenseList() {
       categoryId: formState.categoryId,
       date: formState.date,
       tags: [],
-      createdAt: new Date(`${formState.date}T${formState.time}`).toISOString(),
+      createdAt: new Date(`${formState.date}T${new Date()}`).toISOString(),
       updatedAt: new Date().toISOString(),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
   };
-
 
   return (
     <div className="flex flex-col gap-4">
