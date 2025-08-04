@@ -1,5 +1,5 @@
-import type { Currency } from "../../../types/currency";
-import { formatAmount } from "../../../utils/currency";
+import type { Currency } from '../../../types/currency';
+import { formatAmount } from '../../../utils/currency';
 
 interface BudgetAlertProps {
   categoryName: string;
@@ -8,11 +8,11 @@ interface BudgetAlertProps {
   currency: Currency;
 }
 
-export default function BudgetAlert({ 
-  categoryName, 
-  remainingBudget, 
+export default function BudgetAlert({
+  categoryName,
+  remainingBudget,
   percentageUsed,
-  currency 
+  currency,
 }: BudgetAlertProps) {
   const getAlertType = () => {
     if (percentageUsed >= 100) return 'error';
@@ -23,7 +23,7 @@ export default function BudgetAlert({
   const alertStyles = {
     error: 'bg-red-100 text-red-800 border-red-300',
     warning: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    info: 'bg-blue-100 text-blue-800 border-blue-300'
+    info: 'bg-blue-100 text-blue-800 border-blue-300',
   };
 
   const alertType = getAlertType();
@@ -35,9 +35,7 @@ export default function BudgetAlert({
           {alertType === 'error' ? '⚠️' : '💡'}
         </div>
         <div className="flex gap-1 flex-col">
-          <h3 className="text-sm font-medium">
-            Budget Alert: {categoryName}
-          </h3>
+          <h3 className="text-sm font-medium">Budget Alert: {categoryName}</h3>
           <div className=" text-sm">
             {percentageUsed >= 100 ? (
               <p>You have exceeded your budget!</p>
