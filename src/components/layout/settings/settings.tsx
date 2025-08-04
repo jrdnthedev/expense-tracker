@@ -3,6 +3,7 @@ import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 import { CURRENCIES, type Currency } from '../../../types/currency';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import type { Category } from '../../../types/category';
 
 export default function Settings() {
   const {
@@ -57,9 +58,9 @@ export default function Settings() {
                     const selected = currencyOptions.find((c) => c.id === id);
                     if (selected) handleCurrencyChange(selected);
                   }}
-                  getOptionValue={(option) => option.label}
-                  getOptionLabel={(option) => option.label}
-                  getOptionId={(option) => option.id}
+                  getOptionValue={(option: Currency) => option.label}
+                  getOptionLabel={(option: Currency) => option.label}
+                  getOptionId={(option: Currency) => option.id}
                 />
               </div>
             </div>
@@ -80,9 +81,9 @@ export default function Settings() {
                     options={categories}
                     value={getCategoryById(defaultCategory)}
                     onChange={handleDefaultCategoryChange}
-                  getOptionValue={(cat) => cat.name}
-                  getOptionLabel={(cat) => cat.name}
-                  getOptionId={(cat) => cat.id}
+                  getOptionValue={(cat: Category) => cat.name}
+                  getOptionLabel={(cat: Category) => cat.name}
+                  getOptionId={(cat: Category) => cat.id}
                 />
                 ) : (
                   <span className="text-gray-600">No categories available</span>
