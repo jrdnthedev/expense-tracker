@@ -6,6 +6,7 @@ import { calculateTotalExpenses } from '../../../utils/expense';
 import CustomLineChart from '../../charts/line-chart/line-chart';
 import CustomBarChart from '../../charts/bar-chart/bar-chart';
 import CustomPieChart from '../../charts/pie-chart/pie-chart';
+import EmptyState from '../../ui/empty-state/empty-state';
 
 export default function AnalyticsDashboard() {
   const { expenses, categories } = useAppState();
@@ -73,42 +74,64 @@ export default function AnalyticsDashboard() {
         This section provides insights into your spending patterns and financial
         health.
       </p>
-      <div className="mb-4">
-        <Card>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Spending Overview
-            </h2>
-            <div className="w-40">
-              <Select
-                name="timeframe"
-                id="timeframe"
-                options={timeframes}
-                value={timeframe}
-                onChange={setTimeframe}
-                getOptionValue={(option) => option.value}
-                getOptionLabel={(option) => option.label}
-                getOptionId={(option) => option.id}
-              />
-            </div>
+      {categories.length > 0 ? (
+        <>
+          <div className="mb-4">
+            <Card>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Spending Overview
+                </h2>
+                <div className="w-40">
+                  <Select
+                    name="timeframe"
+                    id="timeframe"
+                    options={timeframes}
+                    value={timeframe}
+                    onChange={setTimeframe}
+                    getOptionValue={(option) => option.value}
+                    getOptionLabel={(option) => option.label}
+                    getOptionId={(option) => option.id}
+                  />
+                </div>
+              </div>
+              <CustomLineChart data={overviewTrendsData} />
+            </Card>
           </div>
-          <CustomLineChart data={overviewTrendsData} />
-        </Card>
-      </div>
-      <div className="flex gap-4 max-sm:flex-col">
+          <div className="flex gap-4 max-sm:flex-col">
+            <Card>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Category Breakdown
+              </h2>
+              <CustomPieChart
+                data={categoryTotals
+                  .sort((a, b) => b.total - a.total)
+                  .map((cat) => ({ name: cat.name, value: cat.total }))}
+              />
+            </Card>
+            <Card>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Monthly Trends
+              </h2>
+              <CustomBarChart
+                data={Object.entries(monthlyTrends).map(([month, amount]) => ({
+                  name: month,
+                  value: amount,
+                }))}
+              />
+            </Card>
+          </div>
+        </>
+      ) : (
         <Card>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Category Breakdown
-          </h2>
-            <CustomPieChart data={categoryTotals.sort((a, b) => b.total - a.total).map((cat) => ({ name: cat.name, value: cat.total }))} />
+          <EmptyState
+            title="No data available"
+            description="Add categories and expenses to see your analytics."
+            link="categoryManagement"
+            cta="Add Categories"
+          />
         </Card>
-        <Card>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Monthly Trends
-          </h2>
-          <CustomBarChart data={Object.entries(monthlyTrends).map(([month, amount]) => ({ name: month, value: amount }))} />
-        </Card>
-      </div>
+      )}
     </div>
   );
 }

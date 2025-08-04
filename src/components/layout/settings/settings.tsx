@@ -73,16 +73,20 @@ export default function Settings() {
                 </div>
               </div>
               <div className="w-auto">
-                <Select
-                  name="default-category"
-                  id="default-category"
-                  options={categories}
-                  value={getCategoryById(defaultCategory)}
-                  onChange={handleDefaultCategoryChange}
+                {categories.length > 0 ? (
+                  <Select
+                    name="default-category"
+                    id="default-category"
+                    options={categories}
+                    value={getCategoryById(defaultCategory)}
+                    onChange={handleDefaultCategoryChange}
                   getOptionValue={(cat) => cat.name}
                   getOptionLabel={(cat) => cat.name}
                   getOptionId={(cat) => cat.id}
                 />
+                ) : (
+                  <span className="text-gray-600">No categories available</span>
+                )}
               </div>
             </div>
           </div>
