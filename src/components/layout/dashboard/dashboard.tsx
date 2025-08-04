@@ -71,7 +71,7 @@ export default function Dashboard() {
             <EmptyState
               title="No recent expenses"
               description="Track your spending by adding expenses."
-              onAction={() => console.log('Add Expense')}
+              link="expenselist"
             />
           )}
       </Card>
