@@ -63,8 +63,15 @@ export default function CategoryManagement() {
   };
 
   const handleAddCategory = () => {
-    console.log('Adding new category:', addCategoryFormState);
     dispatch({ type: 'ADD_CATEGORY', payload: addCategoryFormState });
+    const newNextId = nextId + 1;
+    setAddCategoryFormState({
+      name: '',
+      icon: '➕',
+      color: '#000000',
+      id: newNextId,
+    });
+    setIsModalOpen(false);
   };
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
@@ -98,13 +105,7 @@ export default function CategoryManagement() {
                   }
                   formState={addCategoryFormState}
                 />
-                <Button
-                  onClick={() => {
-                    handleAddCategory();
-                    setIsModalOpen(false);
-                  }}
-                  variant="primary"
-                >
+                <Button onClick={handleAddCategory} variant="primary">
                   Add Category
                 </Button>
               </div>
