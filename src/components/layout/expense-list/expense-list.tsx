@@ -112,7 +112,7 @@ export default function ExpenseList() {
       categoryId: formState.categoryId,
       date: formState.date,
       tags: [],
-      createdAt: new Date(`${formState.date}T${new Date()}`).toISOString(),
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
