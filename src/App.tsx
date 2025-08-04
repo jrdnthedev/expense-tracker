@@ -32,7 +32,12 @@ function App() {
           <nav>
             {onboardingComplete &&
               navLinks.map((link) => (
-                <Link key={link.to} to={link.to}>
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+        active:outline-none"
+                >
                   {link.label}
                 </Link>
               ))}
