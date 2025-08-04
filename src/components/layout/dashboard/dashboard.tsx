@@ -12,8 +12,6 @@ export default function Dashboard() {
   const recentExpenses = getRecentExpenses(expenses, 5);
 
   const totalRemainingBudget = calculateAllRemainingBudgets(budgets, expenses);
-
-  console.log(formatAmount(3000 - 1000, currency));
   return (
     <div className="dashboard-container">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
