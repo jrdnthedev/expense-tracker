@@ -2,11 +2,13 @@ import { useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 import { useAppState } from '../../../context/app-state-hooks';
-import { formatAmount } from '../../../utils/currency';
 import { calculateTotalExpenses } from '../../../utils/expense';
+import CustomLineChart from '../../charts/line-chart/line-chart';
+import CustomBarChart from '../../charts/bar-chart/bar-chart';
+import CustomPieChart from '../../charts/pie-chart/pie-chart';
 
 export default function AnalyticsDashboard() {
-  const { expenses, categories, currency } = useAppState();
+  const { expenses, categories } = useAppState();
   const [timeframe, setTimeframe] = useState('last30days');
   const timeframes = [
     { value: 'last30days', label: 'Last 30 Days', id: 1 },
@@ -49,6 +51,21 @@ export default function AnalyticsDashboard() {
   };
 
   const monthlyTrends = getMonthlyTrends();
+
+  const getOverviewTrends = () => {
+    const months = Object.keys(monthlyTrends);
+
+    const data = months.map((month) => ({
+      name: month,
+      total: monthlyTrends[month],
+      average: monthlyAverage,
+      topCategory: month === months[months.length - 1] ? topCategory.total : 0,
+    }));
+
+    return data;
+  };
+
+  const overviewTrendsData = getOverviewTrends();
   return (
     <div className="analytics-dashboard-container">
       <h1 className="text-2xl font-bold mb-4">📊 Analytics Dashboard</h1>
@@ -75,15 +92,7 @@ export default function AnalyticsDashboard() {
               />
             </div>
           </div>
-          <p className="text-gray-700 mb-2">
-            Total Expenses: {formatAmount(totalExpenses, currency)}
-          </p>
-          <p className="text-gray-700 mb-2">
-            Average Monthly Spending: {formatAmount(monthlyAverage, currency)}
-          </p>
-          <p className="text-gray-700">
-            Top Category: {topCategory.name} ({formatAmount(topCategory.total, currency)})
-          </p>
+          <CustomLineChart data={overviewTrendsData} />
         </Card>
       </div>
       <div className="flex gap-4 max-sm:flex-col">
@@ -91,23 +100,13 @@ export default function AnalyticsDashboard() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Category Breakdown
           </h2>
-          {categoryTotals
-            .sort((a, b) => b.total - a.total)
-            .map((cat) => (
-              <p key={cat.id} className="text-gray-700 mb-2">
-                {cat.name}: {formatAmount(cat.total, currency)}
-              </p>
-            ))}
+            <CustomPieChart data={categoryTotals.sort((a, b) => b.total - a.total).map((cat) => ({ name: cat.name, value: cat.total }))} />
         </Card>
         <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Monthly Trends
           </h2>
-          {Object.entries(monthlyTrends).map(([month, amount]) => (
-            <p key={month} className="text-gray-700 mb-2">
-              {month}: {formatAmount(amount, currency)}
-            </p>
-          ))}
+          <CustomBarChart data={Object.entries(monthlyTrends).map(([month, amount]) => ({ name: month, value: amount }))} />
         </Card>
       </div>
     </div>
