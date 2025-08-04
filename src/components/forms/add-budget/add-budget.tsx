@@ -20,7 +20,7 @@ export default function AddBudget({
           id="limit"
           value={formState.limit}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onFieldChange('limit', e.target.value)
+            onFieldChange('limit', Number(e.target.value))
           }
           placeholder="Enter budget limit"
         />

@@ -5,7 +5,7 @@ import Modal from '../../ui/modal/modal';
 import AddBudget from '../../forms/add-budget/add-budget';
 import type { Budget } from '../../../types/budget';
 import { useNextId } from '../../../hooks/nextId/next-id';
-import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
+import { periodOptions } from '../../../constants/data';
 import {
   formatDate,
   validateEndDate,
@@ -18,7 +18,16 @@ import { formatAmount } from '../../../utils/currency';
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { budgets, categories, expenses, currency } = useAppState();
-  const [formState, setFormState] = useState<Budget>(budgetDefaultFormState);
+  const [formState, setFormState] = useState<Budget>({
+    id: 0,
+    limit: 0,
+    category: categories[0].name,
+    categoryId: 1,
+    period:
+      (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
+    startDate: '',
+    endDate: '',
+  });
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
 
@@ -26,7 +35,9 @@ export default function BudgetManager() {
     const newBudget = {
       ...formState,
       id: nextBudgetId,
+      limit: Number(formState.limit),
     };
+    console.log('Saving budget:', newBudget);
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setIsModalOpen(false);
   };
@@ -47,7 +58,6 @@ export default function BudgetManager() {
       })
       .reduce((total, expense) => total + expense.amount, 0);
   };
-
   return (
     <>
       <div className="mb-6">
@@ -113,7 +123,8 @@ export default function BudgetManager() {
                         className="text-xl font-semibold"
                         style={{ color: remainingAmount < 0 ? 'red' : 'green' }}
                       >
-                        {formatAmount(spentAmount,currency)}/{formatAmount(Number(budget.limit), currency)}
+                        {formatAmount(spentAmount, currency)}/
+                        {formatAmount(Number(budget.limit), currency)}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
@@ -128,7 +139,8 @@ export default function BudgetManager() {
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-gray-600">
-                        Remaining: {currency.symbol}{remainingAmount.toFixed(2)}
+                        Remaining: {currency.symbol}
+                        {remainingAmount.toFixed(2)}
                       </p>
                       <p className="text-sm text-gray-600">
                         {formatDate(budget.startDate)} -{' '}
