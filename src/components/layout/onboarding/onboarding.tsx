@@ -71,7 +71,7 @@ export default function Onboarding({
       LocalStorage.set('onboardingComplete', true);
       setOnboardingComplete(true);
       dispatch({ type: 'ADD_BUDGET', payload: budgetState });
-      navigate('/dashboard');
+      setStep(5);
     }
   };
 
@@ -86,7 +86,7 @@ export default function Onboarding({
       updatedAt: new Date().toISOString(),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: expenseState });
-    setStep(5);
+    setStep(6);
   };
 
   const handleAddCategory = () => {
@@ -133,7 +133,7 @@ export default function Onboarding({
               ))}
             </div>
             <Button onClick={() => setStep(3)} variant="primary" type="button">
-              Next: Add First Expense
+              Next: Add First Category
             </Button>
           </>
         )}
@@ -163,49 +163,6 @@ export default function Onboarding({
         )}
         {step === 4 && (
           <>
-            <h2 className="text-xl font-bold mb-2">Add Your First Expense</h2>
-            <p className="mb-6">Let’s record your first expense together.</p>
-            <div>
-              <ExpenseForm
-                categories={categories}
-                formState={formState}
-                onFieldChange={handleFieldChange}
-                currency={currency}
-                minDate={getBudgetStartDate(formState.categoryId, budgets)}
-              />
-            </div>
-            <Button
-              onClick={handleSaveExpense}
-              variant="primary"
-              type="button"
-              // disabled={!validateForm(formState)}
-            >
-              Save Expense
-            </Button>
-          </>
-        )}
-        {step === 5 && (
-          <>
-            <h2 className="text-xl font-bold mb-2">Dashboard Preview</h2>
-            <p className="mb-6">
-              Here’s how your dashboard will look with sample data.
-            </p>
-            <div className="flex flex-col gap-4">
-              <Dashboard />
-              <div className="w-auto">
-                <Button
-                  onClick={() => setStep(6)}
-                  variant="primary"
-                  type="button"
-                >
-                  Next: Set Up Budget
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
-        {step === 6 && (
-          <>
             <h2 className="text-xl font-bold mb-2">Set Up Your First Budget</h2>
             <p className="mb-6">Let’s help you set a budget for a category.</p>
             <div className="flex flex-col gap-4">
@@ -232,6 +189,49 @@ export default function Onboarding({
                   }
                 >
                   Save Budget
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+        {step === 5 && (
+          <>
+            <h2 className="text-xl font-bold mb-2">Add Your First Expense</h2>
+            <p className="mb-6">Let’s record your first expense together.</p>
+            <div>
+              <ExpenseForm
+                categories={categories}
+                formState={formState}
+                onFieldChange={handleFieldChange}
+                currency={currency}
+                minDate={getBudgetStartDate(formState.categoryId, budgets)}
+              />
+            </div>
+            <Button
+              onClick={handleSaveExpense}
+              variant="primary"
+              type="button"
+              // disabled={!validateForm(formState)}
+            >
+              Save Expense
+            </Button>
+          </>
+        )}
+        {step === 6 && (
+          <>
+            <h2 className="text-xl font-bold mb-2">Dashboard Preview</h2>
+            <p className="mb-6">
+              Here’s how your dashboard will look with sample data.
+            </p>
+            <div className="flex flex-col gap-4">
+              <Dashboard />
+              <div className="w-auto">
+                <Button
+                  onClick={() => navigate('/dashboard')}
+                  variant="primary"
+                  type="button"
+                >
+                  Go to Dashboard
                 </Button>
               </div>
             </div>
