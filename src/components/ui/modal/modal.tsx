@@ -14,8 +14,9 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
       <div
         className="absolute inset-0 bg-gray-800 opacity-20"
         onClick={onClose}
-        role="presentation"
+        role="dialog"
         aria-label="Close modal overlay"
+        aria-labelledby="modal-overlay"
       ></div>
       <div className="w-full max-w-md mx-auto">
         <Card>
@@ -24,6 +25,8 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
           tabIndex={-1}
           role="dialog"
           aria-modal="true"
+          aria-label="Modal Dialog"
+          aria-labelledby="modal-title"
           >
             <button
               onClick={onClose}

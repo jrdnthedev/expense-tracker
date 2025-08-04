@@ -13,6 +13,8 @@ export default function Select<T>({
       name={name}
       id={id}
       value={value}
+      aria-label={name}
+      title={name}
       onChange={(e) => {
         const selectedIndex = e.target.selectedIndex;
         const selectedOption = e.target.options[selectedIndex];

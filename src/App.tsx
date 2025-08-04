@@ -37,15 +37,16 @@ function App() {
                 </Link>
               ))}
           </nav>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route
-              path="/onboarding"
-              element={
-                <Onboarding setOnboardingComplete={setOnboardingComplete} />
-              }
-            />
-            {protectedRoutes.map((route: ProtectedRoute) => (
+          <main>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route
+                path="/onboarding"
+                element={
+                  <Onboarding setOnboardingComplete={setOnboardingComplete} />
+                }
+              />
+              {protectedRoutes.map((route: ProtectedRoute) => (
                 <Route
                   key={route.path}
                   path={route.path}
@@ -56,8 +57,9 @@ function App() {
                   }
                 />
               ))}
-            <Route path="*" element={<div>404 Not Found</div>} />
-          </Routes>
+              <Route path="*" element={<div>404 Not Found</div>} />
+            </Routes>
+          </main>
         </Router>
       </div>
     </AppProvider>
