@@ -4,6 +4,7 @@ import { calculateAllRemainingBudgets } from '../../../utils/budget';
 import { formatAmount } from '../../../utils/currency';
 import { getCurrentMonthExpenses, getRecentExpenses, getTotalTransactions } from '../../../utils/expense';
 import Card from '../../ui/card/card';
+import EmptyState from '../../ui/empty-state/empty-state';
 
 export default function Dashboard() {
   const { expenses, currency, budgets } = useAppState();
@@ -11,7 +12,6 @@ export default function Dashboard() {
   const recentExpenses = getRecentExpenses(expenses, 5);
 
   const totalRemainingBudget = calculateAllRemainingBudgets(budgets, expenses);
-
   return (
     <div className="dashboard-container">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
@@ -46,12 +46,13 @@ export default function Dashboard() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           Recent Expenses
         </h2>
-        <ul className="scrollable-list max-h-64 overflow-y-auto">
-          {recentExpenses.map((expense: ExpenseList) => (
-            <li
-              key={expense.id}
-              className="flex items-center justify-between mb-2 border-b border-gray-200 pb-2"
-            >
+        {recentExpenses.length > 0 ? (
+          <ul className="scrollable-list max-h-64 overflow-y-auto">
+            {recentExpenses.map((expense: ExpenseList) => (
+              <li
+                key={expense.id}
+                className="flex items-center justify-between mb-2 border-b border-gray-200 pb-2"
+              >
               <div className="flex items-center gap-2">
                 {/* <span className="text-xl">{expense.icon}</span> */}
                 <div className="flex flex-col">
@@ -66,7 +67,13 @@ export default function Dashboard() {
               </span>
             </li>
           ))}
-        </ul>
+        </ul>):(
+            <EmptyState
+              title="No recent expenses"
+              description="Track your spending by adding expenses."
+              link="expenselist"
+            />
+          )}
       </Card>
     </div>
   );

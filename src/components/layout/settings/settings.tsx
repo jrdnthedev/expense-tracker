@@ -3,12 +3,17 @@ import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 import { CURRENCIES, type Currency } from '../../../types/currency';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import type { Category } from '../../../types/category';
+import BudgetAlert from '../../ui/alert/alert';
+import { checkBudgetThreshold } from '../../../utils/budget';
 
 export default function Settings() {
   const {
     currency,
     defaultCategory: stateDefaultCategory,
     categories,
+    budgets,
+    expenses,
   } = useAppState();
   const [settingCurrency, setCurrency] = useState<Currency>(currency);
   const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
@@ -25,6 +30,28 @@ export default function Settings() {
   const getCategoryById = (id: number) => {
     return categories.find((cat) => cat.id === id)?.name || '';
   };
+
+  const budgetAlerts = budgets
+    .map((budget) => {
+      const { remainingBudget, percentageUsed, isApproachingLimit } =
+        checkBudgetThreshold(budget, expenses);
+
+      if (!isApproachingLimit) return null;
+
+      const category = categories.find((cat) => cat.id === budget.categoryId);
+      if (!category) return null;
+
+      return (
+        <BudgetAlert
+          key={budget.id}
+          categoryName={category.name}
+          remainingBudget={remainingBudget}
+          percentageUsed={percentageUsed}
+          currency={currency}
+        />
+      );
+    })
+    .filter(Boolean);
   const currencyOptions = Object.values(CURRENCIES);
   return (
     <div className="settings-container">
@@ -57,9 +84,9 @@ export default function Settings() {
                     const selected = currencyOptions.find((c) => c.id === id);
                     if (selected) handleCurrencyChange(selected);
                   }}
-                  getOptionValue={(option) => option.label}
-                  getOptionLabel={(option) => option.label}
-                  getOptionId={(option) => option.id}
+                  getOptionValue={(option: Currency) => option.label}
+                  getOptionLabel={(option: Currency) => option.label}
+                  getOptionId={(option: Currency) => option.id}
                 />
               </div>
             </div>
@@ -73,16 +100,20 @@ export default function Settings() {
                 </div>
               </div>
               <div className="w-auto">
-                <Select
-                  name="default-category"
-                  id="default-category"
-                  options={categories}
-                  value={getCategoryById(defaultCategory)}
-                  onChange={handleDefaultCategoryChange}
-                  getOptionValue={(cat) => cat.name}
-                  getOptionLabel={(cat) => cat.name}
-                  getOptionId={(cat) => cat.id}
-                />
+                {categories.length > 0 ? (
+                  <Select
+                    name="default-category"
+                    id="default-category"
+                    options={categories}
+                    value={getCategoryById(defaultCategory)}
+                    onChange={handleDefaultCategoryChange}
+                    getOptionValue={(cat: Category) => cat.name}
+                    getOptionLabel={(cat: Category) => cat.name}
+                    getOptionId={(cat: Category) => cat.id}
+                  />
+                ) : (
+                  <span className="text-gray-600">No categories available</span>
+                )}
               </div>
             </div>
           </div>
@@ -94,11 +125,12 @@ export default function Settings() {
         </h2>
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 justify-between pb-2">
-            <div className="flex flex-col">
-              <span className="font-medium">Budget Alerts</span>
-              <span className="text-gray-600">
-                Notify when approaching budget limits
-              </span>
+            <div className="text-gray-600 flex flex-col gap-4">
+              {budgetAlerts.length > 0 ? (
+                budgetAlerts
+              ) : (
+                <p className="text-gray-600">No budget alerts at this time</p>
+              )}
             </div>
           </div>
         </div>

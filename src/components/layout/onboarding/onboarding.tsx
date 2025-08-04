@@ -9,7 +9,7 @@ import AddBudget from '../../forms/add-budget/add-budget';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
-import { budgetDefaultFormState, periodOptions } from '../../../constants/data';
+import { periodOptions } from '../../../constants/data';
 import { validateEndDate, validateForm } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
@@ -36,9 +36,16 @@ export default function Onboarding({
     updatedAt: new Date().toISOString(),
     id: 0,
   });
-  const [budgetFormState, setBudgetFormState] = useState<Budget>(
-    budgetDefaultFormState
-  );
+  const [budgetFormState, setBudgetFormState] = useState<Budget>({
+    id: 0,
+    limit: 0,
+    category: categories[0].name,
+    categoryId: 1,
+    period:
+      (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
+    startDate: '',
+    endDate: '',
+  });
   const handleFieldChange = useCallback(
     (field: string, value: string | number) =>
       setFormState((prev) => ({ ...prev, [field]: value })),

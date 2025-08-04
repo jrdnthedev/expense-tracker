@@ -4,17 +4,6 @@ export const periodOptions = [
   { value: 'yearly', label: 'Yearly', id: 3 },
 ];
 
-export const budgetDefaultFormState = {
-  id: 0,
-  limit: 0,
-  category: 'food',
-  categoryId: 1,
-  period:
-    (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
-  startDate: '',
-  endDate: '',
-};
-
 export const navLinks = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/budgetmanager', label: 'Budget Manager' },
