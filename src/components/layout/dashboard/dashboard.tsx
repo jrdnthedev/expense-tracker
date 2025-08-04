@@ -1,14 +1,17 @@
 import { useAppState } from '../../../context/app-state-hooks';
 import type { Expense } from '../../../types/expense';
+import { calculateAllRemainingBudgets } from '../../../utils/budget';
 import { formatAmount } from '../../../utils/currency';
 import { getCurrentMonthExpenses, getRecentExpenses, getTotalTransactions } from '../../../utils/expense';
 import Card from '../../ui/card/card';
 
 export default function Dashboard() {
-  const { expenses, currency } = useAppState();
-
+  const { expenses, currency, budgets } = useAppState();
   const monthlyExpenses = getCurrentMonthExpenses(expenses);
   const recentExpenses = getRecentExpenses(expenses, 5);
+
+  const totalRemainingBudget = calculateAllRemainingBudgets(budgets, expenses);
+
   return (
     <div className="dashboard-container">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
@@ -26,7 +29,7 @@ export default function Dashboard() {
             <h2 className="text-sm font-semibold text-gray-900 mb-2">
               Budget left
             </h2>
-            <p className="text-xl text-red-700 font-semibold">$153</p>
+            <p className={`text-xl font-semibold ${totalRemainingBudget > 0 ? 'text-green-700' : 'text-red-700'}`}>{formatAmount(totalRemainingBudget, currency)}</p>
           </Card>
         </li>
         <li>
