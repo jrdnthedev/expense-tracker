@@ -11,6 +11,7 @@ import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { formatAmount } from '../../../utils/currency';
 import { getBudgetStartDate } from '../../../utils/budget';
+import { formatDate } from '../../../utils/validators';
 
 export default function ExpenseList() {
   const { categories, expenses, currency, budgets } = useAppState();
@@ -112,7 +113,7 @@ export default function ExpenseList() {
       categoryId: formState.categoryId,
       date: formState.date,
       tags: [],
-      createdAt: new Date(`${formState.date}T${new Date()}`).toISOString(),
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
@@ -184,7 +185,7 @@ export default function ExpenseList() {
                     {/* <span className="text-xl mr-2">{expense.icon}</span> */}
                     <div>
                       <h3 className="font-semibold">{expense.description}</h3>
-                      <p className="text-gray-500">{expense.date}</p>
+                      <p className="text-gray-500">{formatDate(expense.createdAt)}</p>
                     </div>
                   </div>
 

@@ -3,6 +3,7 @@ import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 import { useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
+import { calculateTotalExpenses } from '../../../utils/expense';
 
 export default function AnalyticsDashboard() {
   const { expenses, categories, currency } = useAppState();
@@ -14,7 +15,7 @@ export default function AnalyticsDashboard() {
   ];
 
   // Calculate totals and statistics
-  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const totalExpenses = calculateTotalExpenses(expenses);
 
   // Calculate monthly average
   const monthlyAverage =

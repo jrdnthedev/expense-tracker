@@ -1,6 +1,12 @@
+import { useRef } from 'react';
 import Card from '../card/card';
+import { useKeyTrap } from '../../../hooks/keytrap/keytrap';
 
 export default function Modal({ isOpen, onClose, children }: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  useKeyTrap({ isOpen, onClose, modalRef });
+  
   if (!isOpen) return null;
 
   return (
@@ -13,10 +19,15 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
       ></div>
       <div className="w-full max-w-md mx-auto">
         <Card>
-          <div className="relative z-10">
+          <div className="relative z-10"
+          ref={modalRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          >
             <button
               onClick={onClose}
-              className="absolute top-2 right-2 cursor-pointer text-gray-500 hover:text-gray-700"
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 activate:ring-blue-500 cursor-pointer"
               aria-label="Close modal"
             >
               <svg
@@ -26,6 +37,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 strokeWidth={2}
+                tabIndex={-1}
               >
                 <path
                   strokeLinecap="round"
