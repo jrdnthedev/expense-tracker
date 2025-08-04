@@ -21,7 +21,7 @@ export default function BudgetManager() {
   const [formState, setFormState] = useState<Budget>({
     id: 0,
     limit: 0,
-    category: categories[0].name,
+    category: categories[0]?.name,
     categoryId: 1,
     period:
       (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
@@ -37,8 +37,17 @@ export default function BudgetManager() {
       id: nextBudgetId,
       limit: Number(formState.limit),
     };
-    console.log('Saving budget:', newBudget);
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
+    setFormState({
+      id: 0,
+      limit: 0,
+      category: categories[0].name,
+      categoryId: 1,
+      period:
+        (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
+      startDate: '',
+      endDate: '',
+    });
     setIsModalOpen(false);
   };
 
@@ -139,8 +148,7 @@ export default function BudgetManager() {
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-gray-600">
-                        Remaining: {currency.symbol}
-                        {remainingAmount.toFixed(2)}
+                        Remaining: {formatAmount(remainingAmount, currency)}
                       </p>
                       <p className="text-sm text-gray-600">
                         {formatDate(budget.startDate)} -{' '}
