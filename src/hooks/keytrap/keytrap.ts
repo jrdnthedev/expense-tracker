@@ -9,7 +9,7 @@ interface UseKeyTrapProps {
 export const useKeyTrap = ({ isOpen, onClose, modalRef }: UseKeyTrapProps) => {
   const lastFocusedElement = useRef<HTMLElement | null>(null);
   // Helper function to get focusable elements
-  const getFocusableElements = useCallback(() => {
+  const getFocusableElements = () => {
     if (!modalRef.current) return [];
 
     const elements = modalRef.current.querySelectorAll<HTMLElement>(
@@ -17,7 +17,7 @@ export const useKeyTrap = ({ isOpen, onClose, modalRef }: UseKeyTrapProps) => {
     );
 
     return Array.from(elements);
-  }, [modalRef]);
+  };
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -48,7 +48,7 @@ export const useKeyTrap = ({ isOpen, onClose, modalRef }: UseKeyTrapProps) => {
         }
       }
     },
-    [isOpen, onClose, modalRef, getFocusableElements]
+    [isOpen, onClose, modalRef]
   );
 
   useEffect(() => {
