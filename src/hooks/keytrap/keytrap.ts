@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 
 interface UseKeyTrapProps {
   isOpen: boolean;
@@ -7,16 +7,17 @@ interface UseKeyTrapProps {
 }
 
 export const useKeyTrap = ({ isOpen, onClose, modalRef }: UseKeyTrapProps) => {
+  const lastFocusedElement = useRef<HTMLElement | null>(null);
   // Helper function to get focusable elements
-  const getFocusableElements = useCallback(() => {
+  const getFocusableElements = () => {
     if (!modalRef.current) return [];
-    
+
     const elements = modalRef.current.querySelectorAll<HTMLElement>(
       'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
     );
-    
+
     return Array.from(elements);
-  }, [modalRef]);
+  };
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -47,25 +48,32 @@ export const useKeyTrap = ({ isOpen, onClose, modalRef }: UseKeyTrapProps) => {
         }
       }
     },
-    [isOpen, onClose, modalRef, getFocusableElements]
+    [isOpen, onClose, modalRef]
   );
 
   useEffect(() => {
     if (isOpen) {
+      // Store the currently focused element before the modal opens
+      lastFocusedElement.current = document.activeElement as HTMLElement;
+      // Add event listener for keyboard events
       document.addEventListener('keydown', handleKeyDown);
-      
-      // Focus first non-disabled focusable element
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length) {
-        focusableElements[0].focus();
-      }
-      
-      document.body.style.overflow = 'hidden';
-    }
 
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
-    };
+      // Set focus to first focusable element in modal
+      requestAnimationFrame(() => {
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length) {
+          focusableElements[0].focus();
+        }
+      });
+
+      // Prevent scroll on body
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = 'unset';
+        lastFocusedElement.current?.focus();
+      };
+    }
   }, [isOpen]);
 };
