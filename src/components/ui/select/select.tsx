@@ -13,6 +13,8 @@ export default function Select<T>({
       name={name}
       id={id}
       value={value}
+      aria-label={name}
+      title={name}
       onChange={(e) => {
         const selectedIndex = e.target.selectedIndex;
         const selectedOption = e.target.options[selectedIndex];
@@ -22,7 +24,6 @@ export default function Select<T>({
       className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
         active:outline-none active:border-transparent
         cursor-pointer
-        [-webkit-appearance:none]
         [&:-webkit-autofill]:bg-white
         [&:-webkit-autofill:focus]:bg-white
         [&:-webkit-autofill:active]:bg-white"

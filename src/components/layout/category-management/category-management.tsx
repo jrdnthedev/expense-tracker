@@ -76,16 +76,16 @@ export default function CategoryManagement() {
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
       <div className="text-lg font-semibold text-gray-900 mb-2">
-        ➕ Manage Categories
+        <h1 className="text-xl font-bold text-gray-800">➕ Manage Categories</h1>
       </div>
       <div className="text-sm text-gray-500 mb-6">
         Easily manage your expense categories. Select a category to edit or
         delete.
       </div>
       <div className="flex items-center justify-between mb-6 gap-4">
-        <h3 className="text-xl font-bold text-gray-800 mb-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-6">
           Expense Categories
-        </h3>
+        </h2>
         <span className="w-auto">
           <Button onClick={() => setIsModalOpen(true)} variant="primary">
             Add New Category

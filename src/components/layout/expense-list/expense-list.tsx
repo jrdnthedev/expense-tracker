@@ -187,9 +187,9 @@ export default function ExpenseList() {
                       <div className="flex items-center">
                         {/* <span className="text-xl mr-2">{expense.icon}</span> */}
                         <div>
-                          <h3 className="font-semibold">
+                          <h2 className="font-semibold">
                             {expense.description}
-                          </h3>
+                          </h2>
                           <p className="text-gray-500">
                             {formatDate(expense.createdAt)}
                           </p>
