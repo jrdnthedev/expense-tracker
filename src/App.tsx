@@ -10,12 +10,15 @@ import {
 } from './constants/protected-routes';
 import { useEffect, useState } from 'react';
 import { RequireOnboarding } from './components/routing/requireOnboarding';
+import { useDB } from './hooks/db/useDB';
+import LoadingStencil from './components/ui/loading-stencil/loading-stencil';
+import { ErrorScreen } from './components/ui/error-screen/error-screen';
 
 function App() {
   const [onboardingComplete, setOnboardingComplete] = useState(
     () => LocalStorage.get<boolean>('onboardingComplete') === true
   );
-
+  const { isDBReady, dbError } = useDB();
   useEffect(() => {
     const handler = () => {
       setOnboardingComplete(
@@ -25,6 +28,23 @@ function App() {
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
+
+  if (dbError) {
+    return (
+      <ErrorScreen 
+        title="Database Error"
+        message={dbError}
+        actionLabel="Reload Page"
+        onAction={() => window.location.reload()}
+      />
+    );
+  }
+
+  if (!isDBReady) {
+    return (
+      <LoadingStencil />
+    );
+  }
   return (
     <AppProvider>
       <div className="p-4 bg-gray-100 min-h-screen">

@@ -8,9 +8,8 @@ export const useCategories = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initializeDB = async () => {
+    const loadCategories = async () => {
       try {
-        await categoryDB.initDB();
         const data = await categoryDB.getCategories();
         setCategories(data);
       } catch (err) {
@@ -20,7 +19,7 @@ export const useCategories = () => {
       }
     };
 
-    initializeDB();
+    loadCategories();
 
     return () => {
       setCategories([]);

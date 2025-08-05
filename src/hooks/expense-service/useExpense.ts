@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Expense } from "../../types/expense";
-import { dbService } from "../../services/expense-service/expense.service";
+import { expenseDB } from "../../services/expense-service/expense.service";
 
 export const useExpenses = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -8,10 +8,9 @@ export const useExpenses = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initializeDB = async () => {
+    const loadExpenses = async () => {
       try {
-        await dbService.initDB();
-        const data = await dbService.getExpenses();
+        const data = await expenseDB.getExpenses();
         setExpenses(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -20,7 +19,7 @@ export const useExpenses = () => {
       }
     };
 
-    initializeDB();
+    loadExpenses();
 
     return () => {
       setExpenses([]);
@@ -30,7 +29,7 @@ export const useExpenses = () => {
 
   const addExpense = async (expense: Omit<Expense, 'id'>) => {
     try {
-      const id = await dbService.addExpense(expense);
+      const id = await expenseDB.addExpense(expense);
       setExpenses(prev => [...prev, { ...expense, id }]);
       return id;
     } catch (err) {
@@ -41,7 +40,7 @@ export const useExpenses = () => {
 
   const updateExpense = async (expense: Expense) => {
     try {
-      await dbService.updateExpense(expense);
+      await expenseDB.updateExpense(expense);
       setExpenses(prev => 
         prev.map(e => e.id === expense.id ? expense : e)
       );
@@ -53,7 +52,7 @@ export const useExpenses = () => {
 
   const deleteExpense = async (id: number) => {
     try {
-      await dbService.deleteExpense(id);
+      await expenseDB.deleteExpense(id);
       setExpenses(prev => prev.filter(e => e.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error deleting expense');

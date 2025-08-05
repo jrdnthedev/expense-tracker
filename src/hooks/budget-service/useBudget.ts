@@ -8,9 +8,8 @@ export const useBudgets = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const initializeDB = async () => {
+    const loadBudgets = async () => {
       try {
-        await budgetDB.initDB();
         const data = await budgetDB.getBudgets();
         setBudgets(data);
       } catch (err) {
@@ -20,7 +19,7 @@ export const useBudgets = () => {
       }
     };
 
-    initializeDB();
+    loadBudgets();
 
     return () => {
       setBudgets([]);

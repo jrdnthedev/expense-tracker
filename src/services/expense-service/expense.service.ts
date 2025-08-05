@@ -118,4 +118,4 @@ class ExpenseDBService {
   }
 }
 
-export const dbService = new ExpenseDBService();
+export const expenseDB = new ExpenseDBService();
