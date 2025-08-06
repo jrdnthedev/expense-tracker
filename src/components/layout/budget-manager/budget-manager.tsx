@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Button from '../../ui/button/button';
 import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
@@ -10,124 +9,28 @@ import {
   validateEndDate,
   validateForm,
 } from '../../../utils/validators';
-import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
-import { startOfDay, parseISO, isWithinInterval } from 'date-fns';
+import { useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
 import EmptyState from '../../ui/empty-state/empty-state';
-import type { Expense } from '../../../types/expense';
+import { useBudgetManagement } from '../../../hooks/budget-management/budget-management';
 
 export default function BudgetManager() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { budgets, categories, expenses, currency } = useAppState();
-  const [formState, setFormState] = useState<Budget>({
-    id: 0,
-    limit: 0,
-    name: '',
-    category: categories[0]?.name,
-    categoryIds: [],
-    startDate: '',
-    endDate: '',
-    expenseIds: [],
-  });
   const nextBudgetId = useNextId<Budget>(budgets);
-  const dispatch = useAppDispatch();
-  const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
-  const handleSaveBudget = () => {
-    const categoryId = categories.find(
-      (c) => c.name === formState.category
-    )?.id;
-
-    // Find existing expenses that match the budget criteria
-    const relevantExpenses = expenses.filter((expense) => {
-      if (expense.categoryId !== categoryId) return false;
-
-      const expenseDate = startOfDay(parseISO(expense.createdAt));
-      const budgetStart = startOfDay(parseISO(formState.startDate));
-      const budgetEnd = startOfDay(parseISO(formState.endDate));
-
-      return isWithinInterval(expenseDate, {
-        start: budgetStart,
-        end: budgetEnd,
-      });
-    });
-
-    const newBudget = {
-      ...formState,
-      id: nextBudgetId,
-      limit: Number(formState.limit),
-      categoryIds: categoryId ? [categoryId] : [], // Fix: Add categoryId to array
-      expenseIds: relevantExpenses.map((e: Expense) => e.id),
-    };
-
-    console.log('Adding new budget:', newBudget);
-    dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-    setFormState({
-      id: 0,
-      limit: 0,
-      name: '',
-      category: categories[0].name,
-      categoryIds: [],
-      startDate: '',
-      endDate: '',
-      expenseIds: [],
-    });
-    setIsModalOpen(false);
-  };
-
-  const calculateSpentAmount = (budget: Budget) => {
-    return expenses
-      .filter((expense) => {
-        // Only include expenses that are in this budget's expenseIds array
-        if (!budget.expenseIds.includes(expense.id)) return false;
-
-        const expenseDate = startOfDay(parseISO(expense.createdAt));
-        const budgetStart = startOfDay(parseISO(budget.startDate));
-        const budgetEnd = startOfDay(parseISO(budget.endDate));
-
-        return isWithinInterval(expenseDate, {
-          start: budgetStart,
-          end: budgetEnd,
-        });
-      })
-      .reduce((total, expense) => total + expense.amount, 0);
-  };
-
-  const handleBudgetEdit = (budget: Budget) => {
-    setBudgetToEdit(budget);
-    setFormState({
-      id: budget.id,
-      limit: budget.limit,
-      name: budget.name,
-      category:
-        categories.find((c) => c.id === budget.categoryIds[0])?.name || '',
-      categoryIds: budget.categoryIds,
-      startDate: budget.startDate,
-      endDate: budget.endDate,
-      expenseIds: budget.expenseIds,
-    });
-    console.log('Edit budget', budgetToEdit);
-  };
-  const handleSaveChanges = () => {
-    if (budgetToEdit) {
-      dispatch({ type: 'UPDATE_BUDGET', payload: budgetToEdit });
-      setBudgetToEdit(null);
-      // setFormState({
-      //   id: 0,
-      //   limit: 0,
-      //   name: '',
-      //   category: categories[0].name,
-      //   categoryIds: [],
-      //   startDate: '',
-      //   endDate: '',
-      //   expenseIds: [],
-      // });
-    }
-  };
-
-  const handleDeleteBudget = (budgetId: number) => {
-    dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
-    setBudgetToEdit(null);
-  };
+  
+  const {
+    isModalOpen,
+    formState,
+    budgetToEdit,
+    setIsModalOpen,
+    setBudgetToEdit,
+    handleFieldChange,
+    handleSaveBudget,
+    calculateSpentAmount,
+    handleBudgetEdit,
+    handleSaveChanges,
+    handleDeleteBudget,
+  } = useBudgetManagement(categories, expenses, nextBudgetId);
   return (
     <>
       <div className="mb-6">
@@ -156,7 +59,7 @@ export default function BudgetManager() {
                         categories={categories}
                         formState={formState}
                         onFieldChange={(field, value) =>
-                          setFormState((prev) => ({ ...prev, [field]: value }))
+                          handleFieldChange(field, value)
                         }
                       />
                       {!validateEndDate(formState) && (
