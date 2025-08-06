@@ -20,8 +20,6 @@ export type State = {
 
 export type Action =
   | { type: 'SET_CURRENCY'; payload: Currency }
-  // Add other actions here
-  //   | { type: "RESET_STATE" }
   | { type: 'ADD_BUDGET'; payload: Budget }
   | { type: 'UPDATE_BUDGET'; payload: Budget }
   | { type: 'ADD_EXPENSE'; payload: Expense }
