@@ -9,7 +9,6 @@ import AddBudget from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
-import { periodOptions } from '../../../constants/data';
 import { validateEndDate, validateForm } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
@@ -30,8 +29,6 @@ export default function Onboarding({
     description: '',
     category: categories[0]?.name ?? '',
     categoryId: defaultCategory,
-    // date: '',
-    // tags: [],
     budget: '',
     budgetId: 0,
     createdAt: new Date().toISOString(),
@@ -171,7 +168,6 @@ export default function Onboarding({
                 onFieldChange={(field, value) =>
                   setBudgetFormState((prev) => ({ ...prev, [field]: value }))
                 }
-                periodOptions={periodOptions}
               />
               {!validateEndDate(budgetFormState) && (
                 <div className="text-red-500 text-sm">
