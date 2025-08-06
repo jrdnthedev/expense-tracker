@@ -30,8 +30,10 @@ export default function Onboarding({
     description: '',
     category: categories[0]?.name ?? '',
     categoryId: defaultCategory,
-    date: '',
-    tags: [],
+    // date: '',
+    // tags: [],
+    budget: '',
+    budgetId: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     id: 0,
@@ -39,12 +41,14 @@ export default function Onboarding({
   const [budgetFormState, setBudgetFormState] = useState<Budget>({
     id: 0,
     limit: 0,
-    category: categories[0].name,
-    categoryId: 1,
+    name: '',
+    category: categories[0]?.name,
+    categoryIds: [],
     period:
       (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
     startDate: '',
     endDate: '',
+    expenseIds: []
   });
   const handleFieldChange = useCallback(
     (field: string, value: string | number) =>
@@ -80,7 +84,7 @@ export default function Onboarding({
     const expenseState: Expense = {
       ...formState,
       amount: Number(formState.amount),
-      tags: [],
+      // tags: [],
       id: nextExpenseId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -201,6 +205,7 @@ export default function Onboarding({
             <div>
               <ExpenseForm
                 categories={categories}
+                budgets={budgets}
                 formState={formState}
                 onFieldChange={handleFieldChange}
                 currency={currency}

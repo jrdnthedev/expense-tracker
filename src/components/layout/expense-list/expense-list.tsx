@@ -31,8 +31,8 @@ export default function ExpenseList() {
     description: expenseToEdit?.description ?? '',
     category: expenseToEdit?.category ?? '',
     categoryId: expenseToEdit?.categoryId ?? categories[0]?.id ?? 1,
-    date: expenseToEdit?.date ?? '',
-    tags: expenseToEdit?.tags ?? [],
+    budget: expenseToEdit?.budget ?? '',
+    budgetId: expenseToEdit?.budgetId ?? 0,
     createdAt: expenseToEdit?.createdAt ?? new Date().toISOString(),
     updatedAt: expenseToEdit?.updatedAt ?? new Date().toISOString(),
     id: expenseToEdit?.id ?? 0,
@@ -72,7 +72,7 @@ export default function ExpenseList() {
       description: formState.description,
       category: newCategory.toLowerCase(),
       categoryId: formState.categoryId,
-      date: formState.date,
+      // date: formState.date,
       createdAt: formState.createdAt,
       updatedAt: new Date().toISOString(),
     };
@@ -85,8 +85,10 @@ export default function ExpenseList() {
       description: '',
       category: '',
       categoryId: categories[0]?.id ?? 1,
-      date: '',
-      tags: [],
+      // date: '',
+      // tags: [],
+      budget: '',
+      budgetId: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       id: 0,
@@ -97,11 +99,12 @@ export default function ExpenseList() {
     setExpenseToEdit(expense);
     setFormState({
       ...expense,
-      amount: expense.amount,
-      description: expense.description,
-      category: expense.category,
-      categoryId: expense.categoryId,
-      date: expense.date,
+      amount: Number(formState.amount),
+      description: formState.description,
+      category:
+        categories.find((cat) => cat.id === formState.categoryId)?.name || '',
+      categoryId: formState.categoryId,
+      // date: expense.date,
     });
   };
   const handleAddExpense = () => {
@@ -112,12 +115,39 @@ export default function ExpenseList() {
       category:
         categories.find((cat) => cat.id === formState.categoryId)?.name || '',
       categoryId: formState.categoryId,
-      date: formState.date,
-      tags: [],
+      budget: formState.budget,
+      budgetId: formState.budgetId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    console.log('Adding new expense:', newExpense);
+    console.log('Current budgets:', budgets);
+    console.log('Current expenses:', expenses);
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
+
+    if (formState.budgetId) {
+      const budget = budgets.find((b) => b.id === formState.budgetId);
+      if (budget) {
+        const updatedBudget = {
+          ...budget,
+          expenseIds: [...budget.expenseIds, newExpense.id],
+        };
+        console.log('Updating budget:', updatedBudget.expenseIds);
+        // dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
+      }
+    }
+    setIsAddExpenseModalOpen(false);
+    setFormState({
+      amount: 0,
+      description: '',
+      category: '',
+      categoryId: categories[0]?.id ?? 1,
+      budget: '',
+      budgetId: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      id: 0,
+    });
   };
 
   return (
@@ -241,6 +271,7 @@ export default function ExpenseList() {
                 <Modal isOpen={true} onClose={handleReset}>
                   <ExpenseForm
                     categories={categories}
+                    budgets={budgets}
                     formState={formState}
                     onFieldChange={handleFieldChange}
                     currency={currency}
@@ -273,18 +304,12 @@ export default function ExpenseList() {
         <Modal onClose={() => setIsAddExpenseModalOpen(false)} isOpen={true}>
           <ExpenseForm
             categories={categories}
+            budgets={budgets}
             formState={formState}
             onFieldChange={handleFieldChange}
             currency={currency}
-            minDate={getBudgetStartDate(formState.categoryId, budgets)}
           />
-          <Button
-            onClick={() => {
-              handleAddExpense();
-              setIsAddExpenseModalOpen(false);
-            }}
-            variant="primary"
-          >
+          <Button onClick={handleAddExpense} variant="primary">
             Add Expense
           </Button>
         </Modal>
