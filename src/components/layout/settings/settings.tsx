@@ -38,7 +38,7 @@ export default function Settings() {
 
       if (!isApproachingLimit) return null;
 
-      const category = categories.find((cat) => cat.id === budget.categoryId);
+      const category = categories.find((cat) => budget.categoryIds.includes(cat.id));
       if (!category) return null;
 
       return (
