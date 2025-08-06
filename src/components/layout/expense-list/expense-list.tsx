@@ -263,6 +263,7 @@ export default function ExpenseList() {
               )}
               {expenseToEdit !== null && (
                 <Modal isOpen={true} onClose={handleReset}>
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">Edit Expense</h3>
                   <ExpenseForm
                     categories={categories}
                     budgets={budgets}
@@ -295,6 +296,7 @@ export default function ExpenseList() {
       )}
       {isAddExpenseModalOpen && (
         <Modal onClose={() => setIsAddExpenseModalOpen(false)} isOpen={true}>
+          <h3 className="text-xl font-bold text-gray-800 mb-6">Add New Expense</h3>
           <ExpenseForm
             categories={categories}
             budgets={budgets}
