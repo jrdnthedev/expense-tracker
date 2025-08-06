@@ -18,7 +18,6 @@ export default function ExpenseList() {
   const [selectedCategory, setSelectedCategory] = useState<Category>({
     id: 0,
     name: 'All',
-    color: '',
     icon: '📦',
   });
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,7 +47,7 @@ export default function ExpenseList() {
     setSearchTerm(e.target.value);
   };
   const categoriesWithAll: Category[] = [
-    { id: 0, name: 'All', color: '', icon: '📦' },
+    { id: 0, name: 'All', icon: '📦' },
     ...categories,
   ];
   const handleDeleteExpense = (id: number) => {

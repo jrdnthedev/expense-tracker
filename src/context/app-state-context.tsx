@@ -8,7 +8,7 @@ import {
   AppStateContext,
   initialState,
 } from './app-state-contexts';
-import { addExpenseIdToBudget, removeCategory, removeExpenseFromBudgets, removeExpenseFromList, updateBudget, updateCategory, updateExpense } from '../utils/state';
+import { addExpenseIdToBudget, removeBudget, removeCategory, removeExpenseFromBudgets, removeExpenseFromList, updateBudget, updateCategory, updateExpense } from '../utils/state';
 
 export type State = {
   currency: Currency;
@@ -22,6 +22,7 @@ export type Action =
   | { type: 'SET_CURRENCY'; payload: Currency }
   | { type: 'ADD_BUDGET'; payload: Budget }
   | { type: 'UPDATE_BUDGET'; payload: Budget }
+  | { type: 'REMOVE_BUDGET'; payload: { id: number } }
   | { type: 'ADD_EXPENSE'; payload: Expense }
   | { type: 'REMOVE_EXPENSE'; payload: { id: number } }
   | { type: 'UPDATE_EXPENSE'; payload: Expense }
@@ -78,6 +79,11 @@ function appReducer(state: State, action: Action): State {
       return {
         ...state,
         budgets: updateBudget(state.budgets, action.payload),
+      };
+    case 'REMOVE_BUDGET':
+      return {
+        ...state,
+        budgets: removeBudget(state.budgets, action.payload.id),
       };
     default:
       return state;

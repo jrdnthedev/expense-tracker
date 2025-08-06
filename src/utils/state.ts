@@ -40,6 +40,10 @@ export function updateBudget(budgets: Budget[], updatedBudget: Budget): Budget[]
   );
 }
 
+export function removeBudget(budgets: Budget[], budgetId: number): Budget[] {
+  return budgets.filter((budget) => budget.id !== budgetId);
+}
+
 export function updateCategory(categories: Category[], updatedCategory: Category): Category[] {
   return categories.map((category) =>
     category.id === updatedCategory.id ? updatedCategory : category
