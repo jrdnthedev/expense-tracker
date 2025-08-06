@@ -115,9 +115,6 @@ export default function ExpenseList() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    console.log('Adding new expense:', newExpense);
-    console.log('Current budgets:', budgets);
-    console.log('Current expenses:', expenses);
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
 
     if (formState.budgetId) {

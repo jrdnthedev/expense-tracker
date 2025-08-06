@@ -23,7 +23,6 @@ export default function ExpenseForm({
     }
   }, [budgets, minDate, formState.budgetId, onFieldChange]);
 
-  console.log('ExpenseForm rendered with formState:', formState);
   return (
     <div className="mb-8">
       
