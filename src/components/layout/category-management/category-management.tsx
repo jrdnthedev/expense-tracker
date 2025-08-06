@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
-import EditCategoryForm from '../../forms/edit-category-form/edit-category-form';
 import type { Category } from '../../../types/category';
 import Modal from '../../ui/modal/modal';
-import AddCategoryForm from '../../forms/add-category-form/add-category-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
+import CategoryForm from '../../forms/category-form/category-form';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();
@@ -21,14 +20,12 @@ export default function CategoryManagement() {
   const [formState, setFormState] = useState({
     name: '',
     icon: '',
-    color: '',
     id: 1,
   });
   const nextId = useNextId<Category>(categories);
   const [addCategoryFormState, setAddCategoryFormState] = useState<Category>({
     name: '',
     icon: '➕',
-    color: '',
     id: nextId,
   });
   const handleSelectedCategoryChange = (category: Category) => {
@@ -37,7 +34,6 @@ export default function CategoryManagement() {
     setFormState({
       name: category.name,
       icon: category.icon,
-      color: category.color,
       id: category.id,
     });
   };
@@ -68,7 +64,6 @@ export default function CategoryManagement() {
     setAddCategoryFormState({
       name: '',
       icon: '➕',
-      color: '#000000',
       id: newNextId,
     });
     setIsModalOpen(false);
@@ -96,7 +91,7 @@ export default function CategoryManagement() {
                 Add New Category
               </h2>
               <div className="flex flex-col gap-4">
-                <AddCategoryForm
+                <CategoryForm
                   onFieldChange={(field, value) =>
                     setAddCategoryFormState((prev) => ({
                       ...prev,
@@ -127,7 +122,7 @@ export default function CategoryManagement() {
       <div className="flex flex-col gap-4">
         {selectedCategory ? (
           <>
-            <EditCategoryForm
+            <CategoryForm
               formState={formState}
               onFieldChange={(field, value) =>
                 setFormState((prev) => ({ ...prev, [field]: value }))

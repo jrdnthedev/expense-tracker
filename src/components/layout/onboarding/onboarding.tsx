@@ -5,7 +5,7 @@ import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
-import AddBudget from '../../forms/add-budget/add-budget';
+import AddBudget from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
@@ -14,7 +14,7 @@ import { validateEndDate, validateForm } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
 import { getBudgetStartDate } from '../../../utils/budget';
-import AddCategoryForm from '../../forms/add-category-form/add-category-form';
+import CategoryForm from '../../forms/category-form/category-form';
 import type { Expense } from '../../../types/expense';
 
 export default function Onboarding({
@@ -44,8 +44,6 @@ export default function Onboarding({
     name: '',
     category: categories[0]?.name,
     categoryIds: [],
-    period:
-      (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
     startDate: '',
     endDate: '',
     expenseIds: []
@@ -63,7 +61,6 @@ export default function Onboarding({
   const [addCategoryFormState, setAddCategoryFormState] = useState<Category>({
     name: '',
     icon: '➕',
-    color: '#000000',
     id: nextCategoryId,
   });
   const handleSaveBudget = () => {
@@ -84,7 +81,6 @@ export default function Onboarding({
     const expenseState: Expense = {
       ...formState,
       amount: Number(formState.amount),
-      // tags: [],
       id: nextExpenseId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -102,7 +98,6 @@ export default function Onboarding({
     setAddCategoryFormState({
       name: '',
       icon: '➕',
-      color: '#000000',
       id: nextCategoryId,
     });
     setStep(4);
@@ -146,7 +141,7 @@ export default function Onboarding({
             <h2 className="text-xl font-bold mb-2">Add Your First Category</h2>
             <p className="mb-6">Let’s create your first category together.</p>
             <div>
-              <AddCategoryForm
+              <CategoryForm
                 formState={addCategoryFormState}
                 onFieldChange={(field, value) =>
                   setAddCategoryFormState((prev) => ({

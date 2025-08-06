@@ -2,10 +2,9 @@ import { useState } from 'react';
 import Button from '../../ui/button/button';
 import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
-import AddBudget from '../../forms/add-budget/add-budget';
+import BudgetForm from '../../forms/budget-form/budget-form';
 import type { Budget } from '../../../types/budget';
 import { useNextId } from '../../../hooks/nextId/next-id';
-import { periodOptions } from '../../../constants/data';
 import {
   formatDate,
   validateEndDate,
@@ -26,15 +25,13 @@ export default function BudgetManager() {
     name: '',
     category: categories[0]?.name,
     categoryIds: [],
-    period:
-      (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ?? 'weekly',
     startDate: '',
     endDate: '',
     expenseIds: [],
   });
   const nextBudgetId = useNextId<Budget>(budgets);
   const dispatch = useAppDispatch();
-
+  const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
   const handleSaveBudget = () => {
     const categoryId = categories.find(
       (c) => c.name === formState.category
@@ -70,9 +67,6 @@ export default function BudgetManager() {
       name: '',
       category: categories[0].name,
       categoryIds: [],
-      period:
-        (periodOptions[0]?.value as 'weekly' | 'monthly' | 'yearly') ??
-        'weekly',
       startDate: '',
       endDate: '',
       expenseIds: [],
@@ -97,6 +91,43 @@ export default function BudgetManager() {
       })
       .reduce((total, expense) => total + expense.amount, 0);
   };
+
+  const handleBudgetEdit = (budget: Budget) => {
+    setBudgetToEdit(budget);
+    setFormState({
+      id: budget.id,
+      limit: budget.limit,
+      name: budget.name,
+      category:
+        categories.find((c) => c.id === budget.categoryIds[0])?.name || '',
+      categoryIds: budget.categoryIds,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      expenseIds: budget.expenseIds,
+    });
+    console.log('Edit budget', budgetToEdit);
+  };
+  const handleSaveChanges = () => {
+    if (budgetToEdit) {
+      dispatch({ type: 'UPDATE_BUDGET', payload: budgetToEdit });
+      setBudgetToEdit(null);
+      // setFormState({
+      //   id: 0,
+      //   limit: 0,
+      //   name: '',
+      //   category: categories[0].name,
+      //   categoryIds: [],
+      //   startDate: '',
+      //   endDate: '',
+      //   expenseIds: [],
+      // });
+    }
+  };
+
+  const handleDeleteBudget = (budgetId: number) => {
+    dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
+    setBudgetToEdit(null);
+  };
   return (
     <>
       <div className="mb-6">
@@ -119,14 +150,14 @@ export default function BudgetManager() {
                     onClose={() => setIsModalOpen(false)}
                     isOpen={isModalOpen}
                   >
+                    <h1 className="text-2xl font-bold ">Add Budget</h1>
                     <div className="flex flex-col gap-4">
-                      <AddBudget
+                      <BudgetForm
                         categories={categories}
                         formState={formState}
                         onFieldChange={(field, value) =>
                           setFormState((prev) => ({ ...prev, [field]: value }))
                         }
-                        periodOptions={periodOptions}
                       />
                       {!validateEndDate(formState) && (
                         <div className="text-red-500 text-sm">
@@ -157,13 +188,52 @@ export default function BudgetManager() {
                   <li key={budget.id} className="mb-4">
                     <Card>
                       <div className="flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {/* <span className="text-xl">{budget.icon}</span> */}
-                            <h2 className="text-lg font-semibold text-gray-900">
-                              {budget.name}
-                            </h2>
+                        <div className="flex justify-end">
+                          <div className="flex gap-1">
+                            <span className="text-sm text-gray-500">
+                              <button onClick={() => handleBudgetEdit(budget)}>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 text-gray-500"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                  aria-hidden="true"
+                                  strokeWidth={2}
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
+                            </span>
+                            <span className="text-sm text-gray-500 ">
+                              <button
+                                onClick={() => handleDeleteBudget(budget.id)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4 text-gray-500"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                  aria-hidden="true"
+                                  strokeWidth={2}
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
+                            </span>
                           </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-lg font-semibold text-gray-900">
+                            {budget.name}
+                          </h2>
                           <span
                             className="text-xl font-semibold"
                             style={{
@@ -211,6 +281,25 @@ export default function BudgetManager() {
               link="categorymanagement"
             />
           </Card>
+        )}
+        {budgetToEdit && (
+          <Modal isOpen={!!budgetToEdit} onClose={() => setBudgetToEdit(null)}>
+            <h1 className="text-2xl font-bold ">Edit Budget</h1>
+            <div className="flex flex-col gap-4">
+              <BudgetForm
+                formState={budgetToEdit}
+                categories={categories}
+                onFieldChange={(field, value) =>
+                  setBudgetToEdit((prev) =>
+                    prev ? { ...prev, [field]: value } : null
+                  )
+                }
+              />
+              <Button onClick={handleSaveChanges} variant="primary">
+                Save Changes
+              </Button>
+            </div>
+          </Modal>
         )}
       </div>
     </>

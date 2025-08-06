@@ -8,6 +8,7 @@ import {
   AppStateContext,
   initialState,
 } from './app-state-contexts';
+import { addExpenseIdToBudget, removeBudget, removeCategory, removeExpenseFromBudgets, removeExpenseFromList, updateBudget, updateCategory, updateExpense } from '../utils/state';
 
 export type State = {
   currency: Currency;
@@ -19,10 +20,9 @@ export type State = {
 
 export type Action =
   | { type: 'SET_CURRENCY'; payload: Currency }
-  // Add other actions here
-  //   | { type: "RESET_STATE" }
   | { type: 'ADD_BUDGET'; payload: Budget }
   | { type: 'UPDATE_BUDGET'; payload: Budget }
+  | { type: 'REMOVE_BUDGET'; payload: { id: number } }
   | { type: 'ADD_EXPENSE'; payload: Expense }
   | { type: 'REMOVE_EXPENSE'; payload: { id: number } }
   | { type: 'UPDATE_EXPENSE'; payload: Expense }
@@ -30,6 +30,8 @@ export type Action =
   | { type: 'UPDATE_CATEGORY'; payload: Category }
   | { type: 'REMOVE_CATEGORY'; payload: { id: number } }
   | { type: 'SET_DEFAULT_CATEGORY'; payload: { categoryId: number } };
+
+
 
 function appReducer(state: State, action: Action): State {
   switch (action.type) {
@@ -42,49 +44,30 @@ function appReducer(state: State, action: Action): State {
     case 'REMOVE_CATEGORY':
       return {
         ...state,
-        categories: state.categories.filter(
-          (category) => category.id !== action.payload.id
-        ),
+        categories: removeCategory(state.categories, action.payload.id),
       };
     case 'UPDATE_CATEGORY':
       return {
         ...state,
-        categories: state.categories.map((category) =>
-          category.id === action.payload.id ? action.payload : category
-        ),
+        categories: updateCategory(state.categories, action.payload),
       };
     case 'ADD_EXPENSE': {
-      const newExpense = action.payload;
       return {
         ...state,
-        expenses: [...state.expenses, newExpense],
-        budgets: state.budgets.map((budget) => {
-          if (budget.id === newExpense.budgetId) {
-            return {
-              ...budget,
-              expenseIds: [...budget.expenseIds, newExpense.id],
-            };
-          }
-          return budget;
-        }),
+        expenses: [...state.expenses, action.payload],
+        budgets: addExpenseIdToBudget(state.budgets, action.payload.id, action.payload.budgetId),
       };
     }
     case 'UPDATE_EXPENSE':
       return {
         ...state,
-        expenses: state.expenses.map((expense) =>
-          expense.id === action.payload.id ? action.payload : expense
-        ),
+        expenses: updateExpense(state.expenses, action.payload),
       };
     case 'REMOVE_EXPENSE': {
-      const expenseId = action.payload.id;
       return {
         ...state,
-        expenses: state.expenses.filter((expense) => expense.id !== expenseId),
-        budgets: state.budgets.map((budget) => ({
-          ...budget,
-          expenseIds: budget.expenseIds.filter((id) => id !== expenseId),
-        })),
+        expenses: removeExpenseFromList(state.expenses, action.payload.id),
+        budgets: removeExpenseFromBudgets(state.budgets, action.payload.id),
       };
     }
     case 'ADD_BUDGET':
@@ -95,9 +78,12 @@ function appReducer(state: State, action: Action): State {
     case 'UPDATE_BUDGET':
       return {
         ...state,
-        budgets: state.budgets.map((budget) =>
-          budget.id === action.payload.id ? action.payload : budget
-        ),
+        budgets: updateBudget(state.budgets, action.payload),
+      };
+    case 'REMOVE_BUDGET':
+      return {
+        ...state,
+        budgets: removeBudget(state.budgets, action.payload.id),
       };
     default:
       return state;
