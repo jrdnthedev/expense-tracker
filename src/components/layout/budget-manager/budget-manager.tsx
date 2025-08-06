@@ -30,7 +30,7 @@ export default function BudgetManager() {
     handleBudgetEdit,
     handleSaveChanges,
     handleDeleteBudget,
-  } = useBudgetManagement(categories, expenses, nextBudgetId);
+  } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
   return (
     <>
       <div className="mb-6">

@@ -19,6 +19,7 @@ const DEFAULT_BUDGET_STATE: Budget = {
 export function useBudgetManagement(
   categories: Category[],
   expenses: Expense[],
+  budgets: Budget[],
   nextBudgetId: number
 ) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,38 +31,46 @@ export function useBudgetManagement(
   const dispatch = useAppDispatch();
 
   const handleSaveBudget = () => {
-    const categoryId = categories.find(
-      (category: Category) => category.name === formState.category
-    )?.id;
+  const categoryId = categories.find(
+    (category: Category) => category.name === formState.category
+  )?.id;
 
-    const relevantExpenses = expenses.filter((expense: Expense) => {
-      if (expense.categoryId !== categoryId) return false;
+  // Only include expenses that aren't already assigned to other budgets
+  const relevantExpenses = expenses.filter((expense: Expense) => {
+    // Skip if expense is already assigned to another budget
+    const isAlreadyAssigned = budgets.some(budget => 
+      budget.expenseIds.includes(expense.id)
+    );
+    if (isAlreadyAssigned) return false;
 
-      const expenseDate = startOfDay(parseISO(expense.createdAt));
-      const budgetStart = startOfDay(parseISO(formState.startDate));
-      const budgetEnd = startOfDay(parseISO(formState.endDate));
+    // Skip if category doesn't match
+    if (expense.categoryId !== categoryId) return false;
 
-      return isWithinInterval(expenseDate, {
-        start: budgetStart,
-        end: budgetEnd,
-      });
+    const expenseDate = startOfDay(parseISO(expense.createdAt));
+    const budgetStart = startOfDay(parseISO(formState.startDate));
+    const budgetEnd = startOfDay(parseISO(formState.endDate));
+
+    return isWithinInterval(expenseDate, {
+      start: budgetStart,
+      end: budgetEnd,
     });
+  });
 
-    const newBudget = {
-      ...formState,
-      id: nextBudgetId,
-      limit: Number(formState.limit),
-      categoryIds: categoryId ? [categoryId] : [],
-      expenseIds: relevantExpenses.map((expense: Expense) => expense.id),
-    };
-
-    dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-    setFormState({
-      ...DEFAULT_BUDGET_STATE,
-      category: categories[0]?.name || '',
-    });
-    setIsModalOpen(false);
+  const newBudget = {
+    ...formState,
+    id: nextBudgetId,
+    limit: Number(formState.limit),
+    categoryIds: categoryId ? [categoryId] : [],
+    expenseIds: relevantExpenses.map((expense: Expense) => expense.id),
   };
+
+  dispatch({ type: 'ADD_BUDGET', payload: newBudget });
+  setFormState({
+    ...DEFAULT_BUDGET_STATE,
+    category: categories[0]?.name || '',
+  });
+  setIsModalOpen(false);
+};
 
   const calculateSpentAmount = (budget: Budget) => {
     return expenses
