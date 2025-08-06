@@ -1,73 +1,31 @@
-import { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
 import type { Category } from '../../../types/category';
 import Modal from '../../ui/modal/modal';
-import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import CategoryForm from '../../forms/category-form/category-form';
+import { useCategoryManagement } from '../../../hooks/category-management/category-management';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();
-  const dispatch = useAppDispatch();
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
-  const [previousSelectedCategory, setPreviousSelectedCategory] =
-    useState<Category | null>(categories[0] ?? null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [formState, setFormState] = useState({
-    name: '',
-    icon: '',
-    id: 1,
-  });
   const nextId = useNextId<Category>(categories);
-  const [addCategoryFormState, setAddCategoryFormState] = useState<Category>({
-    name: '',
-    icon: '➕',
-    id: nextId,
-  });
-  const handleSelectedCategoryChange = (category: Category) => {
-    setSelectedCategory(category);
-    setPreviousSelectedCategory(selectedCategory);
-    setFormState({
-      name: category.name,
-      icon: category.icon,
-      id: category.id,
-    });
-  };
-  const handleDeleteCategory = () => {
-    if (selectedCategory) {
-      // Dispatch action to remove category
-      dispatch({
-        type: 'REMOVE_CATEGORY',
-        payload: { id: selectedCategory.id },
-      });
-      setSelectedCategory(previousSelectedCategory);
-    }
-    setIsConfirmModalOpen(false);
-  };
-  const handleSaveChanges = () => {
-    if (selectedCategory) {
-      // Dispatch action to update category
-      dispatch({
-        type: 'UPDATE_CATEGORY',
-        payload: { ...selectedCategory, ...formState },
-      });
-    }
-  };
-
-  const handleAddCategory = () => {
-    dispatch({ type: 'ADD_CATEGORY', payload: addCategoryFormState });
-    const newNextId = nextId + 1;
-    setAddCategoryFormState({
-      name: '',
-      icon: '➕',
-      id: newNextId,
-    });
-    setIsModalOpen(false);
-  };
+  
+  const {
+    selectedCategory,
+    isModalOpen,
+    isConfirmModalOpen,
+    formState,
+    addCategoryFormState,
+    setIsModalOpen,
+    setIsConfirmModalOpen,
+    handleSelectedCategoryChange,
+    handleDeleteCategory,
+    handleSaveChanges,
+    handleAddCategory,
+    handleFormChange,
+    handleAddFormChange,
+  } = useCategoryManagement(categories, nextId);
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
       <div className="text-lg font-semibold text-gray-900 mb-2">
@@ -93,10 +51,7 @@ export default function CategoryManagement() {
               <div className="flex flex-col gap-4">
                 <CategoryForm
                   onFieldChange={(field, value) =>
-                    setAddCategoryFormState((prev) => ({
-                      ...prev,
-                      [field]: value,
-                    }))
+                    handleAddFormChange(field, value)
                   }
                   formState={addCategoryFormState}
                 />
@@ -125,7 +80,7 @@ export default function CategoryManagement() {
             <CategoryForm
               formState={formState}
               onFieldChange={(field, value) =>
-                setFormState((prev) => ({ ...prev, [field]: value }))
+                handleFormChange(field, value)
               }
             />
             <div className="flex justify-end gap-2">
