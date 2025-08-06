@@ -3,8 +3,8 @@ import type { Expense } from "../types/expense";
 
 export function getBudgetStartDate(categoryId: number, budgets: Budget[]): string{
     const matchingBudget = budgets.find(
-      (budget) => budget.categoryId === categoryId
-    );
+    (budget) => budget.categoryIds.includes(categoryId)
+  );
     return matchingBudget?.startDate || new Date().toISOString().split('T')[0];
   };
 
@@ -17,7 +17,7 @@ export function calculateAllRemainingBudgets(budgets: Budget[], expenses: Expens
 export const checkBudgetThreshold = (budget: Budget, expenses: Expense[]) => {
   // Calculate spending threshold
   const totalSpent = expenses
-    .filter(expense => expense.categoryId === budget.categoryId)
+    .filter(expense => budget.categoryIds.includes(expense.categoryId))
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   const remainingBudget = budget.limit - totalSpent;

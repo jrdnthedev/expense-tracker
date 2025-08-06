@@ -1,30 +1,35 @@
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
-import DatePicker from '../../ui/date-picker/date-picker';
 import Input from '../../ui/input/input';
 import type { Currency } from '../../../types/currency';
 import { useEffect } from 'react';
 import type { Expense } from '../../../types/expense';
+import Select from '../../ui/select/select';
+import type { Budget } from '../../../types/budget';
 
 export default function ExpenseForm({
   categories,
+  budgets,
   formState,
   currency,
   minDate,
   onFieldChange,
 }: ExpenseFormProps) {
   useEffect(() => {
-    if (minDate) {
-      onFieldChange('date', minDate);
+    if (budgets.length > 0 && !formState.budgetId) {
+      const firstBudget = budgets[0];
+      onFieldChange('budgetId', firstBudget.id);
+      onFieldChange('budget', firstBudget.name);
     }
-  }, [minDate, formState.date, onFieldChange]);
+  }, [budgets, minDate, formState.budgetId, onFieldChange]);
 
   return (
     <div className="mb-8">
       <h3 className="text-xl font-bold text-gray-800 mb-6">Add New Expense</h3>
 
-      <div className="mb-4">
-        <label
+      <div className="mb-4 flex gap-4">
+        <div>
+          <label
           className="block text-sm font-medium text-gray-700 mb-1"
           htmlFor="amount"
         >
@@ -39,6 +44,27 @@ export default function ExpenseForm({
           id="amount"
           type="number"
         />
+        </div>
+        <div>
+          <label htmlFor="budget">Budgets</label>
+          <Select
+            id="budget"
+            name="Select Budget"
+            options={budgets}
+            onChange={(_value: string, dataId: number) => {
+              const budget = budgets.find((bud: Budget) => bud.id === dataId);
+              if (budget) {
+                onFieldChange('budget', budget.name);
+                onFieldChange('budgetId', budget.id);
+              }
+            }}
+            
+            value={budgets.find(b => b.id === formState.budgetId)?.name || ''}
+            getOptionValue={(option) => option.name}
+            getOptionLabel={(option) => option.name}
+            getOptionId={(option) => option.id}
+          />
+        </div>
       </div>
 
       <div className="mb-4">
@@ -87,7 +113,7 @@ export default function ExpenseForm({
       </div>
 
       <div className="flex max-sm:flex-col gap-4 mb-4">
-        <div className="w-full flex-1">
+        {/* <div className="w-full flex-1">
           <label
             className="block text-sm font-medium text-gray-700 mb-1"
             htmlFor="date"
@@ -100,7 +126,7 @@ export default function ExpenseForm({
             onChange={(date: string) => onFieldChange('date', date)}
             min={minDate}
           />
-        </div>
+        </div> */}
         <div className="w-full flex-1">
           {/* <label
             className="block text-sm font-medium text-gray-700 mb-1"
@@ -124,6 +150,7 @@ export default function ExpenseForm({
 
 interface ExpenseFormProps {
   categories: Category[];
+  budgets: Budget[];
   formState: Expense;
   onFieldChange: (field: string, value: string | number) => void;
   currency: Currency;

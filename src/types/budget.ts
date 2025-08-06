@@ -1,10 +1,12 @@
 export interface Budget {
   id: number,
   category: string,
-  categoryId: number,
+  name: string,
+  categoryIds: number[],
   limit: number,
   period: 'weekly' | 'monthly' | 'yearly',
   startDate: string,
-  endDate: string
+  endDate: string,
+  expenseIds: number[],
 }
 

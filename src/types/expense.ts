@@ -4,9 +4,9 @@ export interface Expense {
   description: string,
   category: string,
   categoryId: number,
-  date: string,
-  tags: string[],
   createdAt: string,
-  updatedAt: string
+  updatedAt: string,
+  budget: string;
+  budgetId: number;
 }
 

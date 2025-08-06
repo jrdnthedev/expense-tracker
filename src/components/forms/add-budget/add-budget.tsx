@@ -1,18 +1,27 @@
-import Select from '../../ui/select/select';
 import DatePicker from '../../ui/date-picker/date-picker';
 import type { Category } from '../../../types/category';
 import Input from '../../ui/input/input';
 
 export default function AddBudget({
-  categories,
   formState,
   onFieldChange,
-  periodOptions,
 }: BudgetFormProps) {
   
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold ">Add Budget</h1>
+      <div>
+        <label htmlFor="name">Name</label>
+        <Input  
+          type="text"
+          id="name"
+          value={formState.name}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onFieldChange('name', e.target.value)
+          }
+          placeholder="Enter budget name"
+        />
+      </div>
       <div>
         <label htmlFor="limit">Limit</label>
         <Input  
@@ -26,7 +35,7 @@ export default function AddBudget({
         />
       </div>
 
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         <div className="w-full flex-1 flex flex-col">
           <label htmlFor="category">Category</label>
           <Select
@@ -64,7 +73,7 @@ export default function AddBudget({
             getOptionId={(option) => option.id}
           />
         </div>
-      </div>
+      </div> */}
       <div className="flex max-sm:flex-col gap-4">
         <div className="w-full flex-1">
           <label
@@ -102,8 +111,9 @@ interface BudgetFormProps {
   categories: Category[];
   formState: {
     limit: number;
+    name: string;
     category: string;
-    categoryId: number;
+    categoryIds: number[];
     period: string;
     startDate: string;
     endDate: string;
