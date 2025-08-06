@@ -25,7 +25,7 @@ export default function ExpenseForm({
 
   return (
     <div className="mb-8">
-      <h3 className="text-xl font-bold text-gray-800 mb-6">Add New Expense</h3>
+      
 
       <div className="mb-4 flex gap-4">
         <div>

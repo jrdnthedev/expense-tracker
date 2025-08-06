@@ -10,7 +10,6 @@ import ExpenseForm from '../../forms/expense-form/expense-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { formatAmount } from '../../../utils/currency';
-import { getBudgetStartDate } from '../../../utils/budget';
 import { formatDate } from '../../../utils/validators';
 import EmptyState from '../../ui/empty-state/empty-state';
 
@@ -72,7 +71,6 @@ export default function ExpenseList() {
       description: formState.description,
       category: newCategory.toLowerCase(),
       categoryId: formState.categoryId,
-      // date: formState.date,
       createdAt: formState.createdAt,
       updatedAt: new Date().toISOString(),
     };
@@ -85,8 +83,6 @@ export default function ExpenseList() {
       description: '',
       category: '',
       categoryId: categories[0]?.id ?? 1,
-      // date: '',
-      // tags: [],
       budget: '',
       budgetId: 0,
       createdAt: new Date().toISOString(),
@@ -99,12 +95,11 @@ export default function ExpenseList() {
     setExpenseToEdit(expense);
     setFormState({
       ...expense,
-      amount: Number(formState.amount),
-      description: formState.description,
+      amount: Number(expense.amount),
+      description: expense.description,
       category:
-        categories.find((cat) => cat.id === formState.categoryId)?.name || '',
-      categoryId: formState.categoryId,
-      // date: expense.date,
+        categories.find((cat) => cat.id === expense.categoryId)?.name || '',
+      categoryId: expense.categoryId,
     });
   };
   const handleAddExpense = () => {
@@ -120,9 +115,6 @@ export default function ExpenseList() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    console.log('Adding new expense:', newExpense);
-    console.log('Current budgets:', budgets);
-    console.log('Current expenses:', expenses);
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
 
     if (formState.budgetId) {
@@ -132,8 +124,7 @@ export default function ExpenseList() {
           ...budget,
           expenseIds: [...budget.expenseIds, newExpense.id],
         };
-        console.log('Updating budget:', updatedBudget.expenseIds);
-        // dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
+        dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
       }
     }
     setIsAddExpenseModalOpen(false);
@@ -269,13 +260,13 @@ export default function ExpenseList() {
               )}
               {expenseToEdit !== null && (
                 <Modal isOpen={true} onClose={handleReset}>
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">Edit Expense</h3>
                   <ExpenseForm
                     categories={categories}
                     budgets={budgets}
                     formState={formState}
                     onFieldChange={handleFieldChange}
                     currency={currency}
-                    minDate={getBudgetStartDate(formState.categoryId, budgets)}
                   />
                   <div className="flex justify-end mt-4 gap-4">
                     <Button onClick={handleSave} variant="primary">
@@ -302,6 +293,7 @@ export default function ExpenseList() {
       )}
       {isAddExpenseModalOpen && (
         <Modal onClose={() => setIsAddExpenseModalOpen(false)} isOpen={true}>
+          <h3 className="text-xl font-bold text-gray-800 mb-6">Add New Expense</h3>
           <ExpenseForm
             categories={categories}
             budgets={budgets}

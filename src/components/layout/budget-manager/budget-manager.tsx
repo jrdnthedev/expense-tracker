@@ -15,6 +15,7 @@ import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { startOfDay, parseISO, isWithinInterval } from 'date-fns';
 import { formatAmount } from '../../../utils/currency';
 import EmptyState from '../../ui/empty-state/empty-state';
+import type { Expense } from '../../../types/expense';
 
 export default function BudgetManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +59,7 @@ export default function BudgetManager() {
       id: nextBudgetId,
       limit: Number(formState.limit),
       categoryIds: categoryId ? [categoryId] : [], // Fix: Add categoryId to array
-      expenseIds: relevantExpenses.map((e) => e.id),
+      expenseIds: relevantExpenses.map((e: Expense) => e.id),
     };
 
     console.log('Adding new budget:', newBudget);

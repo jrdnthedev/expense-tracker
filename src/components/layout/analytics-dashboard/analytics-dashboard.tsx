@@ -34,16 +34,19 @@ export default function AnalyticsDashboard() {
   }));
 
   // Find top category
-  const topCategory = categoryTotals.reduce(
-    (max, cat) => (cat.total > max.total ? cat : max),
-    categoryTotals[0]
-  );
+  const topCategory =
+    categoryTotals.length > 0
+      ? categoryTotals.reduce(
+          (max, cat) => (cat.total > max.total ? cat : max),
+          categoryTotals[0]
+        )
+      : null;
 
   // Calculate monthly trends
   const getMonthlyTrends = () => {
     const trends: { [month: string]: number } = {};
     expenses.forEach((expense) => {
-      const month = new Date(expense.date).toLocaleString('default', {
+      const month = new Date(expense.createdAt).toLocaleString('default', {
         month: 'long',
       });
       trends[month] = (trends[month] || 0) + expense.amount;
@@ -60,7 +63,9 @@ export default function AnalyticsDashboard() {
       name: month,
       total: monthlyTrends[month],
       average: monthlyAverage,
-      topCategory: month === months[months.length - 1] ? topCategory.total : 0,
+      // If this is the most recent month, show the top category total
+      topCategory:
+        month === months[months.length - 1] ? topCategory?.total || 0 : 0,
     }));
 
     return data;

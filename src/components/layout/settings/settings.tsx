@@ -33,18 +33,26 @@ export default function Settings() {
 
   const budgetAlerts = budgets
     .map((budget) => {
+      // Get all expenses that belong to categories associated with this budget
+      const budgetExpenses = expenses.filter((expense) =>
+        budget.categoryIds.includes(expense.categoryId)
+      );
+
       const { remainingBudget, percentageUsed, isApproachingLimit } =
-        checkBudgetThreshold(budget, expenses);
+        checkBudgetThreshold(budget, budgetExpenses);
 
       if (!isApproachingLimit) return null;
 
-      const category = categories.find((cat) => cat.id === budget.categoryId);
+      // Find the first category for display purposes
+      const category = categories.find((cat) =>
+        budget.categoryIds.includes(cat.id)
+      );
       if (!category) return null;
 
       return (
         <BudgetAlert
           key={budget.id}
-          categoryName={category.name}
+          budgetName={budget.name}
           remainingBudget={remainingBudget}
           percentageUsed={percentageUsed}
           currency={currency}

@@ -2,14 +2,14 @@ import type { Currency } from '../../../types/currency';
 import { formatAmount } from '../../../utils/currency';
 
 interface BudgetAlertProps {
-  categoryName: string;
+  budgetName: string;
   remainingBudget: number;
   percentageUsed: number;
   currency: Currency;
 }
 
 export default function BudgetAlert({
-  categoryName,
+  budgetName,
   remainingBudget,
   percentageUsed,
   currency,
@@ -35,7 +35,7 @@ export default function BudgetAlert({
           {alertType === 'error' ? '⚠️' : '💡'}
         </div>
         <div className="flex gap-1 flex-col">
-          <h3 className="text-sm font-medium">Budget Alert: {categoryName}</h3>
+          <h3 className="text-sm font-medium">Budget Alert: {budgetName}</h3>
           <div className=" text-sm">
             {percentageUsed >= 100 ? (
               <p>You have exceeded your budget!</p>
