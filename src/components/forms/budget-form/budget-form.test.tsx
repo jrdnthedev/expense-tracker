@@ -1,4 +1,4 @@
-import { describe,expect, vi, test } from 'vitest';
+import { describe, expect, vi, test } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import BudgetForm from './budget-form';
 import type { ChangeEventHandler } from 'react';
@@ -16,18 +16,11 @@ interface MockDatePickerProps {
   id: string;
 }
 
-// Mock child components
 vi.mock('../../ui/input/input', () => ({
   default: ({ value, onChange, type, id }: MockInputProps) => (
-    <input
-      data-testid={id}
-      type={type}
-      value={value}
-      onChange={onChange}
-    />
+    <input data-testid={id} type={type} value={value} onChange={onChange} />
   ),
 }));
-
 
 vi.mock('../../ui/date-picker/date-picker', () => ({
   default: ({ value, onChange, id }: MockDatePickerProps) => (
@@ -66,7 +59,10 @@ describe('BudgetForm', () => {
     render(<BudgetForm {...defaultProps} />);
     const nameInput = screen.getByTestId('name');
     fireEvent.change(nameInput, { target: { value: 'Test Budget' } });
-    expect(defaultProps.onFieldChange).toHaveBeenCalledWith('name', 'Test Budget');
+    expect(defaultProps.onFieldChange).toHaveBeenCalledWith(
+      'name',
+      'Test Budget'
+    );
   });
 
   test('calls onFieldChange with correct values when limit changes', () => {
@@ -80,11 +76,17 @@ describe('BudgetForm', () => {
     render(<BudgetForm {...defaultProps} />);
     const startDate = screen.getByTestId('startDate');
     const endDate = screen.getByTestId('endDate');
-    
+
     fireEvent.change(startDate, { target: { value: '2024-01-01' } });
-    expect(defaultProps.onFieldChange).toHaveBeenCalledWith('startDate', '2024-01-01');
-    
+    expect(defaultProps.onFieldChange).toHaveBeenCalledWith(
+      'startDate',
+      '2024-01-01'
+    );
+
     fireEvent.change(endDate, { target: { value: '2024-12-31' } });
-    expect(defaultProps.onFieldChange).toHaveBeenCalledWith('endDate', '2024-12-31');
+    expect(defaultProps.onFieldChange).toHaveBeenCalledWith(
+      'endDate',
+      '2024-12-31'
+    );
   });
 });
