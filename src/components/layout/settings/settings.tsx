@@ -4,16 +4,12 @@ import Select from '../../ui/select/select';
 import { CURRENCIES, type Currency } from '../../../types/currency';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import type { Category } from '../../../types/category';
-import BudgetAlert from '../../ui/alert/alert';
-import { checkBudgetThreshold } from '../../../utils/budget';
 
 export default function Settings() {
   const {
     currency,
     defaultCategory: stateDefaultCategory,
     categories,
-    budgets,
-    expenses,
   } = useAppState();
   const [settingCurrency, setCurrency] = useState<Currency>(currency);
   const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
@@ -30,36 +26,7 @@ export default function Settings() {
   const getCategoryById = (id: number) => {
     return categories.find((cat) => cat.id === id)?.name || '';
   };
-
-  const budgetAlerts = budgets
-    .map((budget) => {
-      // Get all expenses that belong to categories associated with this budget
-      const budgetExpenses = expenses.filter((expense) =>
-        budget.categoryIds.includes(expense.categoryId)
-      );
-
-      const { remainingBudget, percentageUsed, isApproachingLimit } =
-        checkBudgetThreshold(budget, budgetExpenses);
-
-      if (!isApproachingLimit) return null;
-
-      // Find the first category for display purposes
-      const category = categories.find((cat) =>
-        budget.categoryIds.includes(cat.id)
-      );
-      if (!category) return null;
-
-      return (
-        <BudgetAlert
-          key={budget.id}
-          budgetName={budget.name}
-          remainingBudget={remainingBudget}
-          percentageUsed={percentageUsed}
-          currency={currency}
-        />
-      );
-    })
-    .filter(Boolean);
+  
   const currencyOptions = Object.values(CURRENCIES);
   return (
     <div className="settings-container">
@@ -134,11 +101,6 @@ export default function Settings() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 justify-between pb-2">
             <div className="text-gray-600 flex flex-col gap-4">
-              {budgetAlerts.length > 0 ? (
-                budgetAlerts
-              ) : (
-                <p className="text-gray-600">No budget alerts at this time</p>
-              )}
             </div>
           </div>
         </div>

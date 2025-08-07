@@ -28,7 +28,7 @@ export default function CustomLineChart<T>({ data }: ChartProps<T>) {
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip formatter={formatTooltipValue} />
-        {dataKeys.map((key, index) => (
+        {dataKeys.map((key: string, index: number) => (
           <Line
             key={key}
             type="monotone"
