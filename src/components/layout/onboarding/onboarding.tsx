@@ -1,106 +1,71 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../../ui/card/card';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import ExpenseForm from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
-import AddBudget from '../../forms/budget-form/budget-form';
+import BudgetForm from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
-import { periodOptions } from '../../../constants/data';
-import { validateEndDate, validateForm } from '../../../utils/validators';
-import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { validateEndDate, validateBudgetForm } from '../../../utils/validators';
+import { useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
 import { getBudgetStartDate } from '../../../utils/budget';
 import CategoryForm from '../../forms/category-form/category-form';
 import type { Expense } from '../../../types/expense';
+import { useCategoryManagement } from '../../../hooks/category-management/category-management';
+import { useExpenseManagement } from '../../../hooks/expense-management/expense-management';
+import { useBudgetManagement } from '../../../hooks/budget-management/budget-management';
 
 export default function Onboarding({
   setOnboardingComplete,
 }: {
   setOnboardingComplete: (complete: boolean) => void;
 }) {
-  const { categories, currency, defaultCategory, budgets, expenses } =
-    useAppState();
+  const { categories, currency, budgets, expenses } = useAppState();
   const [step, setStep] = useState(1);
-  const [formState, setFormState] = useState<Expense>({
-    amount: 0,
-    description: '',
-    category: categories[0]?.name ?? '',
-    categoryId: defaultCategory,
-    // date: '',
-    // tags: [],
-    budget: '',
-    budgetId: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    id: 0,
-  });
-  const [budgetFormState, setBudgetFormState] = useState<Budget>({
-    id: 0,
-    limit: 0,
-    name: '',
-    category: categories[0]?.name,
-    categoryIds: [],
-    startDate: '',
-    endDate: '',
-    expenseIds: []
-  });
-  const handleFieldChange = useCallback(
-    (field: string, value: string | number) =>
-      setFormState((prev) => ({ ...prev, [field]: value })),
-    []
-  );
   const nextBudgetId = useNextId<Budget>(budgets);
   const nextCategoryId = useNextId<Category>(categories);
   const nextExpenseId = useNextId<Expense>(expenses);
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const [addCategoryFormState, setAddCategoryFormState] = useState<Category>({
-    name: '',
-    icon: '➕',
-    id: nextCategoryId,
-  });
+
+  // Use existing hooks
+  const {
+    addCategoryFormState,
+    handleAddFormChange,
+    handleAddCategory: handleAddCategoryBase,
+  } = useCategoryManagement(categories, nextCategoryId);
+
+  const {
+    formState: budgetFormState,
+    handleFieldChange: handleBudgetFieldChange,
+    handleSaveBudget: handleSaveBudgetBase,
+  } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
+
+  const {
+    formState: expenseFormState,
+    handleFieldChange: handleExpenseFieldChange,
+    handleAddExpense: handleAddExpenseBase,
+  } = useExpenseManagement(categories, budgets);
+
+  // Wrap the handlers to include onboarding-specific logic
+  const handleAddCategory = () => {
+    handleAddCategoryBase();
+    setStep(4);
+  };
+
   const handleSaveBudget = () => {
-    if (budgetFormState) {
-      const budgetState = {
-        ...budgetFormState,
-        id: nextBudgetId,
-      };
-      LocalStorage.set('onboardingComplete', true);
-      setOnboardingComplete(true);
-      dispatch({ type: 'ADD_BUDGET', payload: budgetState });
-      setStep(5);
-    }
+    handleSaveBudgetBase();
+    LocalStorage.set('onboardingComplete', true);
+    setOnboardingComplete(true);
+    setStep(5);
   };
 
   const handleSaveExpense = () => {
-    console.log('Expense saved:', formState);
-    const expenseState: Expense = {
-      ...formState,
-      amount: Number(formState.amount),
-      id: nextExpenseId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    dispatch({ type: 'ADD_EXPENSE', payload: expenseState });
+    handleAddExpenseBase(nextExpenseId);
     setStep(6);
-  };
-
-  const handleAddCategory = () => {
-    console.log('Adding new category:', addCategoryFormState);
-    dispatch({
-      type: 'ADD_CATEGORY',
-      payload: addCategoryFormState,
-    });
-    setAddCategoryFormState({
-      name: '',
-      icon: '➕',
-      id: nextCategoryId,
-    });
-    setStep(4);
   };
   return (
     <div className="max-w-lg mx-auto mt-12">
@@ -126,7 +91,6 @@ export default function Onboarding({
                   key={category.id}
                   label={category.name}
                   icon={category.icon}
-                  selected={false}
                   onClick={() => void 0} // No action needed here
                 />
               ))}
@@ -143,12 +107,7 @@ export default function Onboarding({
             <div>
               <CategoryForm
                 formState={addCategoryFormState}
-                onFieldChange={(field, value) =>
-                  setAddCategoryFormState((prev) => ({
-                    ...prev,
-                    [field]: value,
-                  }))
-                }
+                onFieldChange={handleAddFormChange}
               />
               <Button
                 onClick={handleAddCategory}
@@ -165,13 +124,10 @@ export default function Onboarding({
             <h2 className="text-xl font-bold mb-2">Set Up Your First Budget</h2>
             <p className="mb-6">Let’s help you set a budget for a category.</p>
             <div className="flex flex-col gap-4">
-              <AddBudget
+              <BudgetForm
                 categories={categories}
                 formState={budgetFormState}
-                onFieldChange={(field, value) =>
-                  setBudgetFormState((prev) => ({ ...prev, [field]: value }))
-                }
-                periodOptions={periodOptions}
+                onFieldChange={handleBudgetFieldChange}
               />
               {!validateEndDate(budgetFormState) && (
                 <div className="text-red-500 text-sm">
@@ -183,7 +139,7 @@ export default function Onboarding({
                   onClick={handleSaveBudget}
                   variant="primary"
                   disabled={
-                    !validateForm(budgetFormState) ||
+                    !validateBudgetForm(budgetFormState) ||
                     !validateEndDate(budgetFormState)
                   }
                 >
@@ -201,10 +157,10 @@ export default function Onboarding({
               <ExpenseForm
                 categories={categories}
                 budgets={budgets}
-                formState={formState}
-                onFieldChange={handleFieldChange}
+                formState={expenseFormState}
+                onFieldChange={handleExpenseFieldChange}
                 currency={currency}
-                minDate={getBudgetStartDate(formState.categoryId, budgets)}
+                minDate={getBudgetStartDate(expenseFormState.categoryId, budgets)}
               />
             </div>
             <Button

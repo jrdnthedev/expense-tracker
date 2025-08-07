@@ -1,20 +1,18 @@
 import type { Budget } from '../types/budget';
 import { format, parseISO } from 'date-fns';
 
-export function validateEndDate(formState: Budget) {
-  return (
-    !formState.startDate ||
-    !formState.endDate ||
-    new Date(formState.endDate) > new Date(formState.startDate)
-  );
+export function validateEndDate(formState: Budget): boolean {
+  if (!formState.startDate || !formState.endDate) return true;
+  return new Date(formState.endDate) > new Date(formState.startDate);
 }
 
-export function validateForm(formState: Budget) {
+export function validateBudgetForm(formState: Budget): boolean {
   return (
-    formState.limit > 0 &&
-    formState.category !== '' &&
-    formState.startDate !== '' &&
-    formState.endDate !== ''
+    !!formState.name &&
+    !!formState.startDate &&
+    !!formState.endDate &&
+    Number(formState.limit) > 0 &&
+    validateEndDate(formState)
   );
 }
 
