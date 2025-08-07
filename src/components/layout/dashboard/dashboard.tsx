@@ -79,4 +79,4 @@ export default function Dashboard() {
   );
 }
 
-type ExpenseList = Pick<Expense, 'description' | 'amount' | 'date' | 'category' | 'id' | 'createdAt'>;
+type ExpenseList = Pick<Expense, 'description' | 'amount'| 'category' | 'id' | 'createdAt'>;

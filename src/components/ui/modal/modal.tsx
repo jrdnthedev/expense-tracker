@@ -14,9 +14,8 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
       <div
         className="absolute inset-0 bg-gray-800 opacity-20"
         onClick={onClose}
-        role="dialog"
-        aria-label="Close modal overlay"
-        aria-labelledby="modal-overlay"
+        aria-hidden="true"
+        data-testid="modal-backdrop"
       ></div>
       <div className="w-full max-w-md mx-auto">
         <Card>

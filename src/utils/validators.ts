@@ -1,5 +1,5 @@
 import type { Budget } from '../types/budget';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 
 export function validateEndDate(formState: Budget): boolean {
   if (!formState.startDate || !formState.endDate) return true;
@@ -8,7 +8,7 @@ export function validateEndDate(formState: Budget): boolean {
 
 export function validateBudgetForm(formState: Budget): boolean {
   return (
-    !!formState.name &&
+    !!formState.name.trim() &&
     !!formState.startDate &&
     !!formState.endDate &&
     Number(formState.limit) > 0 &&
@@ -16,6 +16,13 @@ export function validateBudgetForm(formState: Budget): boolean {
   );
 }
 
-export function formatDate (dateString: string): string {
-  return format(parseISO(dateString), 'MMM d, yyyy');
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  // Create a new date using UTC values to avoid timezone shifts
+  const utcDate = new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate()
+  );
+  return format(utcDate, 'MMM d, yyyy');
 };
