@@ -7,7 +7,7 @@ import { useNextId } from '../../../hooks/nextId/next-id';
 import {
   formatDate,
   validateEndDate,
-  validateForm,
+  validateBudgetForm,
 } from '../../../utils/validators';
 import { useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
@@ -71,7 +71,7 @@ export default function BudgetManager() {
                         onClick={handleSaveBudget}
                         variant="primary"
                         disabled={
-                          !validateForm(formState) ||
+                          !validateBudgetForm(formState) ||
                           !validateEndDate(formState)
                         }
                       >

@@ -26,51 +26,52 @@ export function useBudgetManagement(
   const [formState, setFormState] = useState<Budget>({
     ...DEFAULT_BUDGET_STATE,
     category: categories[0]?.name || '',
+    categoryIds: categories[0] ? [categories[0].id] : [],
   });
   const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
   const dispatch = useAppDispatch();
 
   const handleSaveBudget = () => {
-  const categoryId = categories.find(
-    (category: Category) => category.name === formState.category
-  )?.id;
+    const categoryId = categories.find(
+      (category: Category) => category.name === formState.category
+    )?.id;
 
-  // Only include expenses that aren't already assigned to other budgets
-  const relevantExpenses = expenses.filter((expense: Expense) => {
-    // Skip if expense is already assigned to another budget
-    const isAlreadyAssigned = budgets.some(budget => 
-      budget.expenseIds.includes(expense.id)
-    );
-    if (isAlreadyAssigned) return false;
+    // Only include expenses that aren't already assigned to other budgets
+    const relevantExpenses = expenses.filter((expense: Expense) => {
+      // Skip if expense is already assigned to another budget
+      const isAlreadyAssigned = budgets.some((budget) =>
+        budget.expenseIds.includes(expense.id)
+      );
+      if (isAlreadyAssigned) return false;
 
-    // Skip if category doesn't match
-    if (expense.categoryId !== categoryId) return false;
+      // Skip if category doesn't match
+      if (expense.categoryId !== categoryId) return false;
 
-    const expenseDate = startOfDay(parseISO(expense.createdAt));
-    const budgetStart = startOfDay(parseISO(formState.startDate));
-    const budgetEnd = startOfDay(parseISO(formState.endDate));
+      const expenseDate = startOfDay(parseISO(expense.createdAt));
+      const budgetStart = startOfDay(parseISO(formState.startDate));
+      const budgetEnd = startOfDay(parseISO(formState.endDate));
 
-    return isWithinInterval(expenseDate, {
-      start: budgetStart,
-      end: budgetEnd,
+      return isWithinInterval(expenseDate, {
+        start: budgetStart,
+        end: budgetEnd,
+      });
     });
-  });
 
-  const newBudget = {
-    ...formState,
-    id: nextBudgetId,
-    limit: Number(formState.limit),
-    categoryIds: categoryId ? [categoryId] : [],
-    expenseIds: relevantExpenses.map((expense: Expense) => expense.id),
+    const newBudget = {
+      ...formState,
+      id: nextBudgetId,
+      limit: Number(formState.limit),
+      categoryIds: categoryId ? [categoryId] : [],
+      expenseIds: relevantExpenses.map((expense: Expense) => expense.id),
+    };
+
+    dispatch({ type: 'ADD_BUDGET', payload: newBudget });
+    setFormState({
+      ...DEFAULT_BUDGET_STATE,
+      category: categories[0]?.name || '',
+    });
+    setIsModalOpen(false);
   };
-
-  dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-  setFormState({
-    ...DEFAULT_BUDGET_STATE,
-    category: categories[0]?.name || '',
-  });
-  setIsModalOpen(false);
-};
 
   const calculateSpentAmount = (budget: Budget) => {
     return expenses
@@ -93,7 +94,10 @@ export function useBudgetManagement(
     setBudgetToEdit(budget);
     setFormState({
       ...budget,
-      category: categories.find((category: Category) => category.id === budget.categoryIds[0])?.name || '',
+      category:
+        categories.find(
+          (category: Category) => category.id === budget.categoryIds?.[0]
+        )?.name || '',
     });
   };
 
@@ -110,7 +114,7 @@ export function useBudgetManagement(
   };
 
   const handleFieldChange = (field: string, value: string | number) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
+   setFormState((prev: Budget) => ({ ...prev, [field]: value }));
   };
 
   return {
