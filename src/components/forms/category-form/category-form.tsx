@@ -17,7 +17,7 @@ export default function CategoryForm({ formState, onFieldChange }: CategoryFormP
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="icon-picker">Category Icon</label>
+        <label htmlFor="category-icon">Category Icon</label>
         <Input
           id="category-icon"
           value={formState.icon}
