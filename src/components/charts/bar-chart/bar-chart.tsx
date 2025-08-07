@@ -24,7 +24,7 @@ export default function CustomBarChart<T>({ data }: ChartProps<T>) {
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip formatter={formatTooltipValue} />
-        {dataKeys.map((key, index) => (
+        {dataKeys.map((key: string, index: number) => (
           <Bar key={key} dataKey={key} fill={colors[index % colors.length]} />
         ))}
       </BarChart>
