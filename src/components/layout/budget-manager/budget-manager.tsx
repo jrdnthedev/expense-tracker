@@ -17,7 +17,7 @@ import { useBudgetManagement } from '../../../hooks/budget-management/budget-man
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
   const nextBudgetId = useNextId<Budget>(budgets);
-  
+
   const {
     isModalOpen,
     formState,
@@ -87,6 +87,8 @@ export default function BudgetManager() {
                 const spentAmount = calculateSpentAmount(budget);
                 const remainingAmount = budget.limit - spentAmount;
                 const percentageUsed = (spentAmount / budget.limit) * 100;
+                const isCurrentOrPast =
+                  new Date(budget.startDate) <= new Date();
                 return (
                   <li key={budget.id} className="mb-4">
                     <Card>
@@ -136,6 +138,11 @@ export default function BudgetManager() {
                         <div className="flex items-center justify-between">
                           <h2 className="text-lg font-semibold text-gray-900">
                             {budget.name}
+                            {!isCurrentOrPast && (
+                              <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                Future
+                              </span>
+                            )}
                           </h2>
                           <span
                             className="text-xl font-semibold"
