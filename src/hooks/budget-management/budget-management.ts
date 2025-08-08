@@ -75,18 +75,9 @@ export function useBudgetManagement(
 
   const calculateSpentAmount = (budget: Budget) => {
     return expenses
-      .filter((expense: Expense) => {
-        if (!budget.expenseIds.includes(expense.id)) return false;
-
-        const expenseDate = startOfDay(parseISO(expense.createdAt));
-        const budgetStart = startOfDay(parseISO(budget.startDate));
-        const budgetEnd = startOfDay(parseISO(budget.endDate));
-
-        return isWithinInterval(expenseDate, {
-          start: budgetStart,
-          end: budgetEnd,
-        });
-      })
+    .filter((expense: Expense) => {
+      return budget.expenseIds.includes(expense.id);
+    })
       .reduce((total: number, expense: Expense) => total + expense.amount, 0);
   };
 
