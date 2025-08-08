@@ -29,8 +29,9 @@ export const useBudgets = () => {
 
   const addBudget = async (budget: Omit<Budget, 'id'>) => {
     try {
+      setError(null);
       const id = await budgetDB.addBudget(budget);
-      setBudgets(prev => [...prev, { ...budget, id }]);
+      setBudgets((prev: Budget[]) => [...prev, { ...budget, id }]);
       return id;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error adding budget');
@@ -41,8 +42,8 @@ export const useBudgets = () => {
   const updateBudget = async (budget: Budget) => {
     try {
       await budgetDB.updateBudget(budget);
-      setBudgets(prev => 
-        prev.map(b => b.id === budget.id ? budget : b)
+      setBudgets((prev: Budget[]) => 
+        prev.map((b: Budget) => b.id === budget.id ? budget : b)
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error updating budget');
@@ -52,8 +53,9 @@ export const useBudgets = () => {
 
   const deleteBudget = async (id: number) => {
     try {
+      setError(null);
       await budgetDB.deleteBudget(id);
-      setBudgets(prev => prev.filter(b => b.id !== id));
+      setBudgets((prev: Budget[]) => prev.filter((budget: Budget) => budget.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error deleting budget');
       throw err;
