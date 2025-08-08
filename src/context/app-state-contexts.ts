@@ -44,19 +44,17 @@ export const initialState: State = {
     //   endDate: '2023-04-30',
     // },
   ],
-  categories: [
-    // { name: 'Food', icon: '🍕', color: '#f0c0c0', id: 1 },
-    // {
-    //   name: 'Transport',
-    //   icon: '🚗',
-    //   color: '#f0f0f0',
-    //   id: 2,
-    // },
-    // { name: 'Fun', icon: '🎬', color: '#c0f0c0', id: 3 },
+  categories: [{ name: 'Food', icon: '🍕', id: 1 },
+    {
+      name: 'Transport',
+      icon: '🚗',
+      id: 2,
+    },
+
+    // { name: 'Fun', icon: '🎬', id: 3 },
     // {
     //   name: 'Shopping',
     //   icon: '🛍️',
-    //   color: '#f0f0c0',
     //   id: 4,
     // },
   ],
