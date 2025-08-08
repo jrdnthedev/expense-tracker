@@ -21,7 +21,7 @@ export default function Select<T>({
         const dataId = selectedOption.getAttribute('data-id');
         onChange(e.target.value, Number(dataId));
       }}
-      className="w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
         active:outline-none active:border-transparent
         cursor-pointer
         [&:-webkit-autofill]:bg-white

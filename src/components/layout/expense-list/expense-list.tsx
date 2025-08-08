@@ -13,6 +13,7 @@ import { formatAmount } from '../../../utils/currency';
 import { formatDate } from '../../../utils/validators';
 import EmptyState from '../../ui/empty-state/empty-state';
 import { useExpenseManagement } from '../../../hooks/expense-management/expense-management';
+import Input from '../../ui/input/input';
 
 function DeleteConfirmationModal({
   expenseId,
@@ -93,7 +94,7 @@ export default function ExpenseList() {
                   </Button>
                 </div>
                 <div className="flex items-center gap-4">
-                  <input
+                  {/* <input
                     type="text"
                     name="search"
                     id="search"
@@ -101,6 +102,14 @@ export default function ExpenseList() {
                     value={searchTerm}
                     onChange={handleSearchChange}
                     className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Search expenses..."
+                  /> */}
+                  <Input
+                    type="search"
+                    id="search"
+                    aria-label="Search expenses"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
                     placeholder="Search expenses..."
                   />
                   <div className="w-auto">

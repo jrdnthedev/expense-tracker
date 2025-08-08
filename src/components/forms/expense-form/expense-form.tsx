@@ -28,7 +28,7 @@ export default function ExpenseForm({
       
 
       <div className="mb-4 flex gap-4">
-        <div>
+        <div className="w-1/2">
           <label
           className="block text-sm font-medium text-gray-700 mb-1"
           htmlFor="amount"
@@ -45,7 +45,7 @@ export default function ExpenseForm({
           type="number"
         />
         </div>
-        <div>
+        <div className="w-1/2">
           <label htmlFor="budget">Budgets</label>
           <Select
             id="budget"
