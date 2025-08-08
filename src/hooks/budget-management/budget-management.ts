@@ -87,7 +87,7 @@ export function useBudgetManagement(
           end: budgetEnd,
         });
       })
-      .reduce((total, expense) => total + expense.amount, 0);
+      .reduce((total: number, expense: Expense) => total + expense.amount, 0);
   };
 
   const handleBudgetEdit = (budget: Budget) => {
