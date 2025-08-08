@@ -30,7 +30,7 @@ export const useCategories = () => {
   const addCategory = async (category: Omit<Category, 'id'>) => {
     try {
       const id = await categoryDB.addCategory(category);
-      setCategories(prev => [...prev, { ...category, id }]);
+      setCategories((prev: Category[]) => [...prev, { ...category, id }]);
       return id;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error adding category');
@@ -42,7 +42,7 @@ export const useCategories = () => {
     try {
       await categoryDB.updateCategory(category);
       setCategories(prev => 
-        prev.map(c => c.id === category.id ? category : c)
+        prev.map((c: Category) => c.id === category.id ? category : c)
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error updating category');
@@ -53,7 +53,7 @@ export const useCategories = () => {
   const deleteCategory = async (id: number) => {
     try {
       await categoryDB.deleteCategory(id);
-      setCategories(prev => prev.filter(c => c.id !== id));
+      setCategories(prev => prev.filter((category: Category) => category.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error deleting category');
       throw err;
