@@ -9,7 +9,6 @@ const DEFAULT_BUDGET_STATE: Budget = {
   id: 0,
   limit: 0,
   name: '',
-  category: '',
   categoryIds: [],
   startDate: '',
   endDate: '',
@@ -25,16 +24,14 @@ export function useBudgetManagement(
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formState, setFormState] = useState<Budget>({
     ...DEFAULT_BUDGET_STATE,
-    category: categories[0]?.name || '',
     categoryIds: categories[0] ? [categories[0].id] : [],
   });
   const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
   const dispatch = useAppDispatch();
 
   const handleSaveBudget = () => {
-    const categoryId = categories.find(
-      (category: Category) => category.name === formState.category
-    )?.id;
+    // Use all category IDs from formState
+    const categoryIds = formState.categoryIds;
 
     // Only include expenses that aren't already assigned to other budgets
     const relevantExpenses = expenses.filter((expense: Expense) => {
@@ -44,8 +41,8 @@ export function useBudgetManagement(
       );
       if (isAlreadyAssigned) return false;
 
-      // Skip if category doesn't match
-      if (expense.categoryId !== categoryId) return false;
+      // Skip if expense category doesn't match any of the budget's categories
+      if (!categoryIds.includes(expense.categoryId)) return false;
 
       const expenseDate = startOfDay(parseISO(expense.createdAt));
       const budgetStart = startOfDay(parseISO(formState.startDate));
@@ -61,23 +58,20 @@ export function useBudgetManagement(
       ...formState,
       id: nextBudgetId,
       limit: Number(formState.limit),
-      categoryIds: categoryId ? [categoryId] : [],
+      categoryIds: categoryIds,
       expenseIds: relevantExpenses.map((expense: Expense) => expense.id),
     };
 
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setFormState({
       ...DEFAULT_BUDGET_STATE,
-      category: categories[0]?.name || '',
     });
     setIsModalOpen(false);
   };
 
   const calculateSpentAmount = (budget: Budget) => {
     return expenses
-    .filter((expense: Expense) => {
-      return budget.expenseIds.includes(expense.id);
-    })
+      .filter((expense: Expense) => budget.expenseIds.includes(expense.id))
       .reduce((total: number, expense: Expense) => total + expense.amount, 0);
   };
 
@@ -85,10 +79,6 @@ export function useBudgetManagement(
     setBudgetToEdit(budget);
     setFormState({
       ...budget,
-      category:
-        categories.find(
-          (category: Category) => category.id === budget.categoryIds?.[0]
-        )?.name || '',
     });
   };
 
@@ -105,7 +95,7 @@ export function useBudgetManagement(
   };
 
   const handleFieldChange = (field: string, value: string | number) => {
-   setFormState((prev: Budget) => ({ ...prev, [field]: value }));
+    setFormState((prev: Budget) => ({ ...prev, [field]: value }));
   };
 
   return {
