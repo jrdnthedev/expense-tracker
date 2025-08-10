@@ -71,7 +71,6 @@ interface BudgetFormProps {
     id?: number;
     limit: number;
     name: string;
-    category: string;
     categoryIds: number[];
     startDate: string;
     endDate: string;
