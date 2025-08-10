@@ -5,7 +5,7 @@ export default function Badge({ message, variant = 'default' }: BadgeProps) {
     error: 'bg-red-100 text-red-800',
   };
   return (
-    <span className={`text-sm  px-2 py-1 rounded ${className[variant]}`}>
+    <span className={`text-sm font-semibold px-2 py-1 rounded ${className[variant]}`}>
       {message}
     </span>
   );
