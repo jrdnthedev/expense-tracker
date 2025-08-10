@@ -13,6 +13,7 @@ import { useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
 import EmptyState from '../../ui/empty-state/empty-state';
 import { useBudgetManagement } from '../../../hooks/budget-management/budget-management';
+import Badge from '../../ui/badge/badge';
 
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
@@ -31,7 +32,7 @@ export default function BudgetManager() {
     handleSaveChanges,
     handleDeleteBudget,
   } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
-  console.log("budgets:", budgets);
+  console.log('budgets:', budgets);
   return (
     <>
       <div className="mb-6">
@@ -137,14 +138,14 @@ export default function BudgetManager() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
-                          <h2 className="text-lg font-semibold text-gray-900">
-                            {budget.name}
+                          <div className="flex gap-2">
+                            <h2 className="text-lg font-semibold text-gray-900">
+                              {budget.name}
+                            </h2>
                             {!isCurrentOrPast && (
-                              <span className="ml-2 text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                Future
-                              </span>
+                              <Badge message="Future" variant="default" />
                             )}
-                          </h2>
+                          </div>
                           <span
                             className="text-xl font-semibold"
                             style={{
