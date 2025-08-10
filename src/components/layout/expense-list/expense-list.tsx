@@ -1,4 +1,4 @@
-import {useState } from 'react';
+import { useState } from 'react';
 import Select from '../../ui/select/select';
 import Card from '../../ui/card/card';
 import { useDebounce } from '../../../hooks/debounce/use-debounce';
@@ -14,6 +14,8 @@ import { formatDate } from '../../../utils/validators';
 import EmptyState from '../../ui/empty-state/empty-state';
 import { useExpenseManagement } from '../../../hooks/expense-management/expense-management';
 import Input from '../../ui/input/input';
+import { getBudgetById } from '../../../utils/state';
+import Badge from '../../ui/badge/badge';
 
 function DeleteConfirmationModal({
   expenseId,
@@ -50,7 +52,7 @@ export default function ExpenseList() {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const id = useNextId<Expense>(expenses);
-  
+
   const {
     expenseToEdit,
     expenseToDelete,
@@ -75,7 +77,7 @@ export default function ExpenseList() {
     ...categories,
   ];
 
-  console.log("expenses:", expenses);
+  console.log('expenses:', expenses);
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -95,16 +97,6 @@ export default function ExpenseList() {
                   </Button>
                 </div>
                 <div className="flex items-center gap-4">
-                  {/* <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    aria-label="Search expenses"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Search expenses..."
-                  /> */}
                   <Input
                     type="search"
                     id="search"
@@ -145,42 +137,53 @@ export default function ExpenseList() {
                               .toLowerCase()
                               .includes(debouncedSearchTerm.toLowerCase()))
                       )
-                      .map((expense: Expense) => (
-                        <li
-                          key={expense.id}
-                          className="flex items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0"
-                        >
-                          <div className="flex items-center">
-                            <div>
-                              <h2 className="font-semibold">
-                                {expense.description}
-                              </h2>
-                              <p className="text-gray-500">
-                                {formatDate(expense.createdAt)}
-                              </p>
+                      .map((expense: Expense) => {
+                        const budget = getBudgetById(budgets, expense.budgetId);
+                        const isCurrentOrPast = budget
+                          ? new Date(budget.startDate) <= new Date()
+                          : false;
+                        return (
+                          <li
+                            key={expense.id}
+                            className="flex items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0"
+                          >
+                            <div className="flex items-center">
+                              <div>
+                                <div className="flex gap-2">
+                                  <h2 className="font-semibold">
+                                    {expense.description}
+                                  </h2>
+                                  {!isCurrentOrPast && (
+                                    <Badge message="Future Expense" variant="default" />
+                                  )}
+                                </div>
+                                <p className="text-gray-500">
+                                  {formatDate(expense.createdAt)}
+                                </p>
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="flex items-center gap-3">
-                            <span className="text-xl text-green-700 font-semibold">
-                              {formatAmount(expense.amount, currency)}
-                            </span>
-                            <Button
-                              onClick={() => handleFormEdit(expense)}
-                              variant="primary"
-                            >
-                              Edit
-                            </Button>
+                            <div className="flex items-center gap-3">
+                              <span className="text-xl text-green-700 font-semibold">
+                                {formatAmount(expense.amount, currency)}
+                              </span>
+                              <Button
+                                onClick={() => handleFormEdit(expense)}
+                                variant="primary"
+                              >
+                                Edit
+                              </Button>
 
-                            <Button
-                              onClick={() => setExpenseToDelete(expense.id)}
-                              variant="secondary"
-                            >
-                              Delete
-                            </Button>
-                          </div>
-                        </li>
-                      ))}
+                              <Button
+                                onClick={() => setExpenseToDelete(expense.id)}
+                                variant="secondary"
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </li>
+                        );
+                      })}
                   </ul>
                   {expenseToDelete !== null && (
                     <DeleteConfirmationModal

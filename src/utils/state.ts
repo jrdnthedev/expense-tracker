@@ -53,3 +53,7 @@ export function updateCategory(categories: Category[], updatedCategory: Category
 export function removeCategory(categories: Category[], categoryId: number): Category[] {
   return categories.filter((category) => category.id !== categoryId);
 }
+
+export function getBudgetById(budgets: Budget[], budgetId: number): Budget | undefined {
+  return budgets.find((budget) => budget.id === budgetId);
+}

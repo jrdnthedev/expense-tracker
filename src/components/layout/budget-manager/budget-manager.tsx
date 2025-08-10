@@ -13,11 +13,12 @@ import { useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
 import EmptyState from '../../ui/empty-state/empty-state';
 import { useBudgetManagement } from '../../../hooks/budget-management/budget-management';
+import Badge from '../../ui/badge/badge';
 
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
   const nextBudgetId = useNextId<Budget>(budgets);
-  
+
   const {
     isModalOpen,
     formState,
@@ -31,7 +32,7 @@ export default function BudgetManager() {
     handleSaveChanges,
     handleDeleteBudget,
   } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
-  console.log("budgets:", budgets);
+  console.log('budgets:', budgets);
   return (
     <>
       <div className="mb-6">
@@ -88,6 +89,8 @@ export default function BudgetManager() {
                 const spentAmount = calculateSpentAmount(budget);
                 const remainingAmount = budget.limit - spentAmount;
                 const percentageUsed = (spentAmount / budget.limit) * 100;
+                const isCurrentOrPast =
+                  new Date(budget.startDate) <= new Date();
                 return (
                   <li key={budget.id} className="mb-4">
                     <Card>
@@ -135,9 +138,14 @@ export default function BudgetManager() {
                           </div>
                         </div>
                         <div className="flex items-center justify-between">
-                          <h2 className="text-lg font-semibold text-gray-900">
-                            {budget.name}
-                          </h2>
+                          <div className="flex gap-2">
+                            <h2 className="text-lg font-semibold text-gray-900">
+                              {budget.name}
+                            </h2>
+                            {!isCurrentOrPast && (
+                              <Badge message="Future" variant="default" />
+                            )}
+                          </div>
                           <span
                             className="text-xl font-semibold"
                             style={{
