@@ -46,6 +46,35 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
     };
 
     dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
+    if (expenseToEdit.budgetId !== formState.budgetId) {
+      // Remove expense from old budget
+      if (expenseToEdit.budgetId) {
+        const oldBudget = budgets.find((b) => b.id === expenseToEdit.budgetId);
+        if (oldBudget) {
+          dispatch({
+            type: 'UPDATE_BUDGET',
+            payload: {
+              ...oldBudget,
+              expenseIds: oldBudget.expenseIds.filter(id => id !== expenseToEdit.id),
+            },
+          });
+        }
+      }
+
+      // Add expense to new budget
+      if (formState.budgetId) {
+        const newBudget = budgets.find((b) => b.id === formState.budgetId);
+        if (newBudget) {
+          dispatch({
+            type: 'UPDATE_BUDGET',
+            payload: {
+              ...newBudget,
+              expenseIds: [...newBudget.expenseIds, expenseToEdit.id],
+            },
+          });
+        }
+      }
+    }
     setExpenseToEdit(null);
   }, [categories, dispatch, expenseToEdit, formState]);
 
