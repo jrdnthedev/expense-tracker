@@ -6,7 +6,6 @@ import type { Category } from '../../types/category';
 import type { Expense } from '../../types/expense'; // Adjust import path
 import type { BudgetFormRef } from '../../components/forms/budget-form/budget-form';
 
-
 // Form data type
 type BudgetFormData = {
   id?: number;
@@ -34,26 +33,32 @@ export function useBudgetManagement(
   const editFormRef = useRef<BudgetFormRef>(null);
 
   // Get initial form data
-  const getInitialFormData = useCallback((): BudgetFormData => ({
-    id: 0,
-    limit: 0,
-    name: '',
-    categoryIds: categories[0] ? [categories[0].id] : [],
-    startDate: '',
-    endDate: '',
-    expenseIds: [],
-  }), [categories]);
+  const getInitialFormData = useCallback(
+    (): BudgetFormData => ({
+      id: 0,
+      limit: 0,
+      name: '',
+      categoryIds: categories[0] ? [categories[0].id] : [],
+      startDate: '',
+      endDate: '',
+      expenseIds: [],
+    }),
+    [categories]
+  );
 
   // Convert Budget to form data
-  const budgetToFormData = useCallback((budget: Budget): BudgetFormData => ({
-    id: budget.id,
-    limit: budget.limit,
-    name: budget.name,
-    categoryIds: budget.categoryIds,
-    startDate: budget.startDate,
-    endDate: budget.endDate,
-    expenseIds: budget.expenseIds,
-  }), []);
+  const budgetToFormData = useCallback(
+    (budget: Budget): BudgetFormData => ({
+      id: budget.id,
+      limit: budget.limit,
+      name: budget.name,
+      categoryIds: budget.categoryIds,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      expenseIds: budget.expenseIds,
+    }),
+    []
+  );
 
   // Handle form validation changes
   const handleValidationChange = useCallback((isValid: boolean) => {
@@ -95,7 +100,7 @@ export function useBudgetManagement(
     };
 
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-    
+
     // Reset form and close modal
     addFormRef.current?.reset(getInitialFormData());
     setIsModalOpen(false);
@@ -116,20 +121,26 @@ export function useBudgetManagement(
     setBudgetToEdit(null);
   }, [dispatch]);
 
-  const calculateSpentAmount = useCallback((budget: Budget) => {
-    return expenses
-      .filter((expense: Expense) => budget.expenseIds.includes(expense.id))
-      .reduce((total: number, expense: Expense) => total + expense.amount, 0);
-  }, [expenses]);
+  const calculateSpentAmount = useCallback(
+    (budget: Budget) => {
+      return expenses
+        .filter((expense: Expense) => expense.budgetId === budget.id)
+        .reduce((total: number, expense: Expense) => total + expense.amount, 0);
+    },
+    [expenses]
+  );
 
   const handleBudgetEdit = useCallback((budget: Budget) => {
     setBudgetToEdit(budget);
   }, []);
 
-  const handleDeleteBudget = useCallback((budgetId: number) => {
-    dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
-    setBudgetToEdit(null);
-  }, [dispatch]);
+  const handleDeleteBudget = useCallback(
+    (budgetId: number) => {
+      dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
+      setBudgetToEdit(null);
+    },
+    [dispatch]
+  );
 
   return {
     isModalOpen,

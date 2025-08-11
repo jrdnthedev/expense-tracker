@@ -1,52 +1,132 @@
+import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useRef } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import Input from '../../ui/input/input';
 import type { Currency } from '../../../types/currency';
-import { useEffect } from 'react';
-import type { Expense } from '../../../types/expense';
 import Select from '../../ui/select/select';
 import type { Budget } from '../../../types/budget';
 
-export default function ExpenseForm({
+// Form data type
+type ExpenseFormData = {
+  id?: number;
+  amount: number;
+  description: string;
+  categoryId: number;
+  category: string;
+  budgetId: number;
+  budget: string;
+  createdAt: string;
+};
+
+interface ExpenseFormProps {
+  initialData: ExpenseFormData;
+  categories: Category[];
+  budgets: Budget[];
+  currency: Currency;
+  onValidationChange?: (isValid: boolean) => void;
+}
+
+// Ref interface for parent to access form methods
+export interface ExpenseFormRef {
+  getFormData: () => ExpenseFormData;
+  isValid: () => boolean;
+  reset: (newData?: ExpenseFormData) => void;
+}
+
+const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(({
+  initialData,
   categories,
   budgets,
-  formState,
   currency,
-  minDate,
-  onFieldChange,
-}: ExpenseFormProps) {
+  onValidationChange,
+}, ref) => {
+  // Form manages its own state completely
+  const [formState, setFormState] = useState<ExpenseFormData>(initialData);
+  
+  // Keep a ref to track the previous initialData to detect real changes
+  const prevInitialDataRef = useRef<ExpenseFormData>(initialData);
+
+  // Update form state when initialData changes (for edit mode)
+  useEffect(() => {
+    const prev = prevInitialDataRef.current;
+    const current = initialData;
+    
+    // Only update if this is a completely new expense (different ID)
+    // or if we're switching from one expense to another
+    const isNewExpense = prev.id !== current.id;
+    
+    if (isNewExpense) {
+      setFormState(initialData);
+      prevInitialDataRef.current = initialData;
+    }
+  }, [initialData]);
+
+  // Auto-select first budget if none selected
   useEffect(() => {
     if (budgets.length > 0 && !formState.budgetId) {
       const firstBudget = budgets[0];
-      onFieldChange('budgetId', firstBudget.id);
-      onFieldChange('budget', firstBudget.name);
+      setFormState(prev => ({
+        ...prev,
+        budgetId: firstBudget.id,
+        budget: firstBudget.name,
+      }));
     }
-  }, [budgets, minDate, formState.budgetId, onFieldChange]);
+  }, [budgets, formState.budgetId]);
+
+  // Validation logic
+  const isFormValid = formState.amount > 0 && 
+                     formState.description.trim() !== '' && 
+                     formState.categoryId > 0 &&
+                     formState.budgetId > 0;
+
+  // Notify parent of validation changes only
+  useEffect(() => {
+    onValidationChange?.(isFormValid);
+  }, [isFormValid, onValidationChange]);
+
+  // Field update handler - completely internal
+  const handleFieldChange = useCallback((field: string, fieldValue: string | number) => {
+    setFormState(prev => ({ ...prev, [field]: fieldValue }));
+  }, []);
+
+  // Reset form data
+  const resetForm = useCallback((newData?: ExpenseFormData) => {
+    const dataToUse = newData || initialData;
+    setFormState(dataToUse);
+    prevInitialDataRef.current = dataToUse;
+  }, [initialData]);
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    getFormData: () => formState,
+    isValid: () => isFormValid,
+    reset: resetForm,
+  }), [formState, isFormValid, resetForm]);
 
   return (
     <div className="mb-8">
-      
-
       <div className="mb-4 flex gap-4">
         <div className="w-1/2 flex flex-col">
           <label
-          className="block text-sm font-medium text-gray-700 mb-1"
-          htmlFor="amount"
-        >
-          Amount
-        </label>
-        <Input
-          value={formState.amount}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onFieldChange('amount', e.target.value)
-          }
-          placeholder={`${currency.symbol}0.00`}
-          id="amount"
-          type="number"
-        />
+            className="block text-sm font-medium text-gray-700 mb-1"
+            htmlFor="amount"
+          >
+            Amount
+          </label>
+          <Input
+            value={formState.amount}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleFieldChange('amount', Number(e.target.value))
+            }
+            placeholder={`${currency.symbol}0.00`}
+            id="amount"
+            type="number"
+          />
         </div>
         <div className="w-1/2 flex flex-col">
-          <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">Budgets</label>
+          <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
+            Budgets
+          </label>
           <Select
             id="budget"
             name="Select Budget"
@@ -54,11 +134,10 @@ export default function ExpenseForm({
             onChange={(_value: string, dataId: number) => {
               const budget = budgets.find((bud: Budget) => bud.id === dataId);
               if (budget) {
-                onFieldChange('budget', budget.name);
-                onFieldChange('budgetId', budget.id);
+                handleFieldChange('budget', budget.name);
+                handleFieldChange('budgetId', budget.id);
               }
             }}
-            
             value={budgets.find(b => b.id === formState.budgetId)?.name || ''}
             getOptionValue={(option) => option.name}
             getOptionLabel={(option) => option.name}
@@ -77,7 +156,7 @@ export default function ExpenseForm({
         <Input
           value={formState.description}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onFieldChange('description', e.target.value)
+            handleFieldChange('description', e.target.value)
           }
           placeholder="What did you spend on?"
           id="description"
@@ -104,55 +183,17 @@ export default function ExpenseForm({
               icon={category.icon}
               selected={formState.categoryId === category.id}
               onClick={() => {
-                onFieldChange('categoryId', category.id);
-                onFieldChange('category', category.name);
+                handleFieldChange('categoryId', category.id);
+                handleFieldChange('category', category.name);
               }}
             />
           ))}
         </div>
       </div>
-
-      <div className="flex max-sm:flex-col gap-4 mb-4">
-        {/* <div className="w-full flex-1">
-          <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="date"
-          >
-            Date
-          </label>
-          <DatePicker
-            id="date"
-            value={formState.date}
-            onChange={(date: string) => onFieldChange('date', date)}
-            min={minDate}
-          />
-        </div> */}
-        <div className="w-full flex-1">
-          {/* <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="time"
-          >
-            Time
-          </label>
-          <Input
-            type="time"
-            id="time"
-            value={formState.time}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onFieldChange('time', e.target.value)
-            }
-          /> */}
-        </div>
-      </div>
     </div>
   );
-}
+});
 
-interface ExpenseFormProps {
-  categories: Category[];
-  budgets: Budget[];
-  formState: Expense;
-  onFieldChange: (field: string, value: string | number) => void;
-  currency: Currency;
-  minDate?: string;
-}
+ExpenseForm.displayName = 'ExpenseForm';
+
+export default ExpenseForm;
