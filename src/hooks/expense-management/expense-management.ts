@@ -1,143 +1,140 @@
-import { useState, useCallback } from 'react';
-import type { Expense } from '../../types/expense';
+import { useState, useCallback, useRef } from 'react';
+import { useAppDispatch } from '../../context/app-state-hooks';
 import type { Category } from '../../types/category';
 import type { Budget } from '../../types/budget';
-import { useAppDispatch } from '../../context/app-state-hooks';
+import type { Expense } from '../../types/expense'; // Adjust import path
+import type { ExpenseFormRef } from '../../components/forms/expense-form/expense-form';
 
-const DEFAULT_EXPENSE_STATE: Expense = {
-  amount: 0,
-  description: '',
-  category: '',
-  categoryId: 1,
-  budget: '',
-  budgetId: 0,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  id: 0,
+// Form data type
+type ExpenseFormData = {
+  id?: number;
+  amount: number;
+  description: string;
+  categoryId: number;
+  category: string;
+  budgetId: number;
+  budget: string;
+  createdAt: string;
 };
 
 export function useExpenseManagement(categories: Category[], budgets: Budget[]) {
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<number | null>(null);
-  const [formState, setFormState] = useState<Expense>(DEFAULT_EXPENSE_STATE);
-  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
   const dispatch = useAppDispatch();
 
-  const handleFieldChange = useCallback(
-    (field: string, value: string | number) =>
-      setFormState((prev) => ({ ...prev, [field]: value })),
-    []
-  );
+  // Refs to access form data without causing re-renders
+  const addFormRef = useRef<ExpenseFormRef>(null);
+  const editFormRef = useRef<ExpenseFormRef>(null);
 
-  const handleDeleteExpense = useCallback((id: number) => {
-    dispatch({ type: 'REMOVE_EXPENSE', payload: { id } });
-    setExpenseToDelete(null);
-  }, [dispatch]);
-
-  const handleSave = useCallback(() => {
-    if (!expenseToEdit || typeof expenseToEdit.id !== 'number') return;
-
-    const newCategory = categories.find((cat) => cat.id === formState.categoryId)?.name ?? '';
-    const updatedExpense: Expense = {
-      ...formState,
-      amount: Number(formState.amount),
-      category: newCategory.toLowerCase(),
-      updatedAt: new Date().toISOString(),
+  // Get initial form data for new expense
+  const getInitialFormData = useCallback((): ExpenseFormData => {
+    const firstCategory = categories[0];
+    const firstBudget = budgets[0];
+    
+    return {
+      id: 0,
+      amount: 0,
+      description: '',
+      categoryId: firstCategory ? firstCategory.id : 0,
+      category: firstCategory ? firstCategory.name : '',
+      budgetId: firstBudget ? firstBudget.id : 0,
+      budget: firstBudget ? firstBudget.name : '',
+      createdAt: new Date().toISOString(),
     };
+  }, [categories, budgets]);
 
-    dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
-    if (expenseToEdit.budgetId !== formState.budgetId) {
-      // Remove expense from old budget
-      if (expenseToEdit.budgetId) {
-        const oldBudget = budgets.find((b) => b.id === expenseToEdit.budgetId);
-        if (oldBudget) {
-          dispatch({
-            type: 'UPDATE_BUDGET',
-            payload: {
-              ...oldBudget,
-              expenseIds: oldBudget.expenseIds.filter(id => id !== expenseToEdit.id),
-            },
-          });
-        }
-      }
+  // Convert Expense to form data
+  const expenseToFormData = useCallback((expense: Expense): ExpenseFormData => {
+    const category = categories.find(c => c.id === expense.categoryId);
+    const budget = budgets.find(b => b.id === expense.budgetId);
+    
+    return {
+      id: expense.id,
+      amount: expense.amount,
+      description: expense.description,
+      categoryId: expense.categoryId,
+      category: category ? category.name : '',
+      budgetId: expense.budgetId || 0,
+      budget: budget ? budget.name : '',
+      createdAt: expense.createdAt,
+    };
+  }, [categories, budgets]);
 
-      // Add expense to new budget
-      if (formState.budgetId) {
-        const newBudget = budgets.find((b) => b.id === formState.budgetId);
-        if (newBudget) {
-          dispatch({
-            type: 'UPDATE_BUDGET',
-            payload: {
-              ...newBudget,
-              expenseIds: [...newBudget.expenseIds, expenseToEdit.id],
-            },
-          });
-        }
-      }
-    }
-    setExpenseToEdit(null);
-  }, [categories, dispatch, expenseToEdit, formState]);
-
-  const handleReset = useCallback(() => {
-    setFormState(DEFAULT_EXPENSE_STATE);
-    setExpenseToEdit(null);
+  // Handle form validation changes
+  const handleValidationChange = useCallback((isValid: boolean) => {
+    setIsFormValid(isValid);
   }, []);
 
-  const handleFormEdit = useCallback((expense: Expense) => {
-    setExpenseToEdit(expense);
-    setFormState({
-      ...expense,
-      amount: Number(expense.amount),
-      description: expense.description,
-      category: categories.find((cat) => cat.id === expense.categoryId)?.name || '',
-      categoryId: expense.categoryId,
-    });
-  }, [categories]);
+  // Add new expense - gets data from form ref
+  const handleAddExpense = useCallback((nextId: number) => {
+    const formData = addFormRef.current?.getFormData();
+    if (!formData || !addFormRef.current?.isValid()) return;
 
-  const handleAddExpense = useCallback((id: number) => {
     const newExpense: Expense = {
-      id,
-      amount: Number(formState.amount),
-      description: formState.description,
-      category: categories.find((cat) => cat.id === formState.categoryId)?.name || '',
-      categoryId: formState.categoryId,
-      budget: formState.budget,
-      budgetId: formState.budgetId,
+      id: nextId,
+      amount: Number(formData.amount),
+      description: formData.description,
+      categoryId: formData.categoryId,
+      category: categories.find(c => c.id === formData.categoryId)?.name || '',
+      budgetId: formData.budgetId,
+      budget: budgets.find(b => b.id === formData.budgetId)?.name || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
-
-    if (formState.budgetId) {
-      const budget = budgets.find((b) => b.id === formState.budgetId);
-      if (budget) {
-        dispatch({
-          type: 'UPDATE_BUDGET',
-          payload: {
-            ...budget,
-            expenseIds: [...budget.expenseIds, newExpense.id],
-          },
-        });
-      }
-    }
-
+    
+    // Reset form and close modal
+    addFormRef.current?.reset(getInitialFormData());
     setIsAddExpenseModalOpen(false);
-    setFormState(DEFAULT_EXPENSE_STATE);
-  }, [categories, budgets, dispatch, formState]);
+  }, [dispatch, getInitialFormData]);
+
+  // Save expense changes - gets data from edit form ref
+  const handleSave = useCallback(() => {
+    const formData = editFormRef.current?.getFormData();
+    if (!formData || !editFormRef.current?.isValid() || !expenseToEdit) return;
+
+    const updatedExpense: Expense = {
+      ...expenseToEdit,
+      amount: Number(formData.amount),
+      description: formData.description,
+      categoryId: formData.categoryId,
+      budgetId: formData.budgetId,
+    };
+
+    dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
+    setExpenseToEdit(null);
+  }, [dispatch, expenseToEdit]);
+
+  // Handle delete
+  const handleDeleteExpense = useCallback((expenseId: number) => {
+    dispatch({ type: 'REMOVE_EXPENSE', payload: { id: expenseId } });
+    setExpenseToDelete(null);
+  }, [dispatch]);
+
+  // Reset/cancel edit
+  const handleReset = useCallback(() => {
+    setExpenseToEdit(null);
+  }, []);
 
   return {
+    isAddExpenseModalOpen,
     expenseToEdit,
     expenseToDelete,
-    formState,
-    isAddExpenseModalOpen,
-    setExpenseToDelete,
+    isFormValid,
+    addFormRef,
+    editFormRef,
     setIsAddExpenseModalOpen,
-    handleFieldChange,
-    handleDeleteExpense,
-    handleSave,
-    handleReset,
-    handleFormEdit,
+    setExpenseToEdit,
+    setExpenseToDelete,
+    getInitialFormData,
+    expenseToFormData,
+    handleValidationChange,
     handleAddExpense,
+    handleSave,
+    handleDeleteExpense,
+    handleReset,
   };
 }
