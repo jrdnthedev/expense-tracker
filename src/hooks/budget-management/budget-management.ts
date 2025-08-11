@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { startOfDay, parseISO, isWithinInterval } from 'date-fns';
 import { useAppDispatch } from '../../context/app-state-hooks';
 import type { Budget } from '../../types/budget';
 import type { Category } from '../../types/category';
-import type { Expense } from '../../types/expense';
+import type { Expense } from '../../types/expense'; // Adjust import path
+import type { BudgetFormRef } from '../../components/forms/budget-form/budget-form';
 
-const DEFAULT_BUDGET_STATE: Budget = {
-  id: 0,
-  limit: 0,
-  name: '',
-  categoryIds: [],
-  startDate: '',
-  endDate: '',
-  expenseIds: [],
+
+// Form data type
+type BudgetFormData = {
+  id?: number;
+  limit: number;
+  name: string;
+  categoryIds: number[];
+  startDate: string;
+  endDate: string;
+  expenseIds: number[];
 };
 
 export function useBudgetManagement(
@@ -22,31 +25,60 @@ export function useBudgetManagement(
   nextBudgetId: number
 ) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formState, setFormState] = useState<Budget>({
-    ...DEFAULT_BUDGET_STATE,
-    categoryIds: categories[0] ? [categories[0].id] : [],
-  });
   const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
+  const [isFormValid, setIsFormValid] = useState(false);
   const dispatch = useAppDispatch();
 
-  const handleSaveBudget = () => {
-    // Use all category IDs from formState
-    const categoryIds = formState.categoryIds;
+  // Refs to access form data without causing re-renders
+  const addFormRef = useRef<BudgetFormRef>(null);
+  const editFormRef = useRef<BudgetFormRef>(null);
 
-    // Only include expenses that aren't already assigned to other budgets
+  // Get initial form data
+  const getInitialFormData = useCallback((): BudgetFormData => ({
+    id: 0,
+    limit: 0,
+    name: '',
+    categoryIds: categories[0] ? [categories[0].id] : [],
+    startDate: '',
+    endDate: '',
+    expenseIds: [],
+  }), [categories]);
+
+  // Convert Budget to form data
+  const budgetToFormData = useCallback((budget: Budget): BudgetFormData => ({
+    id: budget.id,
+    limit: budget.limit,
+    name: budget.name,
+    categoryIds: budget.categoryIds,
+    startDate: budget.startDate,
+    endDate: budget.endDate,
+    expenseIds: budget.expenseIds,
+  }), []);
+
+  // Handle form validation changes
+  const handleValidationChange = useCallback((isValid: boolean) => {
+    setIsFormValid(isValid);
+  }, []);
+
+  // Save new budget - gets data from form ref
+  const handleSaveBudget = useCallback(() => {
+    const formData = addFormRef.current?.getFormData();
+    if (!formData || !addFormRef.current?.isValid()) return;
+
+    const categoryIds = formData.categoryIds;
+
+    // Calculate relevant expenses
     const relevantExpenses = expenses.filter((expense: Expense) => {
-      // Skip if expense is already assigned to another budget
       const isAlreadyAssigned = budgets.some((budget) =>
         budget.expenseIds.includes(expense.id)
       );
       if (isAlreadyAssigned) return false;
 
-      // Skip if expense category doesn't match any of the budget's categories
       if (!categoryIds.includes(expense.categoryId)) return false;
 
       const expenseDate = startOfDay(parseISO(expense.createdAt));
-      const budgetStart = startOfDay(parseISO(formState.startDate));
-      const budgetEnd = startOfDay(parseISO(formState.endDate));
+      const budgetStart = startOfDay(parseISO(formData.startDate));
+      const budgetEnd = startOfDay(parseISO(formData.endDate));
 
       return isWithinInterval(expenseDate, {
         start: budgetStart,
@@ -54,57 +86,62 @@ export function useBudgetManagement(
       });
     });
 
-    const newBudget = {
-      ...formState,
+    const newBudget: Budget = {
+      ...formData,
       id: nextBudgetId,
-      limit: Number(formState.limit),
+      limit: Number(formData.limit),
       categoryIds: categoryIds,
       expenseIds: relevantExpenses.map((expense: Expense) => expense.id),
     };
 
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-    setFormState({
-      ...DEFAULT_BUDGET_STATE,
-    });
+    
+    // Reset form and close modal
+    addFormRef.current?.reset(getInitialFormData());
     setIsModalOpen(false);
-  };
+  }, [expenses, budgets, nextBudgetId, dispatch, getInitialFormData]);
 
-  const calculateSpentAmount = (budget: Budget) => {
+  // Save budget changes - gets data from edit form ref
+  const handleSaveChanges = useCallback(() => {
+    const formData = editFormRef.current?.getFormData();
+    if (!formData || !editFormRef.current?.isValid()) return;
+
+    const updatedBudget: Budget = {
+      ...formData,
+      id: formData.id || 0,
+      limit: Number(formData.limit),
+    };
+
+    dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
+    setBudgetToEdit(null);
+  }, [dispatch]);
+
+  const calculateSpentAmount = useCallback((budget: Budget) => {
     return expenses
       .filter((expense: Expense) => budget.expenseIds.includes(expense.id))
       .reduce((total: number, expense: Expense) => total + expense.amount, 0);
-  };
+  }, [expenses]);
 
-  const handleBudgetEdit = (budget: Budget) => {
+  const handleBudgetEdit = useCallback((budget: Budget) => {
     setBudgetToEdit(budget);
-    setFormState({
-      ...budget,
-    });
-  };
+  }, []);
 
-  const handleSaveChanges = () => {
-    if (budgetToEdit) {
-      dispatch({ type: 'UPDATE_BUDGET', payload: budgetToEdit });
-      setBudgetToEdit(null);
-    }
-  };
-
-  const handleDeleteBudget = (budgetId: number) => {
+  const handleDeleteBudget = useCallback((budgetId: number) => {
     dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
     setBudgetToEdit(null);
-  };
-
-  const handleFieldChange = (field: string, value: string | number) => {
-    setFormState((prev: Budget) => ({ ...prev, [field]: value }));
-  };
+  }, [dispatch]);
 
   return {
     isModalOpen,
-    formState,
     budgetToEdit,
+    isFormValid,
+    addFormRef,
+    editFormRef,
     setIsModalOpen,
     setBudgetToEdit,
-    handleFieldChange,
+    getInitialFormData,
+    budgetToFormData,
+    handleValidationChange,
     handleSaveBudget,
     calculateSpentAmount,
     handleBudgetEdit,

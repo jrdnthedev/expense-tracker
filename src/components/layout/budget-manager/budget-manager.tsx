@@ -4,11 +4,7 @@ import Modal from '../../ui/modal/modal';
 import BudgetForm from '../../forms/budget-form/budget-form';
 import type { Budget } from '../../../types/budget';
 import { useNextId } from '../../../hooks/nextId/next-id';
-import {
-  formatDate,
-  validateEndDate,
-  validateBudgetForm,
-} from '../../../utils/validators';
+import { formatDate } from '../../../utils/validators';
 import { useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
 import EmptyState from '../../ui/empty-state/empty-state';
@@ -21,18 +17,21 @@ export default function BudgetManager() {
 
   const {
     isModalOpen,
-    formState,
     budgetToEdit,
+    isFormValid,
+    addFormRef,
+    editFormRef,
     setIsModalOpen,
     setBudgetToEdit,
-    handleFieldChange,
+    getInitialFormData,
+    budgetToFormData,
+    handleValidationChange,
     handleSaveBudget,
     calculateSpentAmount,
     handleBudgetEdit,
     handleSaveChanges,
     handleDeleteBudget,
   } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
-  console.log('budgets:', budgets);
   return (
     <>
       <div className="mb-6">
@@ -55,27 +54,19 @@ export default function BudgetManager() {
                     onClose={() => setIsModalOpen(false)}
                     isOpen={isModalOpen}
                   >
-                    <h1 className="text-2xl font-bold ">Add Budget</h1>
+                    <h1 className="text-2xl font-bold">Add Budget</h1>
                     <div className="flex flex-col gap-4">
+                      {/* Form with isolated state - no parent re-renders */}
                       <BudgetForm
-                        categories={categories}
-                        formState={formState}
-                        onFieldChange={(field, value) =>
-                          handleFieldChange(field, value)
-                        }
+                        ref={addFormRef}
+                        initialData={getInitialFormData()}
+                        onValidationChange={handleValidationChange}
                       />
-                      {!validateEndDate(formState) && (
-                        <div className="text-red-500 text-sm">
-                          End date must be after start date.
-                        </div>
-                      )}
+                      
                       <Button
                         onClick={handleSaveBudget}
                         variant="primary"
-                        disabled={
-                          !validateBudgetForm(formState) ||
-                          !validateEndDate(formState)
-                        }
+                        disabled={!isFormValid}
                       >
                         Save
                       </Button>
@@ -196,16 +187,13 @@ export default function BudgetManager() {
         )}
         {budgetToEdit && (
           <Modal isOpen={!!budgetToEdit} onClose={() => setBudgetToEdit(null)}>
-            <h1 className="text-2xl font-bold ">Edit Budget</h1>
+            <h1 className="text-2xl font-bold">Edit Budget</h1>
             <div className="flex flex-col gap-4">
+              {/* Form with isolated state - no parent re-renders */}
               <BudgetForm
-                formState={budgetToEdit}
-                categories={categories}
-                onFieldChange={(field, value) =>
-                  setBudgetToEdit((prev) =>
-                    prev ? { ...prev, [field]: value } : null
-                  )
-                }
+                ref={editFormRef}
+                initialData={budgetToFormData(budgetToEdit)}
+                onValidationChange={handleValidationChange}
               />
               <Button onClick={handleSaveChanges} variant="primary">
                 Save Changes
