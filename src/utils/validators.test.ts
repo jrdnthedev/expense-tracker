@@ -5,13 +5,11 @@ import type { Budget } from '../types/budget';
 // Mock Budget data
 const createMockBudget = (overrides: Partial<Budget> = {}): Budget => ({
   id: 1,
-  category: 'Food',
   name: 'Test Budget',
   categoryIds: [1],
   limit: 500,
   startDate: '2025-08-01T00:00:00Z',
   endDate: '2025-08-31T23:59:59Z',
-  expenseIds: [],
   ...overrides
 });
 
