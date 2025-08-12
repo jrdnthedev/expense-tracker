@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import Input from '../../ui/input/input';
@@ -38,25 +38,11 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(({
   budgets,
   currency,
 }, ref) => {
-  // Form manages its own state completely
   const [formState, setFormState] = useState<ExpenseFormData>(initialData);
-  
-  // Keep a ref to track the previous initialData to detect real changes
-  const prevInitialDataRef = useRef<ExpenseFormData>(initialData);
 
-  // Update form state when initialData changes (for edit mode)
+  // Update form when initialData changes
   useEffect(() => {
-    const prev = prevInitialDataRef.current;
-    const current = initialData;
-    
-    // Only update if this is a completely new expense (different ID)
-    // or if we're switching from one expense to another
-    const isNewExpense = prev.id !== current.id;
-    
-    if (isNewExpense) {
-      setFormState(initialData);
-      prevInitialDataRef.current = initialData;
-    }
+    setFormState(initialData);
   }, [initialData]);
 
   // Auto-select first budget if none selected
@@ -71,52 +57,63 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(({
     }
   }, [budgets, formState.budgetId]);
 
-  // Validation logic
+  // Validation
   const isFormValid = formState.amount > 0 && 
                      formState.description.trim() !== '' && 
                      formState.categoryId > 0 &&
                      formState.budgetId > 0;
-  
 
-  // Field update handler - completely internal
-  const handleFieldChange = useCallback((field: string, fieldValue: string | number) => {
-    setFormState(prev => ({ ...prev, [field]: fieldValue }));
-  }, []);
+  // Update form field
+  const updateField = (field: keyof ExpenseFormData, value: string | number) => {
+    setFormState(prev => ({ ...prev, [field]: value }));
+  };
 
-  // Reset form data
-  const resetForm = useCallback((newData?: ExpenseFormData) => {
-    const dataToUse = newData || initialData;
-    setFormState(dataToUse);
-    prevInitialDataRef.current = dataToUse;
-  }, [initialData]);
+  // Handle budget selection
+  const handleBudgetChange = (_value: string, dataId: number) => {
+    const budget = budgets.find(b => b.id === dataId);
+    if (budget) {
+      setFormState(prev => ({
+        ...prev,
+        budget: budget.name,
+        budgetId: budget.id
+      }));
+    }
+  };
 
-  // Expose methods to parent via ref
+  // Handle category selection
+  const handleCategorySelect = (category: Category) => {
+    setFormState(prev => ({
+      ...prev,
+      categoryId: category.id,
+      category: category.name
+    }));
+  };
+
+  // Expose methods to parent
   useImperativeHandle(ref, () => ({
     getFormData: () => formState,
     isValid: () => isFormValid,
-    reset: resetForm,
-  }), [formState, isFormValid, resetForm]);
+    reset: (newData = initialData) => setFormState(newData),
+  }), [formState, isFormValid, initialData]);
 
   return (
     <div className="mb-8">
       <div className="mb-4 flex gap-4">
         <div className="w-1/2 flex flex-col">
-          <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="amount"
-          >
+          <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="amount">
             Amount
           </label>
           <Input
             value={formState.amount}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleFieldChange('amount', Number(e.target.value))
+              updateField('amount', Number(e.target.value))
             }
             placeholder={`${currency.symbol}0.00`}
             id="amount"
             type="number"
           />
         </div>
+        
         <div className="w-1/2 flex flex-col">
           <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
             Budgets
@@ -125,13 +122,7 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(({
             id="budget"
             name="Select Budget"
             options={budgets}
-            onChange={(_value: string, dataId: number) => {
-              const budget = budgets.find((bud: Budget) => bud.id === dataId);
-              if (budget) {
-                handleFieldChange('budget', budget.name);
-                handleFieldChange('budgetId', budget.id);
-              }
-            }}
+            onChange={handleBudgetChange}
             value={budgets.find(b => b.id === formState.budgetId)?.name || ''}
             getOptionValue={(option) => option.name}
             getOptionLabel={(option) => option.name}
@@ -141,16 +132,13 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(({
       </div>
 
       <div className="mb-4">
-        <label
-          className="block text-sm font-medium text-gray-700 mb-1"
-          htmlFor="description"
-        >
+        <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="description">
           Description
         </label>
         <Input
           value={formState.description}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            handleFieldChange('description', e.target.value)
+            updateField('description', e.target.value)
           }
           placeholder="What did you spend on?"
           id="description"
@@ -160,26 +148,17 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(({
       </div>
 
       <div className="mb-4">
-        <label
-          id="category-label"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
+        <label id="category-label" className="block text-sm font-medium text-gray-700 mb-1">
           Category
         </label>
-        <div
-          className="grid grid-cols-2 md:grid-cols-4 gap-2"
-          aria-labelledby="category-label"
-        >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2" aria-labelledby="category-label">
           {categories.map((category: Category) => (
             <CardButton
               key={category.id}
               label={category.name}
               icon={category.icon}
               selected={formState.categoryId === category.id}
-              onClick={() => {
-                handleFieldChange('categoryId', category.id);
-                handleFieldChange('category', category.name);
-              }}
+              onClick={() => handleCategorySelect(category)}
             />
           ))}
         </div>

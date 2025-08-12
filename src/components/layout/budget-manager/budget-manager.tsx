@@ -29,8 +29,6 @@ export default function BudgetManager() {
     handleSaveChanges,
     handleDeleteBudget,
   } = useBudgetManagement(categories, expenses, nextBudgetId);
-
-  console.log(budgets);
   return (
     <>
       <div className="mb-6">

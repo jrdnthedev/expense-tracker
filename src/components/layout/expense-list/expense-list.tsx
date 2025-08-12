@@ -77,7 +77,6 @@ export default function ExpenseList() {
     { id: 0, name: 'All', icon: '📦' },
     ...categories,
   ];
-console.log("expense", expenses);
   return (
     <div className="flex flex-col gap-4">
       <div>
