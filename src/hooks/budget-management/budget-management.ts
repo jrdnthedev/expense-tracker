@@ -23,7 +23,6 @@ export function useBudgetManagement(
 ) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
-  const [isFormValid, setIsFormValid] = useState(false);
   const dispatch = useAppDispatch();
 
   // Refs to access form data without causing re-renders
@@ -55,11 +54,6 @@ export function useBudgetManagement(
     }),
     []
   );
-
-  // Handle form validation changes
-  const handleValidationChange = useCallback((isValid: boolean) => {
-    setIsFormValid(isValid);
-  }, []);
 
   // Save new budget - gets data from form ref
   const handleSaveBudget = useCallback(() => {
@@ -121,14 +115,12 @@ export function useBudgetManagement(
   return {
     isModalOpen,
     budgetToEdit,
-    isFormValid,
     addFormRef,
     editFormRef,
     setIsModalOpen,
     setBudgetToEdit,
     getInitialFormData,
     budgetToFormData,
-    handleValidationChange,
     handleSaveBudget,
     calculateSpentAmount,
     handleBudgetEdit,
