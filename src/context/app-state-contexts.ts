@@ -9,39 +9,27 @@ export const initialState: State = {
   budgets: [
     // {
     //   id: 1,
-    //   category: 'Food',
-    //   categoryId: 1,
+    //   name: 'test1',
+    //   categoryIds: [1],
     //   limit: 500,
-    //   period: 'monthly',
     //   startDate: '2023-10-01',
     //   endDate: '2023-10-31',
     // },
     // {
     //   id: 2,
-    //   category: 'Transport',
-    //   categoryId: 2,
+    //   name: 'Transport',
+    //   categoryIds: [2],
     //   limit: 200,
-    //   period: 'monthly',
     //   startDate: '2023-10-02',
     //   endDate: '2023-10-31',
     // },
     // {
     //   id: 3,
-    //   category: 'Entertainment',
-    //   categoryId: 3,
+    //   name: 'Entertainment',
+    //   categoryIds: [3],
     //   limit: 300,
-    //   period: 'monthly',
     //   startDate: '2023-10-03',
     //   endDate: '2023-10-31',
-    // },
-    // {
-    //   id: 4,
-    //   category: 'Shopping',
-    //   categoryId: 4,
-    //   limit: 400,
-    //   period: 'monthly',
-    //   startDate: '2023-04-01',
-    //   endDate: '2023-04-30',
     // },
   ],
   categories: [{ name: 'Food', icon: '🍕', id: 1 },
@@ -51,12 +39,12 @@ export const initialState: State = {
       id: 2,
     },
 
-    // { name: 'Fun', icon: '🎬', id: 3 },
-    // {
-    //   name: 'Shopping',
-    //   icon: '🛍️',
-    //   id: 4,
-    // },
+    { name: 'Fun', icon: '🎬', id: 3 },
+    {
+      name: 'Shopping',
+      icon: '🛍️',
+      id: 4,
+    },
   ],
   expenses: [
     // {
@@ -65,10 +53,10 @@ export const initialState: State = {
     //   amount: 15,
     //   category: 'food',
     //   categoryId: 1,
-    //   date: '2023-10-01',
-    //   tags: ['lunch', 'food'],
     //   createdAt: '2023-10-01T12:00:00Z',
-    //   updatedAt: '2023-10-01T12:00:00Z'
+    //   updatedAt: '2023-10-01T12:00:00Z',
+    //   budget: 'test1',
+    //   budgetId: 1
     // },
     // {
     //   id: 2,
@@ -76,10 +64,10 @@ export const initialState: State = {
     //   amount: 2.5,
     //   category: 'transport',
     //   categoryId: 2,
-    //   date: '2023-10-02',
-    //   tags: ['transport'],
     //   createdAt: '2023-10-01T12:00:00Z',
-    //   updatedAt: '2023-10-01T12:00:00Z'
+    //   updatedAt: '2023-10-01T12:00:00Z',
+    //   budget:'',
+    //   budgetId: 2
     // },
     // {
     //   id: 3,
@@ -87,10 +75,10 @@ export const initialState: State = {
     //   amount: 12,
     //   category: 'fun',
     //   categoryId: 3,
-    //   date: '2023-10-03',
-    //   tags: ['movie', 'entertainment'],
     //   createdAt: '2023-10-01T12:00:00Z',
-    //   updatedAt: '2023-10-01T12:00:00Z'
+    //   updatedAt: '2023-10-01T12:00:00Z',
+    //   budget: 'Entertainment',
+    //   budgetId: 3
     // },
   ],
 };
