@@ -28,7 +28,7 @@ export default function BudgetManager() {
     handleBudgetEdit,
     handleSaveChanges,
     handleDeleteBudget,
-  } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
+  } = useBudgetManagement(categories, expenses, nextBudgetId);
 
   console.log(budgets);
   return (

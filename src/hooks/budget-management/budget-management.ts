@@ -5,7 +5,6 @@ import type { Category } from '../../types/category';
 import type { Expense } from '../../types/expense';
 import type { BudgetFormRef } from '../../components/forms/budget-form/budget-form';
 
-// Form data type
 type BudgetFormData = {
   id?: number;
   limit: number;
@@ -18,65 +17,52 @@ type BudgetFormData = {
 export function useBudgetManagement(
   categories: Category[],
   expenses: Expense[],
-  budgets: Budget[],
   nextBudgetId: number
 ) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [budgetToEdit, setBudgetToEdit] = useState<Budget | null>(null);
   const dispatch = useAppDispatch();
 
-  // Refs to access form data without causing re-renders
   const addFormRef = useRef<BudgetFormRef>(null);
   const editFormRef = useRef<BudgetFormRef>(null);
 
   // Get initial form data
-  const getInitialFormData = useCallback(
-    (): BudgetFormData => ({
-      id: 0,
-      limit: 0,
-      name: '',
-      categoryIds: categories[0] ? [categories[0].id] : [],
-      startDate: '',
-      endDate: '',
-    }),
-    [categories]
-  );
+  const getInitialFormData = useCallback((): BudgetFormData => ({
+    id: 0,
+    limit: 0,
+    name: '',
+    categoryIds: categories[0] ? [categories[0].id] : [],
+    startDate: '',
+    endDate: '',
+  }), [categories]);
 
   // Convert Budget to form data
-  const budgetToFormData = useCallback(
-    (budget: Budget): BudgetFormData => ({
-      id: budget.id,
-      limit: budget.limit,
-      name: budget.name,
-      categoryIds: budget.categoryIds,
-      startDate: budget.startDate,
-      endDate: budget.endDate,
-    }),
-    []
-  );
+  const budgetToFormData = useCallback((budget: Budget): BudgetFormData => ({
+    id: budget.id,
+    limit: budget.limit,
+    name: budget.name,
+    categoryIds: budget.categoryIds,
+    startDate: budget.startDate,
+    endDate: budget.endDate,
+  }), []);
 
-  // Save new budget - gets data from form ref
+  // Save new budget
   const handleSaveBudget = useCallback(() => {
     const formData = addFormRef.current?.getFormData();
     if (!formData || !addFormRef.current?.isValid()) return;
-
-    const categoryIds = formData.categoryIds;
 
     const newBudget: Budget = {
       ...formData,
       id: nextBudgetId,
       limit: Number(formData.limit),
-      categoryIds: categoryIds,
     };
 
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-
-    // Reset form and close modal
     addFormRef.current?.reset(getInitialFormData());
     setIsModalOpen(false);
-  }, [expenses, budgets, nextBudgetId, dispatch, getInitialFormData]);
+  }, [nextBudgetId, dispatch, getInitialFormData]);
 
-  // Save budget changes - gets data from edit form ref
+  // Save budget changes
   const handleSaveChanges = useCallback(() => {
     const formData = editFormRef.current?.getFormData();
     if (!formData || !editFormRef.current?.isValid()) return;
@@ -91,26 +77,18 @@ export function useBudgetManagement(
     setBudgetToEdit(null);
   }, [dispatch]);
 
-  const calculateSpentAmount = useCallback(
-    (budget: Budget) => {
-      return expenses
-        .filter((expense: Expense) => expense.budgetId === budget.id)
-        .reduce((total: number, expense: Expense) => total + expense.amount, 0);
-    },
-    [expenses]
-  );
+  // Calculate spent amount for a budget
+  const calculateSpentAmount = useCallback((budget: Budget) => {
+    return expenses
+      .filter(expense => expense.budgetId === budget.id)
+      .reduce((total, expense) => total + expense.amount, 0);
+  }, [expenses]);
 
-  const handleBudgetEdit = useCallback((budget: Budget) => {
-    setBudgetToEdit(budget);
-  }, []);
-
-  const handleDeleteBudget = useCallback(
-    (budgetId: number) => {
-      dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
-      setBudgetToEdit(null);
-    },
-    [dispatch]
-  );
+  // Delete budget
+  const handleDeleteBudget = useCallback((budgetId: number) => {
+    dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
+    setBudgetToEdit(null);
+  }, [dispatch]);
 
   return {
     isModalOpen,
@@ -123,7 +101,7 @@ export function useBudgetManagement(
     budgetToFormData,
     handleSaveBudget,
     calculateSpentAmount,
-    handleBudgetEdit,
+    handleBudgetEdit: setBudgetToEdit,
     handleSaveChanges,
     handleDeleteBudget,
   };

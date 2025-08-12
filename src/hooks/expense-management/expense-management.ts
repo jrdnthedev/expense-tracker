@@ -61,25 +61,30 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
 
   // Add new expense
   const handleAddExpense = useCallback((nextId: number) => {
-    const formData = addFormRef.current?.getFormData();
-    if (!formData || !addFormRef.current?.isValid()) return;
+  const formData = addFormRef.current?.getFormData();
+  console.log('Form data:', formData);
+console.log('Form valid:', addFormRef.current?.isValid());
+  if (!formData || !addFormRef.current?.isValid()) return;
 
-    const newExpense: Expense = {
-      id: nextId,
-      amount: Number(formData.amount),
-      description: formData.description,
-      categoryId: formData.categoryId,
-      category: categories.find(c => c.id === formData.categoryId)?.name || '',
-      budgetId: formData.budgetId,
-      budget: budgets.find(b => b.id === formData.budgetId)?.name || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+  const category = categories.find(c => c.id === formData.categoryId);
+  const budget = budgets.find(b => b.id === formData.budgetId);
 
-    dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
-    addFormRef.current?.reset(getInitialFormData());
-    setIsAddExpenseModalOpen(false);
-  }, [dispatch, getInitialFormData, categories, budgets]);
+  const newExpense: Expense = {
+    id: nextId,
+    amount: Number(formData.amount),
+    description: formData.description,
+    categoryId: formData.categoryId,
+    category: category?.name || formData.category,
+    budgetId: formData.budgetId,
+    budget: budget?.name || formData.budget,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
+  addFormRef.current?.reset(getInitialFormData());
+  setIsAddExpenseModalOpen(false);
+}, [dispatch, getInitialFormData, categories, budgets]);
 
   // Save expense changes
   const handleSave = useCallback(() => {

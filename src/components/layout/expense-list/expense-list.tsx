@@ -186,7 +186,6 @@ console.log("expense", expenses);
                       })}
                   </ul>
 
-                  {/* Delete Confirmation Modal */}
                   {expenseToDelete !== null && (
                     <DeleteConfirmationModal
                       expenseId={expenseToDelete}
@@ -195,7 +194,6 @@ console.log("expense", expenses);
                     />
                   )}
 
-                  {/* Edit Expense Modal - Form only renders when modal opens */}
                   {expenseToEdit !== null && (
                     <Modal isOpen={true} onClose={() => setExpenseToEdit(null)}>
                       <h3 className="text-xl font-bold text-gray-800 mb-6">
@@ -235,7 +233,7 @@ console.log("expense", expenses);
             </Card>
           )}
 
-          {/* Add Expense Modal - Form only renders when modal opens */}
+
           {isAddExpenseModalOpen && (
             <Modal
               onClose={() => setIsAddExpenseModalOpen(false)}
