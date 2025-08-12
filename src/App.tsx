@@ -31,7 +31,7 @@ function App() {
 
   if (dbError) {
     return (
-      <ErrorScreen 
+      <ErrorScreen
         title="Database Error"
         message={dbError}
         actionLabel="Reload Page"
@@ -41,9 +41,7 @@ function App() {
   }
 
   if (!isDBReady) {
-    return (
-      <LoadingStencil />
-    );
+    return <LoadingStencil />;
   }
   return (
     <AppProvider>
