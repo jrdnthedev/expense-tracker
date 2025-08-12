@@ -57,7 +57,6 @@ export default function ExpenseList() {
     isAddExpenseModalOpen,
     expenseToEdit,
     expenseToDelete,
-    isFormValid,
     addFormRef,
     editFormRef,
     setIsAddExpenseModalOpen,
@@ -65,11 +64,9 @@ export default function ExpenseList() {
     setExpenseToDelete,
     getInitialFormData,
     expenseToFormData,
-    handleValidationChange,
     handleAddExpense,
     handleSave,
     handleDeleteExpense,
-    handleReset,
   } = useExpenseManagement(categories, budgets);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +77,6 @@ export default function ExpenseList() {
     { id: 0, name: 'All', icon: '📦' },
     ...categories,
   ];
-console.log("expense", expenses);
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -189,7 +185,6 @@ console.log("expense", expenses);
                       })}
                   </ul>
 
-                  {/* Delete Confirmation Modal */}
                   {expenseToDelete !== null && (
                     <DeleteConfirmationModal
                       expenseId={expenseToDelete}
@@ -198,9 +193,8 @@ console.log("expense", expenses);
                     />
                   )}
 
-                  {/* Edit Expense Modal - Form only renders when modal opens */}
                   {expenseToEdit !== null && (
-                    <Modal isOpen={true} onClose={handleReset}>
+                    <Modal isOpen={true} onClose={() => setExpenseToEdit(null)}>
                       <h3 className="text-xl font-bold text-gray-800 mb-6">
                         Edit Expense
                       </h3>
@@ -210,17 +204,15 @@ console.log("expense", expenses);
                         categories={categories}
                         budgets={budgets}
                         currency={currency}
-                        onValidationChange={handleValidationChange}
                       />
                       <div className="flex justify-end mt-4 gap-4">
                         <Button 
                           onClick={handleSave} 
                           variant="primary"
-                          disabled={!isFormValid}
                         >
                           Save
                         </Button>
-                        <Button onClick={handleReset} variant="secondary">
+                        <Button onClick={() => setExpenseToEdit(null)} variant="secondary">
                           Cancel
                         </Button>
                       </div>
@@ -240,7 +232,7 @@ console.log("expense", expenses);
             </Card>
           )}
 
-          {/* Add Expense Modal - Form only renders when modal opens */}
+
           {isAddExpenseModalOpen && (
             <Modal
               onClose={() => setIsAddExpenseModalOpen(false)}
@@ -255,12 +247,10 @@ console.log("expense", expenses);
                 categories={categories}
                 budgets={budgets}
                 currency={currency}
-                onValidationChange={handleValidationChange}
               />
               <Button 
                 onClick={() => handleAddExpense(id)} 
                 variant="primary"
-                disabled={!isFormValid}
               >
                 Add Expense
               </Button>

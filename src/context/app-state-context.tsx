@@ -8,7 +8,7 @@ import {
   AppStateContext,
   initialState,
 } from './app-state-contexts';
-import { addExpenseIdToBudget, removeBudget, removeCategory, removeExpenseFromBudgets, removeExpenseFromList, updateBudget, updateCategory, updateExpense } from '../utils/state';
+import { removeBudget, removeCategory, removeExpenseFromList, updateBudget, updateCategory, updateExpense } from '../utils/state';
 
 export type State = {
   currency: Currency;
@@ -55,7 +55,6 @@ function appReducer(state: State, action: Action): State {
       return {
         ...state,
         expenses: [...state.expenses, action.payload],
-        budgets: addExpenseIdToBudget(state.budgets, action.payload.id, action.payload.budgetId),
       };
     }
     case 'UPDATE_EXPENSE':
@@ -67,7 +66,6 @@ function appReducer(state: State, action: Action): State {
       return {
         ...state,
         expenses: removeExpenseFromList(state.expenses, action.payload.id),
-        budgets: removeExpenseFromBudgets(state.budgets, action.payload.id),
       };
     }
     case 'ADD_BUDGET':

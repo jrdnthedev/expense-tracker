@@ -4,14 +4,12 @@ import type { Expense } from "../types/expense";
 
 export function addExpenseIdToBudget(
   budgets: Budget[],
-  expenseId: number,
   budgetId: number
 ): Budget[] {
-  return budgets.map((budget) =>
+  return budgets.map((budget: Budget) =>
     budget.id === budgetId
       ? {
           ...budget,
-          expenseIds: [...budget.expenseIds, expenseId],
         }
       : budget
   );
@@ -27,10 +25,9 @@ export function removeExpenseFromList(expenses: Expense[], expenseId: number): E
   return expenses.filter((expense) => expense.id !== expenseId);
 }
 
-export function removeExpenseFromBudgets(budgets: Budget[], expenseId: number): Budget[] {
+export function removeExpenseFromBudgets(budgets: Budget[]): Budget[] {
   return budgets.map((budget) => ({
     ...budget,
-    expenseIds: budget.expenseIds.filter((id) => id !== expenseId),
   }));
 }
 

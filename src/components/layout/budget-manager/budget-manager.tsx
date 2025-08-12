@@ -14,24 +14,21 @@ import Badge from '../../ui/badge/badge';
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
   const nextBudgetId = useNextId<Budget>(budgets);
-
   const {
     isModalOpen,
     budgetToEdit,
-    isFormValid,
     addFormRef,
     editFormRef,
     setIsModalOpen,
     setBudgetToEdit,
     getInitialFormData,
     budgetToFormData,
-    handleValidationChange,
     handleSaveBudget,
     calculateSpentAmount,
     handleBudgetEdit,
     handleSaveChanges,
     handleDeleteBudget,
-  } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
+  } = useBudgetManagement(categories, expenses, nextBudgetId);
   return (
     <>
       <div className="mb-6">
@@ -56,17 +53,14 @@ export default function BudgetManager() {
                   >
                     <h1 className="text-2xl font-bold">Add Budget</h1>
                     <div className="flex flex-col gap-4">
-                      {/* Form with isolated state - no parent re-renders */}
                       <BudgetForm
                         ref={addFormRef}
                         initialData={getInitialFormData()}
-                        onValidationChange={handleValidationChange}
                       />
-                      
+
                       <Button
                         onClick={handleSaveBudget}
                         variant="primary"
-                        disabled={!isFormValid}
                       >
                         Save
                       </Button>
@@ -189,11 +183,9 @@ export default function BudgetManager() {
           <Modal isOpen={!!budgetToEdit} onClose={() => setBudgetToEdit(null)}>
             <h1 className="text-2xl font-bold">Edit Budget</h1>
             <div className="flex flex-col gap-4">
-              {/* Form with isolated state - no parent re-renders */}
               <BudgetForm
                 ref={editFormRef}
                 initialData={budgetToFormData(budgetToEdit)}
-                onValidationChange={handleValidationChange}
               />
               <Button onClick={handleSaveChanges} variant="primary">
                 Save Changes

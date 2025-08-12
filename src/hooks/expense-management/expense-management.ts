@@ -2,10 +2,9 @@ import { useState, useCallback, useRef } from 'react';
 import { useAppDispatch } from '../../context/app-state-hooks';
 import type { Category } from '../../types/category';
 import type { Budget } from '../../types/budget';
-import type { Expense } from '../../types/expense'; // Adjust import path
+import type { Expense } from '../../types/expense';
 import type { ExpenseFormRef } from '../../components/forms/expense-form/expense-form';
 
-// Form data type
 type ExpenseFormData = {
   id?: number;
   amount: number;
@@ -21,10 +20,8 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<number | null>(null);
-  const [isFormValid, setIsFormValid] = useState(false);
   const dispatch = useAppDispatch();
 
-  // Refs to access form data without causing re-renders
   const addFormRef = useRef<ExpenseFormRef>(null);
   const editFormRef = useRef<ExpenseFormRef>(null);
 
@@ -37,10 +34,10 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
       id: 0,
       amount: 0,
       description: '',
-      categoryId: firstCategory ? firstCategory.id : 0,
-      category: firstCategory ? firstCategory.name : '',
-      budgetId: firstBudget ? firstBudget.id : 0,
-      budget: firstBudget ? firstBudget.name : '',
+      categoryId: firstCategory?.id || 0,
+      category: firstCategory?.name || '',
+      budgetId: firstBudget?.id || 0,
+      budget: firstBudget?.name || '',
       createdAt: new Date().toISOString(),
     };
   }, [categories, budgets]);
@@ -55,43 +52,41 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
       amount: expense.amount,
       description: expense.description,
       categoryId: expense.categoryId,
-      category: category ? category.name : '',
+      category: category?.name || '',
       budgetId: expense.budgetId || 0,
-      budget: budget ? budget.name : '',
+      budget: budget?.name || '',
       createdAt: expense.createdAt,
     };
   }, [categories, budgets]);
 
-  // Handle form validation changes
-  const handleValidationChange = useCallback((isValid: boolean) => {
-    setIsFormValid(isValid);
-  }, []);
-
-  // Add new expense - gets data from form ref
+  // Add new expense
   const handleAddExpense = useCallback((nextId: number) => {
-    const formData = addFormRef.current?.getFormData();
-    if (!formData || !addFormRef.current?.isValid()) return;
+  const formData = addFormRef.current?.getFormData();
+  console.log('Form data:', formData);
+console.log('Form valid:', addFormRef.current?.isValid());
+  if (!formData || !addFormRef.current?.isValid()) return;
 
-    const newExpense: Expense = {
-      id: nextId,
-      amount: Number(formData.amount),
-      description: formData.description,
-      categoryId: formData.categoryId,
-      category: categories.find(c => c.id === formData.categoryId)?.name || '',
-      budgetId: formData.budgetId,
-      budget: budgets.find(b => b.id === formData.budgetId)?.name || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+  const category = categories.find(c => c.id === formData.categoryId);
+  const budget = budgets.find(b => b.id === formData.budgetId);
 
-    dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
-    
-    // Reset form and close modal
-    addFormRef.current?.reset(getInitialFormData());
-    setIsAddExpenseModalOpen(false);
-  }, [dispatch, getInitialFormData]);
+  const newExpense: Expense = {
+    id: nextId,
+    amount: Number(formData.amount),
+    description: formData.description,
+    categoryId: formData.categoryId,
+    category: category?.name || formData.category,
+    budgetId: formData.budgetId,
+    budget: budget?.name || formData.budget,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 
-  // Save expense changes - gets data from edit form ref
+  dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
+  addFormRef.current?.reset(getInitialFormData());
+  setIsAddExpenseModalOpen(false);
+}, [dispatch, getInitialFormData, categories, budgets]);
+
+  // Save expense changes
   const handleSave = useCallback(() => {
     const formData = editFormRef.current?.getFormData();
     if (!formData || !editFormRef.current?.isValid() || !expenseToEdit) return;
@@ -102,6 +97,7 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
       description: formData.description,
       categoryId: formData.categoryId,
       budgetId: formData.budgetId,
+      updatedAt: new Date().toISOString(),
     };
 
     dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
@@ -114,16 +110,10 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
     setExpenseToDelete(null);
   }, [dispatch]);
 
-  // Reset/cancel edit
-  const handleReset = useCallback(() => {
-    setExpenseToEdit(null);
-  }, []);
-
   return {
     isAddExpenseModalOpen,
     expenseToEdit,
     expenseToDelete,
-    isFormValid,
     addFormRef,
     editFormRef,
     setIsAddExpenseModalOpen,
@@ -131,10 +121,8 @@ export function useExpenseManagement(categories: Category[], budgets: Budget[]) 
     setExpenseToDelete,
     getInitialFormData,
     expenseToFormData,
-    handleValidationChange,
     handleAddExpense,
     handleSave,
     handleDeleteExpense,
-    handleReset,
   };
 }
