@@ -154,7 +154,10 @@ export default function ExpenseList() {
                                     {expense.description}
                                   </h2>
                                   {!isCurrentOrPast && (
-                                    <Badge message="Future Expense" variant="default" />
+                                    <Badge
+                                      message="Future Expense"
+                                      variant="default"
+                                    />
                                   )}
                                 </div>
                                 <p className="text-gray-500">
@@ -206,13 +209,13 @@ export default function ExpenseList() {
                         currency={currency}
                       />
                       <div className="flex justify-end mt-4 gap-4">
-                        <Button 
-                          onClick={handleSave} 
-                          variant="primary"
-                        >
+                        <Button onClick={handleSave} variant="primary">
                           Save
                         </Button>
-                        <Button onClick={() => setExpenseToEdit(null)} variant="secondary">
+                        <Button
+                          onClick={() => setExpenseToEdit(null)}
+                          variant="secondary"
+                        >
                           Cancel
                         </Button>
                       </div>
@@ -232,7 +235,6 @@ export default function ExpenseList() {
             </Card>
           )}
 
-
           {isAddExpenseModalOpen && (
             <Modal
               onClose={() => setIsAddExpenseModalOpen(false)}
@@ -248,10 +250,7 @@ export default function ExpenseList() {
                 budgets={budgets}
                 currency={currency}
               />
-              <Button 
-                onClick={() => handleAddExpense(id)} 
-                variant="primary"
-              >
+              <Button onClick={() => handleAddExpense(id)} variant="primary">
                 Add Expense
               </Button>
             </Modal>

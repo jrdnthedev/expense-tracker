@@ -27,24 +27,30 @@ export function useBudgetManagement(
   const editFormRef = useRef<BudgetFormRef>(null);
 
   // Get initial form data
-  const getInitialFormData = useCallback((): BudgetFormData => ({
-    id: 0,
-    limit: 0,
-    name: '',
-    categoryIds: categories[0] ? [categories[0].id] : [],
-    startDate: '',
-    endDate: '',
-  }), [categories]);
+  const getInitialFormData = useCallback(
+    (): BudgetFormData => ({
+      id: 0,
+      limit: 0,
+      name: '',
+      categoryIds: categories[0] ? [categories[0].id] : [],
+      startDate: '',
+      endDate: '',
+    }),
+    [categories]
+  );
 
   // Convert Budget to form data
-  const budgetToFormData = useCallback((budget: Budget): BudgetFormData => ({
-    id: budget.id,
-    limit: budget.limit,
-    name: budget.name,
-    categoryIds: budget.categoryIds,
-    startDate: budget.startDate,
-    endDate: budget.endDate,
-  }), []);
+  const budgetToFormData = useCallback(
+    (budget: Budget): BudgetFormData => ({
+      id: budget.id,
+      limit: budget.limit,
+      name: budget.name,
+      categoryIds: budget.categoryIds,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+    }),
+    []
+  );
 
   // Save new budget
   const handleSaveBudget = useCallback(() => {
@@ -78,17 +84,23 @@ export function useBudgetManagement(
   }, [dispatch]);
 
   // Calculate spent amount for a budget
-  const calculateSpentAmount = useCallback((budget: Budget) => {
-    return expenses
-      .filter(expense => expense.budgetId === budget.id)
-      .reduce((total, expense) => total + expense.amount, 0);
-  }, [expenses]);
+  const calculateSpentAmount = useCallback(
+    (budget: Budget) => {
+      return expenses
+        .filter((expense) => expense.budgetId === budget.id)
+        .reduce((total, expense) => total + expense.amount, 0);
+    },
+    [expenses]
+  );
 
   // Delete budget
-  const handleDeleteBudget = useCallback((budgetId: number) => {
-    dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
-    setBudgetToEdit(null);
-  }, [dispatch]);
+  const handleDeleteBudget = useCallback(
+    (budgetId: number) => {
+      dispatch({ type: 'REMOVE_BUDGET', payload: { id: budgetId } });
+      setBudgetToEdit(null);
+    },
+    [dispatch]
+  );
 
   return {
     isModalOpen,
