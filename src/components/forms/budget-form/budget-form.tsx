@@ -16,7 +16,6 @@ type BudgetFormData = {
   categoryIds: number[];
   startDate: string;
   endDate: string;
-  expenseIds: number[];
 };
 
 interface BudgetFormProps {

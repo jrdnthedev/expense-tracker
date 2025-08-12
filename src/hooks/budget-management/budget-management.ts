@@ -1,9 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
-import { startOfDay, parseISO, isWithinInterval } from 'date-fns';
 import { useAppDispatch } from '../../context/app-state-hooks';
 import type { Budget } from '../../types/budget';
 import type { Category } from '../../types/category';
-import type { Expense } from '../../types/expense'; // Adjust import path
+import type { Expense } from '../../types/expense';
 import type { BudgetFormRef } from '../../components/forms/budget-form/budget-form';
 
 // Form data type
@@ -14,7 +13,6 @@ type BudgetFormData = {
   categoryIds: number[];
   startDate: string;
   endDate: string;
-  expenseIds: number[];
 };
 
 export function useBudgetManagement(
@@ -41,7 +39,6 @@ export function useBudgetManagement(
       categoryIds: categories[0] ? [categories[0].id] : [],
       startDate: '',
       endDate: '',
-      expenseIds: [],
     }),
     [categories]
   );
@@ -55,7 +52,6 @@ export function useBudgetManagement(
       categoryIds: budget.categoryIds,
       startDate: budget.startDate,
       endDate: budget.endDate,
-      expenseIds: budget.expenseIds,
     }),
     []
   );
@@ -72,31 +68,11 @@ export function useBudgetManagement(
 
     const categoryIds = formData.categoryIds;
 
-    // Calculate relevant expenses
-    const relevantExpenses = expenses.filter((expense: Expense) => {
-      const isAlreadyAssigned = budgets.some((budget) =>
-        budget.expenseIds.includes(expense.id)
-      );
-      if (isAlreadyAssigned) return false;
-
-      if (!categoryIds.includes(expense.categoryId)) return false;
-
-      const expenseDate = startOfDay(parseISO(expense.createdAt));
-      const budgetStart = startOfDay(parseISO(formData.startDate));
-      const budgetEnd = startOfDay(parseISO(formData.endDate));
-
-      return isWithinInterval(expenseDate, {
-        start: budgetStart,
-        end: budgetEnd,
-      });
-    });
-
     const newBudget: Budget = {
       ...formData,
       id: nextBudgetId,
       limit: Number(formData.limit),
       categoryIds: categoryIds,
-      expenseIds: relevantExpenses.map((expense: Expense) => expense.id),
     };
 
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });

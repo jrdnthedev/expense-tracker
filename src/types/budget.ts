@@ -5,6 +5,5 @@ export interface Budget {
   limit: number,
   startDate: string,
   endDate: string,
-  expenseIds: number[],
 }
 
