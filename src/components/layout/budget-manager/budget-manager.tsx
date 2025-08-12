@@ -58,10 +58,7 @@ export default function BudgetManager() {
                         initialData={getInitialFormData()}
                       />
 
-                      <Button
-                        onClick={handleSaveBudget}
-                        variant="primary"
-                      >
+                      <Button onClick={handleSaveBudget} variant="primary">
                         Save
                       </Button>
                     </div>
