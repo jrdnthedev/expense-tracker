@@ -5,6 +5,7 @@ export default function Input({
   type,
   id,
   required,
+  name,
 }: InputProps) {
   return (
     <input
@@ -26,6 +27,7 @@ export default function Input({
       value={value}
       placeholder={placeholder}
       required={required}
+      name={name}
       autoComplete="off"
     />
   );
@@ -38,4 +40,5 @@ interface InputProps {
   type?: string;
   id?: string;
   required?: boolean;
+  name: string;
 }

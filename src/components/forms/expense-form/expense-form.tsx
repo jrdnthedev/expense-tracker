@@ -1,18 +1,16 @@
-import React, {
-  useState,
-  useEffect,
-  useImperativeHandle,
-  forwardRef,
-} from 'react';
+import React, { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import Input from '../../ui/input/input';
 import type { Currency } from '../../../types/currency';
 import Select from '../../ui/select/select';
 import type { Budget } from '../../../types/budget';
+import type { Expense } from '../../../types/expense';
+import Button from '../../ui/button/button';
+import { useNextId } from '../../../hooks/nextId/next-id';
 
 // Form data type
-type ExpenseFormData = {
+export type ExpenseFormData = {
   id?: number;
   amount: number;
   description: string;
@@ -21,92 +19,76 @@ type ExpenseFormData = {
   budgetId: number;
   budget: string;
   createdAt: string;
+  updatedAt: string;
 };
 
 interface ExpenseFormProps {
-  initialData: ExpenseFormData;
+  onSubmit?: (data: ExpenseFormData) => void;
   categories: Category[];
   budgets: Budget[];
+  expenses?: Expense[];
+  expenseFormData?: ExpenseFormData;
   currency: Currency;
+  onCancel: () => void;
 }
 
-// Ref interface for parent to access form methods
-export interface ExpenseFormRef {
-  getFormData: () => ExpenseFormData;
-  isValid: () => boolean;
-  reset: (newData?: ExpenseFormData) => void;
-}
+export default function ExpenseForm({
+  categories,
+  budgets,
+  currency,
+  expenseFormData,
+  expenses,
+  onCancel,
+  onSubmit,
+}: ExpenseFormProps) {
+  const id = useNextId<Expense>(expenses);
+  const [formState, setFormState] = useState<ExpenseFormData>({
+    id: expenseFormData?.id || id,
+    amount: expenseFormData?.amount || 0,
+    description: expenseFormData?.description || '',
+    categoryId: expenseFormData?.categoryId || 0,
+    category: expenseFormData?.category || '',
+    budgetId: budgets?.[0]?.id || 0,
+    budget: budgets?.[0]?.name || '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
 
-const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(
-  ({ initialData, categories, budgets, currency }, ref) => {
-    const [formState, setFormState] = useState<ExpenseFormData>(initialData);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormState((prevState: ExpenseFormData) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
-    // Update form when initialData changes
-    useEffect(() => {
-      setFormState(initialData);
-    }, [initialData]);
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (onSubmit) {
+      onSubmit(formState);
+    }
+  };
 
-    // Auto-select first budget if none selected
-    useEffect(() => {
-      if (budgets.length > 0 && !formState.budgetId) {
-        const firstBudget = budgets[0];
-        setFormState((prev) => ({
-          ...prev,
-          budgetId: firstBudget.id,
-          budget: firstBudget.name,
-        }));
-      }
-    }, [budgets, formState.budgetId]);
-
-    // Validation
-    const isFormValid =
-      formState.amount > 0 &&
-      formState.description.trim() !== '' &&
-      formState.categoryId > 0 &&
-      formState.budgetId > 0;
-
-    // Update form field
-    const updateField = (
-      field: keyof ExpenseFormData,
-      value: string | number
-    ) => {
-      setFormState((prev) => ({ ...prev, [field]: value }));
-    };
-
-    // Handle budget selection
-    const handleBudgetChange = (_value: string, dataId: number) => {
-      const budget = budgets.find((b) => b.id === dataId);
-      if (budget) {
-        setFormState((prev) => ({
-          ...prev,
-          budget: budget.name,
-          budgetId: budget.id,
-        }));
-      }
-    };
-
-    // Handle category selection
-    const handleCategorySelect = (category: Category) => {
-      setFormState((prev) => ({
+  const handleCategorySelect = (category: Category) => {
+    setFormState((prev: ExpenseFormData) => ({
+      ...prev,
+      categoryId: category.id,
+      category: category.name,
+    }));
+  };
+  const handleBudgetChange = (_value: string, dataId: number) => {
+    const budget = budgets.find((budget: Budget) => budget.id === dataId);
+    if (budget) {
+      setFormState((prev: ExpenseFormData) => ({
         ...prev,
-        categoryId: category.id,
-        category: category.name,
+        budget: budget.name,
+        budgetId: budget.id,
       }));
-    };
-
-    // Expose methods to parent
-    useImperativeHandle(
-      ref,
-      () => ({
-        getFormData: () => formState,
-        isValid: () => isFormValid,
-        reset: (newData = initialData) => setFormState(newData),
-      }),
-      [formState, isFormValid, initialData]
-    );
-
-    return (
-      <div className="mb-8">
+    }
+  };
+  return (
+    <div className="mb-8">
+      <form onSubmit={handleSubmit}>
         <div className="mb-4 flex gap-4">
           <div className="w-1/2 flex flex-col">
             <label
@@ -117,12 +99,11 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(
             </label>
             <Input
               value={formState.amount}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                updateField('amount', Number(e.target.value))
-              }
+              onChange={handleChange}
               placeholder={`${currency.symbol}0.00`}
               id="amount"
               type="number"
+              name="amount"
             />
           </div>
 
@@ -139,11 +120,15 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(
               options={budgets}
               onChange={handleBudgetChange}
               value={
-                budgets.find((b) => b.id === formState.budgetId)?.name || ''
+                formState?.budget ||
+                budgets.find(
+                  (budget: Budget) => budget.id === formState.budgetId
+                )?.name ||
+                ''
               }
-              getOptionValue={(option) => option.name}
-              getOptionLabel={(option) => option.name}
-              getOptionId={(option) => option.id}
+              getOptionValue={(option: Budget) => option.name}
+              getOptionLabel={(option: Budget) => option.name}
+              getOptionId={(option: Budget) => option.id}
             />
           </div>
         </div>
@@ -157,11 +142,10 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(
           </label>
           <Input
             value={formState.description}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              updateField('description', e.target.value)
-            }
+            onChange={handleChange}
             placeholder="What did you spend on?"
             id="description"
+            name="description"
             type="text"
             required={true}
           />
@@ -189,11 +173,16 @@ const ExpenseForm = forwardRef<ExpenseFormRef, ExpenseFormProps>(
             ))}
           </div>
         </div>
-      </div>
-    );
-  }
-);
 
-ExpenseForm.displayName = 'ExpenseForm';
-
-export default ExpenseForm;
+        <div className="flex justify-end mt-4 gap-4">
+          <Button type="submit" onClick={() => void 0} variant="primary">
+            Save
+          </Button>
+          <Button onClick={onCancel} variant="secondary">
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}

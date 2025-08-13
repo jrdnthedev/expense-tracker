@@ -6,32 +6,33 @@ import type { Category } from '../../../types/category';
 import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
 import Modal from '../../ui/modal/modal';
-import ExpenseForm from '../../forms/expense-form/expense-form';
-import { useAppState } from '../../../context/app-state-hooks';
+import ExpenseForm, {
+  type ExpenseFormData,
+} from '../../forms/expense-form/expense-form';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { formatAmount } from '../../../utils/currency';
 import { formatDate } from '../../../utils/validators';
 import EmptyState from '../../ui/empty-state/empty-state';
-import { useExpenseManagement } from '../../../hooks/expense-management/expense-management';
 import Input from '../../ui/input/input';
 import { getBudgetById } from '../../../utils/state';
 import Badge from '../../ui/badge/badge';
 
 function DeleteConfirmationModal({
-  expenseId,
+  expense,
   onClose,
   onDelete,
 }: {
-  expenseId: number;
+  expense: Expense;
   onClose: () => void;
-  onDelete: (id: number) => void;
+  onDelete: (expense: Expense) => void;
 }) {
   return (
     <Modal isOpen={true} onClose={onClose}>
       <h3 className="text-lg font-semibold">Confirm Deletion</h3>
       <p>Are you sure you want to delete this expense?</p>
       <div className="flex justify-end mt-4 gap-4">
-        <Button onClick={() => onDelete(expenseId)} variant="primary">
+        <Button onClick={() => onDelete(expense)} variant="primary">
           Delete
         </Button>
         <Button onClick={onClose} variant="secondary">
@@ -49,25 +50,13 @@ export default function ExpenseList() {
     name: 'All',
     icon: '📦',
   });
+  const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const id = useNextId<Expense>(expenses);
-
-  const {
-    isAddExpenseModalOpen,
-    expenseToEdit,
-    expenseToDelete,
-    addFormRef,
-    editFormRef,
-    setIsAddExpenseModalOpen,
-    setExpenseToEdit,
-    setExpenseToDelete,
-    getInitialFormData,
-    expenseToFormData,
-    handleAddExpense,
-    handleSave,
-    handleDeleteExpense,
-  } = useExpenseManagement(categories, budgets);
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -77,6 +66,34 @@ export default function ExpenseList() {
     { id: 0, name: 'All', icon: '📦' },
     ...categories,
   ];
+  const handleAdd = (data: ExpenseFormData) => {
+    const newExpense: Expense = {
+      ...data,
+      id: id,
+      amount: Number(data.amount),
+    };
+    dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
+    console.log('Adding expense:', newExpense);
+    setIsAddExpenseModalOpen(false);
+  };
+
+  const handleEdit = (data: ExpenseFormData) => {
+    const updatedExpense: Expense = {
+      ...data,
+      id: Number(data.id),
+      amount: Number(data.amount),
+      description: data.description,
+      categoryId: data.categoryId,
+      budgetId: data.budgetId,
+      updatedAt: new Date().toISOString(),
+    };
+    dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
+    setExpenseToEdit(null);
+  };
+  const handleDeleteExpense = (expense: Expense) => {
+    dispatch({ type: 'REMOVE_EXPENSE', payload: { id: expense.id } });
+    setExpenseToDelete(null);
+  };
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -99,6 +116,7 @@ export default function ExpenseList() {
                   <Input
                     type="search"
                     id="search"
+                    name="search"
                     aria-label="Search expenses"
                     value={searchTerm}
                     onChange={handleSearchChange}
@@ -177,7 +195,7 @@ export default function ExpenseList() {
                                 Edit
                               </Button>
                               <Button
-                                onClick={() => setExpenseToDelete(expense.id)}
+                                onClick={() => setExpenseToDelete(expense)}
                                 variant="secondary"
                               >
                                 Delete
@@ -190,7 +208,7 @@ export default function ExpenseList() {
 
                   {expenseToDelete !== null && (
                     <DeleteConfirmationModal
-                      expenseId={expenseToDelete}
+                      expense={expenseToDelete}
                       onClose={() => setExpenseToDelete(null)}
                       onDelete={handleDeleteExpense}
                     />
@@ -202,23 +220,13 @@ export default function ExpenseList() {
                         Edit Expense
                       </h3>
                       <ExpenseForm
-                        ref={editFormRef}
-                        initialData={expenseToFormData(expenseToEdit)}
                         categories={categories}
                         budgets={budgets}
                         currency={currency}
+                        onSubmit={handleEdit}
+                        onCancel={() => setExpenseToEdit(null)}
+                        expenseFormData={expenseToEdit}
                       />
-                      <div className="flex justify-end mt-4 gap-4">
-                        <Button onClick={handleSave} variant="primary">
-                          Save
-                        </Button>
-                        <Button
-                          onClick={() => setExpenseToEdit(null)}
-                          variant="secondary"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
                     </Modal>
                   )}
                 </Card>
@@ -244,15 +252,13 @@ export default function ExpenseList() {
                 Add New Expense
               </h3>
               <ExpenseForm
-                ref={addFormRef}
-                initialData={getInitialFormData()}
                 categories={categories}
                 budgets={budgets}
                 currency={currency}
+                onSubmit={handleAdd}
+                expenses={expenses}
+                onCancel={() => setIsAddExpenseModalOpen(false)}
               />
-              <Button onClick={() => handleAddExpense(id)} variant="primary">
-                Add Expense
-              </Button>
             </Modal>
           )}
         </>
