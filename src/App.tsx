@@ -15,7 +15,13 @@ import LoadingStencil from './components/ui/loading-stencil/loading-stencil';
 import { ErrorScreen } from './components/ui/error-screen/error-screen';
 import { ErrorBoundary } from 'react-error-boundary';
 
-function ErrorFallback({error,resetErrorBoundary}: {error: Error, resetErrorBoundary: () => void}) {
+function ErrorFallback({
+  error,
+  resetErrorBoundary,
+}: {
+  error: Error;
+  resetErrorBoundary: () => void;
+}) {
   return (
     <div>
       <h2>Something went wrong</h2>
@@ -55,52 +61,56 @@ function App() {
     return <LoadingStencil />;
   }
   return (
-    <AppProvider>
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div className="p-4 bg-gray-100 min-h-screen">
-        <Router>
-          <nav>
-            {onboardingComplete &&
-              navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <AppProvider>
+        <div className="p-4 bg-gray-100 min-h-screen">
+          <Router>
+            <nav>
+              {onboardingComplete &&
+                navLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
         active:outline-none"
-                >
-                  {link.label}
-                </Link>
-              ))}
-          </nav>
-          <main>
-            <Suspense fallback={<LoadingStencil />}>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route
-                  path="/onboarding"
-                  element={
-                  <Onboarding setOnboardingComplete={setOnboardingComplete} />
-                }
-              />
-              {protectedRoutes.map((route: ProtectedRoute) => (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={
-                    <RequireOnboarding onboardingComplete={onboardingComplete}>
-                      {route.element}
-                    </RequireOnboarding>
-                  }
-                />
-              ))}
-              <Route path="*" element={<div>404 Not Found</div>} />
-            </Routes>
-            </Suspense>
-          </main>
-        </Router>
-      </div>
-      </ErrorBoundary>
-    </AppProvider>
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+            </nav>
+            <main>
+              <Suspense fallback={<LoadingStencil />}>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route
+                    path="/onboarding"
+                    element={
+                      <Onboarding
+                        setOnboardingComplete={setOnboardingComplete}
+                      />
+                    }
+                  />
+                  {protectedRoutes.map((route: ProtectedRoute) => (
+                    <Route
+                      key={route.path}
+                      path={route.path}
+                      element={
+                        <RequireOnboarding
+                          onboardingComplete={onboardingComplete}
+                        >
+                          {route.element}
+                        </RequireOnboarding>
+                      }
+                    />
+                  ))}
+                  <Route path="*" element={<div>404 Not Found</div>} />
+                </Routes>
+              </Suspense>
+            </main>
+          </Router>
+        </div>
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
 
