@@ -3,7 +3,6 @@ import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
 import BudgetForm, { type BudgetFormData } from '../../forms/budget-form/budget-form';
 import type { Budget } from '../../../types/budget';
-import { useNextId } from '../../../hooks/nextId/next-id';
 import { formatDate } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
@@ -14,7 +13,6 @@ import { calculateSpentAmount } from '../../../utils/budget';
 
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
-  const nextBudgetId = useNextId<Budget>(budgets);
   const [budgetToEdit, setBudgetToEdit] = useState<BudgetFormData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useAppDispatch();
@@ -22,7 +20,7 @@ export default function BudgetManager() {
   const handleAdd = (data: BudgetFormData) => {
       const newBudget: Budget = {
         ...data,
-        id: nextBudgetId,
+        id: Number(data.id),
       };
       dispatch({ type: 'ADD_BUDGET', payload: newBudget });
       console.log('Adding budget:', newBudget);
@@ -41,7 +39,7 @@ export default function BudgetManager() {
     };
 
     const handleDeleteBudget = (budget: Budget) => {
-      dispatch({ type: 'REMOVE_BUDGET', payload: { id: budget.id } });
+      dispatch({ type: 'REMOVE_BUDGET', payload: { id: Number(budget.id) } });
       setBudgetToEdit(null);
     };
   return (
@@ -71,6 +69,7 @@ export default function BudgetManager() {
                       <BudgetForm
                         currency={currency}
                         onSubmit={handleAdd}
+                        budgets={budgets}
                         onCancel={() => setIsModalOpen(false)}
                       />
                     </div>
@@ -194,6 +193,7 @@ export default function BudgetManager() {
             <div className="flex flex-col gap-4">
               <BudgetForm
                 budgetFormData={budgetToEdit}
+                budgets={budgets}
                 currency={currency}
                 onSubmit={handleEdit}
                 onCancel={() => setBudgetToEdit(null)}

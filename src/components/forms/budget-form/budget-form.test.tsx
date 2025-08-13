@@ -1,63 +1,36 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import BudgetForm, { type BudgetFormData } from './budget-form';
 import type { Currency } from '../../../types/currency';
+import type { Budget } from '../../../types/budget';
 
-// Mock UI component prop types
-interface MockInputProps {
-  value: string | number;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder: string;
-  id: string;
-  type: string;
-  name: string;
-}
-
-interface MockDatePickerProps {
-  value: string;
-  onChange: (date: string) => void;
-  id: string;
-  name?: string;
-  min?: string;
-}
-
-interface MockButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  type?: 'button' | 'submit' | 'reset';
-  variant: string;
-}
+// Mock the useNextId hook
+vi.mock('../../../hooks/nextId/next-id', () => ({
+  useNextId: vi.fn(() => 1),
+}));
 
 // Mock UI components
 vi.mock('../../ui/input/input', () => ({
-  default: ({ value, onChange, placeholder, id, type, name }: MockInputProps) => (
-    <input
-      data-testid={id}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      type={type}
-      name={name}
-    />
+  default: ({ onChange, ...props }: { onChange: (e: React.ChangeEvent<HTMLInputElement>) => void } & React.InputHTMLAttributes<HTMLInputElement>) => (
+    <input {...props} onChange={onChange} data-testid={`input-${props.name || props.id}`} />
   ),
 }));
 
 vi.mock('../../ui/date-picker/date-picker', () => ({
-  default: ({ value, onChange, id, name, min }: MockDatePickerProps) => (
+  default: ({ onChange, ...props }: { onChange: (date: string | number) => void } & React.InputHTMLAttributes<HTMLInputElement>) => (
     <input
-      data-testid={id}
+      {...props}
       type="date"
-      value={value}
       onChange={(e) => onChange(e.target.value)}
-      name={name}
-      min={min}
+      data-testid={`datepicker-${props.name || props.id}`}
     />
   ),
 }));
 
 vi.mock('../../ui/button/button', () => ({
-  default: ({ children, onClick, type, variant }: MockButtonProps) => (
-    <button data-testid={`${variant}-button`} type={type} onClick={onClick}>
+  default: ({ children, ...props }: { children: React.ReactNode } & React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+    <button {...props} data-testid="submit-button">
       {children}
     </button>
   ),
@@ -65,17 +38,20 @@ vi.mock('../../ui/button/button', () => ({
 
 describe('BudgetForm', () => {
   const mockCurrency: Currency = {
-    symbol: '$',
     code: 'USD',
-    id: 1,
-    label: 'US Dollar',
+    symbol: '$',
     decimals: 2,
+    label: 'USD',
+    id: 1,
   };
+
+  const mockBudgets: Budget[] = [];
 
   const defaultProps = {
     onCancel: vi.fn(),
     onSubmit: vi.fn(),
     currency: mockCurrency,
+    budgets: mockBudgets,
   };
 
   beforeEach(() => {
@@ -85,190 +61,196 @@ describe('BudgetForm', () => {
   test('renders form with all required fields', () => {
     render(<BudgetForm {...defaultProps} />);
 
-    expect(screen.getByTestId('name')).toBeInTheDocument();
-    expect(screen.getByTestId('limit')).toBeInTheDocument();
-    expect(screen.getByTestId('startDate')).toBeInTheDocument();
-    expect(screen.getByTestId('endDate')).toBeInTheDocument();
-    expect(screen.getByTestId('primary-button')).toBeInTheDocument();
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/limit/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/start date/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/end date/i)).toBeInTheDocument();
+    expect(screen.getByTestId('submit-button')).toBeInTheDocument();
   });
 
-  test('initializes with default values when no budgetFormData provided', () => {
+  test('initializes form with default values', () => {
     render(<BudgetForm {...defaultProps} />);
 
-    expect(screen.getByTestId('name')).toHaveValue('');
-    expect(screen.getByTestId('limit')).toHaveValue(0);
-    expect(screen.getByTestId('startDate')).toHaveValue('');
-    expect(screen.getByTestId('endDate')).toHaveValue('');
+    expect(screen.getByTestId('input-name')).toHaveValue('');
+    expect(screen.getByTestId('input-limit')).toHaveValue(0);
+    expect(screen.getByTestId('datepicker-startDate')).toHaveValue('');
+    expect(screen.getByTestId('datepicker-endDate')).toHaveValue('');
   });
 
-  test('initializes with provided budgetFormData', () => {
+  test('initializes form with provided budgetFormData', () => {
     const budgetFormData: BudgetFormData = {
-      id: 1,
-      name: 'Monthly Budget',
+      id: 2,
+      name: 'Test Budget',
       limit: 1000,
       categoryIds: [1, 2],
       startDate: '2024-01-01',
-      endDate: '2024-01-31',
+      endDate: '2024-12-31',
     };
 
     render(<BudgetForm {...defaultProps} budgetFormData={budgetFormData} />);
 
-    expect(screen.getByTestId('name')).toHaveValue('Monthly Budget');
-    expect(screen.getByTestId('limit')).toHaveValue(1000);
-    expect(screen.getByTestId('startDate')).toHaveValue('2024-01-01');
-    expect(screen.getByTestId('endDate')).toHaveValue('2024-01-31');
+    expect(screen.getByTestId('input-name')).toHaveValue('Test Budget');
+    expect(screen.getByTestId('input-limit')).toHaveValue(1000);
+    expect(screen.getByTestId('datepicker-startDate')).toHaveValue('2024-01-01');
+    expect(screen.getByTestId('datepicker-endDate')).toHaveValue('2024-12-31');
   });
 
-  test('updates name when input changes', () => {
+  test('updates form state when input values change', async () => {
+    const user = userEvent.setup();
     render(<BudgetForm {...defaultProps} />);
 
-    const nameInput = screen.getByTestId('name');
-    fireEvent.change(nameInput, { target: { name: 'name', value: 'New Budget' } });
+    const nameInput = screen.getByTestId('input-name');
+    const limitInput = screen.getByTestId('input-limit');
+
+    await user.type(nameInput, 'New Budget');
+    await user.clear(limitInput);
+    await user.type(limitInput, '500');
 
     expect(nameInput).toHaveValue('New Budget');
-  });
-
-  test('updates limit when input changes', () => {
-    render(<BudgetForm {...defaultProps} />);
-
-    const limitInput = screen.getByTestId('limit');
-    fireEvent.change(limitInput, { target: { name: 'limit', value: '500' } });
-
     expect(limitInput).toHaveValue(500);
   });
 
-  test('updates start date when date picker changes', () => {
+  test('shows validation errors for empty required fields', async () => {
     render(<BudgetForm {...defaultProps} />);
 
-    const startDateInput = screen.getByTestId('startDate');
-    fireEvent.change(startDateInput, { target: { value: '2024-02-01' } });
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
 
-    expect(startDateInput).toHaveValue('2024-02-01');
+    await waitFor(() => {
+      expect(screen.getByText('Name is required')).toBeInTheDocument();
+      expect(screen.getByText('Limit must be greater than 0')).toBeInTheDocument();
+      expect(screen.getByText('Start date is required')).toBeInTheDocument();
+      expect(screen.getByText('End date is required')).toBeInTheDocument();
+    });
   });
 
-  test('updates end date when date picker changes', () => {
+  test('shows validation error for invalid limit', async () => {
+    const user = userEvent.setup();
     render(<BudgetForm {...defaultProps} />);
 
-    const endDateInput = screen.getByTestId('endDate');
-    fireEvent.change(endDateInput, { target: { value: '2024-02-28' } });
+    const limitInput = screen.getByTestId('input-limit');
+    await user.clear(limitInput);
+    await user.type(limitInput, '-100');
 
-    expect(endDateInput).toHaveValue('2024-02-28');
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByText('Limit must be greater than 0')).toBeInTheDocument();
+    });
   });
 
-  test('sets min date for end date picker based on start date', () => {
-    const budgetFormData: BudgetFormData = {
-      id: 1,
-      name: 'Test Budget',
-      limit: 1000,
-      categoryIds: [],
-      startDate: '2024-01-15',
-      endDate: '',
-    };
+  test('clears error messages when user starts typing', async () => {
+    const user = userEvent.setup();
+    render(<BudgetForm {...defaultProps} />);
 
-    render(<BudgetForm {...defaultProps} budgetFormData={budgetFormData} />);
+    // Trigger validation errors
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
 
-    const endDateInput = screen.getByTestId('endDate');
-    expect(endDateInput).toHaveAttribute('min', '2024-01-15');
+    await waitFor(() => {
+      expect(screen.getByText('Name is required')).toBeInTheDocument();
+    });
+
+    // Start typing in name field
+    const nameInput = screen.getByTestId('input-name');
+    await user.type(nameInput, 'A');
+
+    expect(screen.queryByText('Name is required')).not.toBeInTheDocument();
   });
 
-  test('calls onSubmit with form data when form is submitted', () => {
+  test('clears date error messages when date changes', async () => {
+    render(<BudgetForm {...defaultProps} />);
+
+    // Trigger validation errors
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByText('Start date is required')).toBeInTheDocument();
+    });
+
+    // Change start date
+    const startDatePicker = screen.getByTestId('datepicker-startDate');
+    fireEvent.change(startDatePicker, { target: { value: '2024-01-01' } });
+
+    expect(screen.queryByText('Start date is required')).not.toBeInTheDocument();
+  });
+
+  test('calls onSubmit with form data when validation passes', async () => {
+    const user = userEvent.setup();
     const mockOnSubmit = vi.fn();
     render(<BudgetForm {...defaultProps} onSubmit={mockOnSubmit} />);
 
-    // Fill form
-    fireEvent.change(screen.getByTestId('name'), {
-      target: { name: 'name', value: 'Test Budget' },
-    });
-    fireEvent.change(screen.getByTestId('limit'), {
-      target: { name: 'limit', value: '750' },
-    });
-    fireEvent.change(screen.getByTestId('startDate'), {
-      target: { value: '2024-01-01' },
-    });
-    fireEvent.change(screen.getByTestId('endDate'), {
-      target: { value: '2024-01-31' },
-    });
+    // Fill out valid form data
+    await user.type(screen.getByTestId('input-name'), 'Valid Budget');
+    await user.clear(screen.getByTestId('input-limit'));
+    await user.type(screen.getByTestId('input-limit'), '1000');
+    
+    const startDatePicker = screen.getByTestId('datepicker-startDate');
+    const endDatePicker = screen.getByTestId('datepicker-endDate');
+    fireEvent.change(startDatePicker, { target: { value: '2024-01-01' } });
+    fireEvent.change(endDatePicker, { target: { value: '2024-12-31' } });
 
-    // Submit form
-    const form = screen.getByTestId('name').closest('form');
-    fireEvent.submit(form!);
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
 
-    expect(mockOnSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'Test Budget',
-        limit: '750',
-        startDate: '2024-01-01',
-        endDate: '2024-01-31',
+    await waitFor(() => {
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        id: 1,
+        name: 'Valid Budget',
+        limit: 1000,
         categoryIds: [],
-      })
-    );
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
+      });
+    });
+  });
+
+  test('does not call onSubmit when validation fails', async () => {
+    const mockOnSubmit = vi.fn();
+    render(<BudgetForm {...defaultProps} onSubmit={mockOnSubmit} />);
+
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByText('Name is required')).toBeInTheDocument();
+    });
+
+    expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 
   test('displays currency symbol in limit placeholder', () => {
-    render(<BudgetForm {...defaultProps} />);
+    const euroCurrency: Currency = {
+      code: 'EUR',
+      symbol: '€',
+      decimals: 2,
+      label: 'EUR',
+      id: 2,
+    };
 
-    expect(screen.getByTestId('limit')).toHaveAttribute('placeholder', '$0.00');
+    render(<BudgetForm {...defaultProps} currency={euroCurrency} />);
+
+    const limitInput = screen.getByTestId('input-limit');
+    expect(limitInput).toHaveAttribute('placeholder', '€0.00');
   });
 
-  test('handles form submission with empty onSubmit gracefully', () => {
-    render(<BudgetForm {...defaultProps} onSubmit={() => void 0} />);
-
-    const form = screen.getByTestId('name').closest('form');
-    expect(() => fireEvent.submit(form!)).not.toThrow();
-  });
-
-  test('renders correct labels for form fields', () => {
-    render(<BudgetForm {...defaultProps} />);
-
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Limit')).toBeInTheDocument();
-    expect(screen.getByText('Start Date')).toBeInTheDocument();
-    expect(screen.getByText('End Date')).toBeInTheDocument();
-  });
-
-  test('form fields have correct types', () => {
-    render(<BudgetForm {...defaultProps} />);
-
-    expect(screen.getByTestId('name')).toHaveAttribute('type', 'text');
-    expect(screen.getByTestId('limit')).toHaveAttribute('type', 'number');
-    expect(screen.getByTestId('startDate')).toHaveAttribute('type', 'date');
-    expect(screen.getByTestId('endDate')).toHaveAttribute('type', 'date');
-  });
-
-  test('initializes id with 0 when no budgetFormData provided', () => {
+  test('prevents form submission on invalid form', async () => {
     const mockOnSubmit = vi.fn();
     render(<BudgetForm {...defaultProps} onSubmit={mockOnSubmit} />);
 
-    const form = screen.getByTestId('name').closest('form');
-    fireEvent.submit(form!);
+    // Fill partial data (missing required fields)
+    const user = userEvent.setup();
+    await user.type(screen.getByTestId('input-name'), 'Partial Budget');
 
-    expect(mockOnSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 0,
-      })
-    );
-  });
+    const form = screen.getByRole('form');
+    fireEvent.submit(form);
 
-  test('preserves id when budgetFormData is provided', () => {
-    const budgetFormData: BudgetFormData = {
-      id: 5,
-      name: 'Existing Budget',
-      limit: 500,
-      categoryIds: [1],
-      startDate: '2024-01-01',
-      endDate: '2024-01-31',
-    };
+    await waitFor(() => {
+      expect(screen.getByText('Limit must be greater than 0')).toBeInTheDocument();
+    });
 
-    const mockOnSubmit = vi.fn();
-    render(<BudgetForm {...defaultProps} budgetFormData={budgetFormData} onSubmit={mockOnSubmit} />);
-
-    const form = screen.getByTestId('name').closest('form');
-    fireEvent.submit(form!);
-
-    expect(mockOnSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 5,
-      })
-    );
+    expect(mockOnSubmit).not.toHaveBeenCalled();
   });
 });

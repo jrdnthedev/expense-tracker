@@ -11,7 +11,6 @@ import BudgetForm, {
   type BudgetFormData,
 } from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
-import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
@@ -28,14 +27,12 @@ export default function Onboarding({
   const { categories, currency, budgets } = useAppState();
   const [step, setStep] = useState(1);
   const dispatch = useAppDispatch();
-  const nextBudgetId = useNextId<Budget>(budgets);
-  const nextCategoryId = useNextId<Category>(categories);
   const navigate = useNavigate();
 
   const handleAddCategory = (data: CategoryFormData) => {
     dispatch({
       type: 'ADD_CATEGORY',
-      payload: { ...data, id: nextCategoryId },
+      payload: { ...data, id: Number(data.id) },
     });
     setStep(4);
   };
@@ -43,7 +40,7 @@ export default function Onboarding({
   const handleSaveBudget = (data: BudgetFormData) => {
     const newBudget: Budget = {
       ...data,
-      id: nextBudgetId,
+      id: Number(data.id),
     };
     LocalStorage.set('onboardingComplete', true);
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
@@ -111,6 +108,7 @@ export default function Onboarding({
             <div className="flex flex-col gap-4">
               <BudgetForm
                 currency={currency}
+                budgets={budgets}
                 onSubmit={handleSaveBudget}
                 onCancel={() => void 0}
               />
