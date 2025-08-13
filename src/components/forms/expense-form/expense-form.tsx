@@ -44,7 +44,7 @@ export default function ExpenseForm({
   const id = useNextId<Expense>(expenses);
   const [formState, setFormState] = useState<ExpenseFormData>({
     id: expenseFormData?.id || id,
-    amount: expenseFormData?.amount || 0,
+    amount: expenseFormData?.amount || 1,
     description: expenseFormData?.description || '',
     categoryId: expenseFormData?.categoryId || 0,
     category: expenseFormData?.category || '',
@@ -53,9 +53,49 @@ export default function ExpenseForm({
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
+  const [errorState, setErrorState] = useState({
+    amount: '',
+    description: '',
+    categoryId: '',
+    budgetId: '',
+  });
 
+  const validateForm = (): boolean => {
+    const errors = {
+      amount: '',
+      description: '',
+      categoryId: '',
+      budgetId: '',
+    };
+
+    if (!formState.amount || formState.amount <= 0) {
+      errors.amount = 'Amount must be greater than 0';
+    }
+
+    if (!formState.description.trim()) {
+      errors.description = 'Description is required';
+    }
+
+    if (!formState.categoryId) {
+      errors.categoryId = 'Please select a category';
+    }
+
+    if (!formState.budgetId) {
+      errors.budgetId = 'Please select a budget';
+    }
+
+    setErrorState(errors);
+    return !Object.values(errors).some((error) => error !== '');
+  };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+
+    if (errorState[name as keyof typeof errorState]) {
+      setErrorState((prev) => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
     setFormState((prevState: ExpenseFormData) => ({
       ...prevState,
       [name]: value,
@@ -64,12 +104,18 @@ export default function ExpenseForm({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (onSubmit) {
+    if (validateForm() && onSubmit) {
       onSubmit(formState);
     }
   };
 
   const handleCategorySelect = (category: Category) => {
+    if (errorState.categoryId) {
+      setErrorState((prev) => ({
+        ...prev,
+        categoryId: '',
+      }));
+    }
     setFormState((prev: ExpenseFormData) => ({
       ...prev,
       categoryId: category.id,
@@ -79,6 +125,12 @@ export default function ExpenseForm({
   const handleBudgetChange = (_value: string, dataId: number) => {
     const budget = budgets.find((budget: Budget) => budget.id === dataId);
     if (budget) {
+      if (errorState.budgetId) {
+        setErrorState((prev) => ({
+          ...prev,
+          budgetId: '',
+        }));
+      }
       setFormState((prev: ExpenseFormData) => ({
         ...prev,
         budget: budget.name,
@@ -105,6 +157,11 @@ export default function ExpenseForm({
               type="number"
               name="amount"
             />
+            {errorState.amount && (
+              <span className="text-red-500 text-sm mt-1">
+                {errorState.amount}
+              </span>
+            )}
           </div>
 
           <div className="w-1/2 flex flex-col">
@@ -130,6 +187,11 @@ export default function ExpenseForm({
               getOptionLabel={(option: Budget) => option.name}
               getOptionId={(option: Budget) => option.id}
             />
+            {errorState.budgetId && (
+              <span className="text-red-500 text-sm mt-1">
+                {errorState.budgetId}
+              </span>
+            )}
           </div>
         </div>
 
@@ -147,8 +209,12 @@ export default function ExpenseForm({
             id="description"
             name="description"
             type="text"
-            required={true}
           />
+          {errorState.description && (
+            <span className="text-red-500 text-sm mt-1">
+              {errorState.description}
+            </span>
+          )}
         </div>
 
         <div className="mb-4">
@@ -172,6 +238,11 @@ export default function ExpenseForm({
               />
             ))}
           </div>
+          {errorState.categoryId && (
+            <span className="text-red-500 text-sm mt-1">
+              {errorState.categoryId}
+            </span>
+          )}
         </div>
 
         <div className="flex justify-end mt-4 gap-4">

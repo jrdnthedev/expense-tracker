@@ -33,8 +33,48 @@ export default function BudgetForm({
     startDate: budgetFormData?.startDate || '',
     endDate: budgetFormData?.endDate || '',
   });
+  const [errorState, setErrorState] = useState({
+      limit: '',
+      name: '',
+      startDate: '',
+      endDate: '',
+    });
+
+  const validateForm = (): boolean => {
+    const errors = {
+      limit: '',
+      name: '',
+      startDate: '',
+      endDate: '',
+    };
+
+    if (!formState.limit || formState.limit <= 0) {
+      errors.limit = 'Limit must be greater than 0';
+    }
+
+    if (!formState.name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    if (!formState.startDate) {
+      errors.startDate = 'Start date is required';
+    }
+
+    if (!formState.endDate) {
+      errors.endDate = 'End date is required';
+    }
+
+    setErrorState(errors);
+    return !Object.values(errors).some((error) => error !== '');
+    };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
+    if (errorState[name as keyof typeof errorState]) {
+      setErrorState((prev) => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
     setFormState((prevState: BudgetFormData) => ({
       ...prevState,
       [name]: value,
@@ -45,6 +85,12 @@ export default function BudgetForm({
     field: keyof BudgetFormData,
     value: string | number
   ) => {
+    if (errorState.startDate || errorState.endDate) {
+      setErrorState((prev) => ({
+        ...prev,
+        [field]: '',
+      }));
+    }
     setFormState((prevState: BudgetFormData) => ({
       ...prevState,
       [field]: value,
@@ -52,7 +98,7 @@ export default function BudgetForm({
   };
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (onSubmit) {
+    if (validateForm() && onSubmit) {
       onSubmit(formState);
     }
   };
@@ -69,6 +115,11 @@ export default function BudgetForm({
             onChange={handleChange}
             placeholder="Enter budget name"
           />
+          {errorState.name && (
+              <span className="text-red-500 text-sm mt-1">
+                {errorState.name}
+              </span>
+            )}
         </div>
         <div>
           <label htmlFor="limit">Limit</label>
@@ -80,6 +131,11 @@ export default function BudgetForm({
             onChange={handleChange}
             placeholder={`${currency.symbol}0.00`}
           />
+          {errorState.limit && (
+              <span className="text-red-500 text-sm mt-1">
+                {errorState.limit}
+              </span>
+            )}
         </div>
         <div className="flex max-sm:flex-col gap-4">
           <div className="w-full flex-1">
@@ -95,6 +151,11 @@ export default function BudgetForm({
               value={formState.startDate}
               onChange={(date) => handleDatePickerChange('startDate', date)}
             />
+            {errorState.startDate && (
+              <span className="text-red-500 text-sm mt-1">
+                {errorState.startDate}
+              </span>
+            )}
           </div>
           <div className="w-full flex-1">
             <label
@@ -110,6 +171,11 @@ export default function BudgetForm({
               onChange={(date) => handleDatePickerChange('endDate', date)}
               min={formState.startDate || undefined}
             />
+            {errorState.endDate && (
+              <span className="text-red-500 text-sm mt-1">
+                {errorState.endDate}
+              </span>
+            )}
           </div>
         </div>
         <div>
