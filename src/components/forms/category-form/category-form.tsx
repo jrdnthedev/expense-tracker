@@ -7,6 +7,7 @@ export default function CategoryForm({ formState, onFieldChange }: CategoryFormP
         <label htmlFor="category-name">Category Name</label>
         <Input
           id="category-name"
+          name="category-name"
           value={formState.name}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onFieldChange('name', e.target.value)
@@ -20,6 +21,7 @@ export default function CategoryForm({ formState, onFieldChange }: CategoryFormP
         <label htmlFor="category-icon">Category Icon</label>
         <Input
           id="category-icon"
+          name="category-icon"
           value={formState.icon}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             onFieldChange('icon', e.target.value)
