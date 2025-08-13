@@ -1,92 +1,133 @@
-import { describe, expect, vi, test } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { test, expect, vi } from 'vitest';
+import { useRef } from 'react';
 import BudgetForm from './budget-form';
-import type { ChangeEventHandler } from 'react';
+import type { BudgetFormRef } from './budget-form';
 
-interface MockInputProps {
-  value: string | number;
-  onChange: ChangeEventHandler<HTMLInputElement>;
-  type: string;
-  id: string;
-}
-
-interface MockDatePickerProps {
-  value: string;
-  onChange: (value: string) => void;
-  id: string;
-}
-
-vi.mock('../../ui/input/input', () => ({
-  default: ({ value, onChange, type, id }: MockInputProps) => (
-    <input data-testid={id} type={type} value={value} onChange={onChange} />
-  ),
-}));
-
+// Mock the UI components
 vi.mock('../../ui/date-picker/date-picker', () => ({
-  default: ({ value, onChange, id }: MockDatePickerProps) => (
+  default: ({ id, value, onChange, min }: {
+    id: string;
+    type: string;
+    min: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+  }) => (
     <input
       data-testid={id}
       type="date"
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={onChange}
+      min={min}
     />
   ),
 }));
 
-describe('BudgetForm', () => {
-  const defaultProps = {
-    formState: {
-      name: '',
-      limit: 0,
-      category: '',
-      categoryIds: [],
-      startDate: '',
-      endDate: '',
-    },
-    categories: [],
-    onFieldChange: vi.fn(),
+vi.mock('../../ui/input/input', () => ({
+  default: ({ id, type, value, onChange, placeholder }: {
+    id: string;
+    type: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+  }) => (
+    <input
+      data-testid={id}
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+    />
+  ),
+}));
+
+const defaultInitialData = {
+  id: 1,
+  limit: 1000,
+  name: 'Test Budget',
+  categoryIds: [],
+  startDate: '2024-01-01',
+  endDate: '2024-12-31',
+};
+
+test('renders form with initial data', () => {
+  render(<BudgetForm initialData={defaultInitialData} />);
+  
+  expect(screen.getByDisplayValue('Test Budget')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('1000')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('2024-01-01')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('2024-12-31')).toBeInTheDocument();
+});
+
+test('updates form fields when user types', () => {
+  render(<BudgetForm initialData={defaultInitialData} />);
+  
+  const nameInput = screen.getByTestId('name');
+  fireEvent.change(nameInput, { target: { value: 'Updated Budget' } });
+  
+  expect(screen.getByDisplayValue('Updated Budget')).toBeInTheDocument();
+});
+
+test('ref methods work correctly', () => {
+  const TestComponent = () => {
+    const ref = useRef<BudgetFormRef>(null);
+    
+    return (
+      <div>
+        <BudgetForm ref={ref} initialData={defaultInitialData} />
+        <button onClick={() => {
+          const data = ref.current?.getFormData();
+          const isValid = ref.current?.isValid();
+          // Create elements to test the values
+          const dataDiv = document.createElement('div');
+          dataDiv.setAttribute('data-testid', 'form-data');
+          dataDiv.textContent = JSON.stringify(data);
+          document.body.appendChild(dataDiv);
+          
+          const validDiv = document.createElement('div');
+          validDiv.setAttribute('data-testid', 'is-valid');
+          validDiv.textContent = String(isValid);
+          document.body.appendChild(validDiv);
+        }}>
+          Get Data
+        </button>
+      </div>
+    );
   };
+  
+  render(<TestComponent />);
+  
+  fireEvent.click(screen.getByText('Get Data'));
+  
+  expect(screen.getByTestId('form-data')).toHaveTextContent('Test Budget');
+  expect(screen.getByTestId('is-valid')).toHaveTextContent('true');
+});
 
-  test('renders all form fields', () => {
-    render(<BudgetForm {...defaultProps} />);
-    expect(screen.getByTestId('name')).toBeInTheDocument();
-    expect(screen.getByTestId('limit')).toBeInTheDocument();
-    expect(screen.getByTestId('startDate')).toBeInTheDocument();
-    expect(screen.getByTestId('endDate')).toBeInTheDocument();
-  });
 
-  test('calls onFieldChange with correct values when name changes', () => {
-    render(<BudgetForm {...defaultProps} />);
-    const nameInput = screen.getByTestId('name');
-    fireEvent.change(nameInput, { target: { value: 'Test Budget' } });
-    expect(defaultProps.onFieldChange).toHaveBeenCalledWith(
-      'name',
-      'Test Budget'
+
+test('reset method works correctly', () => {
+  const TestComponent = () => {
+    const ref = useRef<BudgetFormRef>(null);
+    
+    return (
+      <div>
+        <BudgetForm ref={ref} initialData={defaultInitialData} />
+        <button onClick={() => ref.current?.reset()}>
+          Reset
+        </button>
+      </div>
     );
-  });
-
-  test('calls onFieldChange with correct values when limit changes', () => {
-    render(<BudgetForm {...defaultProps} />);
-    const limitInput = screen.getByTestId('limit');
-    fireEvent.change(limitInput, { target: { value: '1000' } });
-    expect(defaultProps.onFieldChange).toHaveBeenCalledWith('limit', 1000);
-  });
-
-  test('calls onFieldChange with correct values when dates change', () => {
-    render(<BudgetForm {...defaultProps} />);
-    const startDate = screen.getByTestId('startDate');
-    const endDate = screen.getByTestId('endDate');
-
-    fireEvent.change(startDate, { target: { value: '2024-01-01' } });
-    expect(defaultProps.onFieldChange).toHaveBeenCalledWith(
-      'startDate',
-      '2024-01-01'
-    );
-
-    fireEvent.change(endDate, { target: { value: '2024-12-31' } });
-    expect(defaultProps.onFieldChange).toHaveBeenCalledWith(
-      'endDate',
-      '2024-12-31'
-    );
-  });
+  };
+  
+  render(<TestComponent />);
+  
+  // Change a field first
+  const nameInput = screen.getByTestId('name');
+  fireEvent.change(nameInput, { target: { value: 'Changed Name' } });
+  expect(screen.getByDisplayValue('Changed Name')).toBeInTheDocument();
+  
+  // Reset the form
+  fireEvent.click(screen.getByText('Reset'));
+  expect(screen.getByDisplayValue('Test Budget')).toBeInTheDocument();
 });
