@@ -13,6 +13,17 @@ import { RequireOnboarding } from './components/routing/requireOnboarding';
 import { useDB } from './hooks/db/useDB';
 import LoadingStencil from './components/ui/loading-stencil/loading-stencil';
 import { ErrorScreen } from './components/ui/error-screen/error-screen';
+import { ErrorBoundary } from 'react-error-boundary';
+
+function ErrorFallback({error,resetErrorBoundary}: {error: Error, resetErrorBoundary: () => void}) {
+  return (
+    <div>
+      <h2>Something went wrong</h2>
+      <pre>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  );
+}
 
 function App() {
   const [onboardingComplete, setOnboardingComplete] = useState(
@@ -45,6 +56,7 @@ function App() {
   }
   return (
     <AppProvider>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
       <div className="p-4 bg-gray-100 min-h-screen">
         <Router>
           <nav>
@@ -87,6 +99,7 @@ function App() {
           </main>
         </Router>
       </div>
+      </ErrorBoundary>
     </AppProvider>
   );
 }
