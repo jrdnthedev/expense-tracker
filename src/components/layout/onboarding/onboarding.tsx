@@ -5,24 +5,22 @@ import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import ExpenseForm, { type ExpenseFormData } from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
-import BudgetForm from '../../forms/budget-form/budget-form';
+import BudgetForm, { type BudgetFormData } from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
-import { validateEndDate, validateBudgetForm } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
 import CategoryForm from '../../forms/category-form/category-form';
 import type { Expense } from '../../../types/expense';
 import { useCategoryManagement } from '../../../hooks/category-management/category-management';
-import { useBudgetManagement } from '../../../hooks/budget-management/budget-management';
 
 export default function Onboarding({
   setOnboardingComplete,
 }: {
   setOnboardingComplete: (complete: boolean) => void;
 }) {
-  const { categories, currency, budgets, expenses } = useAppState();
+  const { categories, currency, budgets } = useAppState();
   const [step, setStep] = useState(1);
   const dispatch = useAppDispatch();
   const nextBudgetId = useNextId<Budget>(budgets);
@@ -36,21 +34,19 @@ export default function Onboarding({
     handleAddCategory: handleAddCategoryBase,
   } = useCategoryManagement(categories, nextCategoryId);
 
-  const {
-    formState: budgetFormState,
-    handleFieldChange: handleBudgetFieldChange,
-    handleSaveBudget: handleSaveBudgetBase,
-  } = useBudgetManagement(categories, expenses, budgets, nextBudgetId);
-
   // Wrap the handlers to include onboarding-specific logic
   const handleAddCategory = () => {
     handleAddCategoryBase();
     setStep(4);
   };
 
-  const handleSaveBudget = () => {
-    handleSaveBudgetBase();
+  const handleSaveBudget = (data: BudgetFormData) => {
+    const newBudget: Budget = {
+        ...data,
+        id: nextBudgetId,
+      };
     LocalStorage.set('onboardingComplete', true);
+    dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setOnboardingComplete(true);
     setStep(5);
   };
@@ -122,27 +118,10 @@ export default function Onboarding({
             <p className="mb-6">Let’s help you set a budget for a category.</p>
             <div className="flex flex-col gap-4">
               <BudgetForm
-                categories={categories}
-                formState={budgetFormState}
-                onFieldChange={handleBudgetFieldChange}
+                currency={currency}
+                onSubmit={handleSaveBudget}
+                onCancel={() => void 0}
               />
-              {!validateEndDate(budgetFormState) && (
-                <div className="text-red-500 text-sm">
-                  End date must be after start date.
-                </div>
-              )}
-              <div>
-                <Button
-                  onClick={handleSaveBudget}
-                  variant="primary"
-                  disabled={
-                    !validateBudgetForm(budgetFormState) ||
-                    !validateEndDate(budgetFormState)
-                  }
-                >
-                  Save Budget
-                </Button>
-              </div>
             </div>
           </>
         )}
