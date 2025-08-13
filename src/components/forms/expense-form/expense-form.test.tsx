@@ -1,263 +1,309 @@
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { test, expect, vi } from 'vitest';
-import { useRef } from 'react';
-import ExpenseForm from './expense-form';
-import type { ExpenseFormRef } from './expense-form';
+import ExpenseForm, { type ExpenseFormData } from './expense-form';
 import type { Category } from '../../../types/category';
 import type { Budget } from '../../../types/budget';
 import type { Currency } from '../../../types/currency';
+import type { Expense } from '../../../types/expense';
 
-// Mock the UI components
+// Mock UI component prop types
+interface MockCardButtonProps {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+  icon: string;
+}
+
+interface MockInputProps {
+  value: string | number;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  id: string;
+  type: string;
+  name: string;
+  required?: boolean;
+}
+
+interface MockSelectProps {
+  options: Budget[];
+  onChange: (value: string, dataId: number) => void;
+  value: string;
+  getOptionLabel: (option: Budget) => string;
+  getOptionId: (option: Budget) => number;
+}
+
+interface MockButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
+  variant: string;
+}
+
+// Mock the useNextId hook
+vi.mock('../../../hooks/nextId/next-id', () => ({
+  useNextId: vi.fn(() => 1),
+}));
+
+// Mock UI components
+vi.mock('../../ui/card-btn/card-btn', () => ({
+  default: ({ label, selected, onClick, icon }: MockCardButtonProps) => (
+    <button
+      data-testid={`category-${label}`}
+      onClick={onClick}
+      className={selected ? 'selected' : ''}
+    >
+      {icon} {label}
+    </button>
+  ),
+}));
+
 vi.mock('../../ui/input/input', () => ({
-  default: ({ id, type, value, onChange, placeholder, required }: {
-    id: string;
-    type: string;
-    value: string | number;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    placeholder?: string;
-    required?: boolean;
-  }) => (
+  default: ({
+    value,
+    onChange,
+    placeholder,
+    id,
+    type,
+    name,
+    required,
+  }: MockInputProps) => (
     <input
       data-testid={id}
-      type={type}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      type={type}
+      name={name}
       required={required}
     />
   ),
 }));
 
 vi.mock('../../ui/select/select', () => ({
-  default: ({ id, value, onChange, options, getOptionId, getOptionLabel }: {
-    id: string;
-    value: string;
-    onChange: (label: string, id: number) => void;
-    options: Budget[];
-    getOptionId: (option: Budget) => number;
-    getOptionLabel: (option: Budget) => string;
-  }) => (
+  default: ({ options, onChange, value, getOptionLabel, getOptionId }: MockSelectProps) => (
     <select
-      data-testid={id}
-      value={value}
+      data-testid="budget-select"
+      value={value || ''}
       onChange={(e) => {
-        const selectedOption = options.find((opt: Budget) => getOptionLabel(opt) === e.target.value);
+        const selectedOption = options.find(
+          (opt: Budget) => getOptionLabel(opt) === e.target.value
+        );
         if (selectedOption) {
-          onChange(getOptionLabel(selectedOption), getOptionId(selectedOption));
+          onChange(e.target.value, getOptionId(selectedOption));
         }
       }}
     >
-      <option value="">Select option</option>
-      {options.map((option: Budget) => (
-        <option key={getOptionId(option)} value={getOptionLabel(option)}>
-          {getOptionLabel(option)}
-        </option>
-      ))}
+      {options.length === 0 ? (
+        <option value="">No options available</option>
+      ) : (
+        options.map((option: Budget) => (
+          <option key={getOptionId(option)} value={getOptionLabel(option)}>
+            {getOptionLabel(option)}
+          </option>
+        ))
+      )}
     </select>
   ),
 }));
 
-vi.mock('../../ui/card-btn/card-btn', () => ({
-  default: ({ label, selected, onClick }: {
-    label: string;
-    selected: boolean;
-    onClick: () => void;
-  }) => (
-    <button
-      data-testid={`category-${label}`}
-      className={selected ? 'selected' : ''}
-      onClick={onClick}
-    >
-      {label}
+vi.mock('../../ui/button/button', () => ({
+  default: ({ children, onClick, type, variant }: MockButtonProps) => (
+    <button data-testid={`${variant}-button`} type={type} onClick={onClick}>
+      {children}
     </button>
   ),
 }));
 
-const mockCategories: Category[] = [
-  { id: 1, name: 'Food', icon: '🍔' },
-  { id: 2, name: 'Transport', icon: '🚗' },
-];
+describe('ExpenseForm', () => {
+  const mockCategories: Category[] = [
+    { id: 1, name: 'Food', icon: '🍔' },
+    { id: 2, name: 'Transport', icon: '🚗' },
+  ];
 
-const mockBudgets: Budget[] = [
-  { id: 1, name: 'Monthly Budget', limit: 1000, categoryIds: [1], startDate: '2024-01-01', endDate: '2024-01-31' },
-  { id: 2, name: 'Travel Budget', limit: 500, categoryIds: [2], startDate: '2024-02-01', endDate: '2024-02-29' },
-];
+  const mockBudgets: Budget[] = [
+    {
+      id: 1,
+      name: 'Monthly Budget',
+      categoryIds: [1, 2],
+      limit: 1000,
+      startDate: '2024-01-01',
+      endDate: '2024-01-31',
+    },
+    {
+      id: 2,
+      name: 'Weekly Budget',
+      categoryIds: [1],
+      limit: 250,
+      startDate: '2024-01-01',
+      endDate: '2024-01-07',
+    },
+  ];
 
-const mockCurrency: Currency = {
-  code: 'USD',
-  symbol: '$',
-  label: 'US Dollar',
-  id: 1,
-  decimals: 1
-};
+  const mockCurrency: Currency = {
+    symbol: '$',
+    code: 'USD',
+    id: 1,
+    label: 'US Dollar',
+    decimals: 2,
+  };
 
-const defaultInitialData = {
-  id: 1,
-  amount: 100,
-  description: 'Test expense',
-  categoryId: 1,
-  category: 'Food',
-  budgetId: 1,
-  budget: 'Monthly Budget',
-  createdAt: '2024-01-01T10:00:00.000Z',
-};
+  const mockExpenses: Expense[] = [];
 
-test('renders form with initial data', () => {
-  render(
-    <ExpenseForm
-      initialData={defaultInitialData}
-      categories={mockCategories}
-      budgets={mockBudgets}
-      currency={mockCurrency}
-    />
-  );
+  const defaultProps = {
+    categories: mockCategories,
+    budgets: mockBudgets,
+    currency: mockCurrency,
+    expenses: mockExpenses,
+    onCancel: vi.fn(),
+    onSubmit: vi.fn(),
+  };
 
-  expect(screen.getByDisplayValue('100')).toBeInTheDocument();
-  expect(screen.getByDisplayValue('Test expense')).toBeInTheDocument();
-  expect(screen.getByDisplayValue('Monthly Budget')).toBeInTheDocument();
-  expect(screen.getByTestId('category-Food')).toHaveClass('selected');
-});
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-test('updates form fields when user types', () => {
-  render(
-    <ExpenseForm
-      initialData={defaultInitialData}
-      categories={mockCategories}
-      budgets={mockBudgets}
-      currency={mockCurrency}
-    />
-  );
+  test('renders form with all required fields', () => {
+    render(<ExpenseForm {...defaultProps} />);
 
-  const amountInput = screen.getByTestId('amount');
-  fireEvent.change(amountInput, { target: { value: '200' } });
-  expect(screen.getByDisplayValue('200')).toBeInTheDocument();
+    expect(screen.getByTestId('amount')).toBeInTheDocument();
+    expect(screen.getByTestId('description')).toBeInTheDocument();
+    expect(screen.getByTestId('budget-select')).toBeInTheDocument();
+    expect(screen.getByText('Category')).toBeInTheDocument();
+    expect(screen.getByTestId('primary-button')).toBeInTheDocument();
+    expect(screen.getByTestId('secondary-button')).toBeInTheDocument();
+  });
 
-  const descriptionInput = screen.getByTestId('description');
-  fireEvent.change(descriptionInput, { target: { value: 'Updated description' } });
-  expect(screen.getByDisplayValue('Updated description')).toBeInTheDocument();
-});
+  test('initializes with default values when no expenseFormData provided', () => {
+    render(<ExpenseForm {...defaultProps} />);
 
-test('handles category selection', () => {
-  render(
-    <ExpenseForm
-      initialData={defaultInitialData}
-      categories={mockCategories}
-      budgets={mockBudgets}
-      currency={mockCurrency}
-    />
-  );
+    expect(screen.getByTestId('amount')).toHaveValue(0);
+    expect(screen.getByTestId('description')).toHaveValue('');
+    expect(screen.getByTestId('budget-select')).toHaveValue('Monthly Budget');
+  });
 
-  const transportButton = screen.getByTestId('category-Transport');
-  fireEvent.click(transportButton);
+  test('initializes with provided expenseFormData', () => {
+    const expenseFormData: ExpenseFormData = {
+      id: 5,
+      amount: 50,
+      description: 'Test expense',
+      categoryId: 2,
+      category: 'Transport',
+      budgetId: 2,
+      budget: 'Weekly Budget',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    };
 
-  expect(transportButton).toHaveClass('selected');
-  expect(screen.getByTestId('category-Food')).not.toHaveClass('selected');
-});
+    render(<ExpenseForm {...defaultProps} expenseFormData={expenseFormData} />);
 
-test('handles budget selection', () => {
-  render(
-    <ExpenseForm
-      initialData={defaultInitialData}
-      categories={mockCategories}
-      budgets={mockBudgets}
-      currency={mockCurrency}
-    />
-  );
+    expect(screen.getByTestId('amount')).toHaveValue(50);
+    expect(screen.getByTestId('description')).toHaveValue('Test expense');
+    expect(screen.getByTestId('budget-select')).toHaveValue('Weekly Budget');
+  });
 
-  const budgetSelect = screen.getByTestId('budget');
-  fireEvent.change(budgetSelect, { target: { value: 'Travel Budget' } });
+  test('updates amount when input changes', () => {
+    render(<ExpenseForm {...defaultProps} />);
 
-  expect(screen.getByDisplayValue('Travel Budget')).toBeInTheDocument();
-});
+    const amountInput = screen.getByTestId('amount');
+    fireEvent.change(amountInput, { target: { name: 'amount', value: '100' } });
 
-test('ref methods work correctly', () => {
-  const TestComponent = () => {
-    const ref = useRef<ExpenseFormRef>(null);
+    expect(amountInput).toHaveValue(100);
+  });
 
-    return (
-      <div>
-        <ExpenseForm
-          ref={ref}
-          initialData={defaultInitialData}
-          categories={mockCategories}
-          budgets={mockBudgets}
-          currency={mockCurrency}
-        />
-        <button
-          onClick={() => {
-            const data = ref.current?.getFormData();
-            const isValid = ref.current?.isValid();
+  test('updates description when input changes', () => {
+    render(<ExpenseForm {...defaultProps} />);
 
-            const dataDiv = document.createElement('div');
-            dataDiv.setAttribute('data-testid', 'form-data');
-            dataDiv.textContent = JSON.stringify(data);
-            document.body.appendChild(dataDiv);
+    const descriptionInput = screen.getByTestId('description');
+    fireEvent.change(descriptionInput, {
+      target: { name: 'description', value: 'Lunch' },
+    });
 
-            const validDiv = document.createElement('div');
-            validDiv.setAttribute('data-testid', 'is-valid');
-            validDiv.textContent = String(isValid);
-            document.body.appendChild(validDiv);
-          }}
-        >
-          Get Data
-        </button>
-      </div>
+    expect(descriptionInput).toHaveValue('Lunch');
+  });
+
+  test('selects category when category button is clicked', () => {
+    render(<ExpenseForm {...defaultProps} />);
+
+    const foodCategoryButton = screen.getByTestId('category-Food');
+    fireEvent.click(foodCategoryButton);
+
+    expect(foodCategoryButton).toHaveClass('selected');
+  });
+
+  test('changes budget when select value changes', () => {
+    render(<ExpenseForm {...defaultProps} />);
+
+    const budgetSelect = screen.getByTestId('budget-select');
+    fireEvent.change(budgetSelect, { target: { value: 'Weekly Budget' } });
+
+    expect(budgetSelect).toHaveValue('Weekly Budget');
+  });
+
+  test('calls onSubmit with form data when form is submitted', () => {
+    const mockOnSubmit = vi.fn();
+    render(<ExpenseForm {...defaultProps} onSubmit={mockOnSubmit} />);
+
+    // Fill form
+    fireEvent.change(screen.getByTestId('amount'), {
+      target: { name: 'amount', value: '75' },
+    });
+    fireEvent.change(screen.getByTestId('description'), {
+      target: { name: 'description', value: 'Coffee' },
+    });
+    fireEvent.click(screen.getByTestId('category-Food'));
+
+    // Submit form
+    const form = screen.getByTestId('amount').closest('form');
+    fireEvent.submit(form!);
+
+    expect(mockOnSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: '75',
+        description: 'Coffee',
+        categoryId: 1,
+        category: 'Food',
+        budgetId: 1,
+        budget: 'Monthly Budget',
+      })
     );
-  };
+  });
 
-  render(<TestComponent />);
+  test('calls onCancel when cancel button is clicked', () => {
+    const mockOnCancel = vi.fn();
+    render(<ExpenseForm {...defaultProps} onCancel={mockOnCancel} />);
 
-  fireEvent.click(screen.getByText('Get Data'));
+    fireEvent.click(screen.getByTestId('secondary-button'));
 
-  expect(screen.getByTestId('form-data')).toHaveTextContent('Test expense');
-  expect(screen.getByTestId('is-valid')).toHaveTextContent('true');
-});
+    expect(mockOnCancel).toHaveBeenCalled();
+  });
 
-test('reset method works correctly', () => {
-  const TestComponent = () => {
-    const ref = useRef<ExpenseFormRef>(null);
+  test('handles empty budgets array gracefully', () => {
+    render(<ExpenseForm {...defaultProps} budgets={[]} />);
 
-    return (
-      <div>
-        <ExpenseForm
-          ref={ref}
-          initialData={defaultInitialData}
-          categories={mockCategories}
-          budgets={mockBudgets}
-          currency={mockCurrency}
-        />
-        <button onClick={() => ref.current?.reset()}>Reset</button>
-      </div>
+    expect(screen.getByTestId('budget-select')).toBeInTheDocument();
+    expect(screen.getByTestId('budget-select')).toHaveValue('');
+  });
+
+  test('renders category buttons for all provided categories', () => {
+    render(<ExpenseForm {...defaultProps} />);
+
+    expect(screen.getByTestId('category-Food')).toBeInTheDocument();
+    expect(screen.getByTestId('category-Transport')).toBeInTheDocument();
+  });
+
+  test('displays currency symbol in amount placeholder', () => {
+    render(<ExpenseForm {...defaultProps} />);
+
+    expect(screen.getByTestId('amount')).toHaveAttribute(
+      'placeholder',
+      '$0.00'
     );
-  };
+  });
 
-  render(<TestComponent />);
+  test('does not call onSubmit if not provided', () => {
+    render(<ExpenseForm {...defaultProps} onSubmit={undefined} />);
 
-  // Change a field first
-  const descriptionInput = screen.getByTestId('description');
-  fireEvent.change(descriptionInput, { target: { value: 'Changed description' } });
-  expect(screen.getByDisplayValue('Changed description')).toBeInTheDocument();
-
-  // Reset the form
-  fireEvent.click(screen.getByText('Reset'));
-  expect(screen.getByDisplayValue('Test expense')).toBeInTheDocument();
-});
-
-test('auto-selects first budget when none selected', () => {
-  const dataWithoutBudget = {
-    ...defaultInitialData,
-    budgetId: 0,
-    budget: '',
-  };
-
-  render(
-    <ExpenseForm
-      initialData={dataWithoutBudget}
-      categories={mockCategories}
-      budgets={mockBudgets}
-      currency={mockCurrency}
-    />
-  );
-
-  expect(screen.getByDisplayValue('Monthly Budget')).toBeInTheDocument();
+    const form = screen.getByTestId('amount').closest('form');
+    expect(() => fireEvent.submit(form!)).not.toThrow();
+  });
 });
