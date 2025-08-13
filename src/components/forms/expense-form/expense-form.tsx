@@ -11,7 +11,7 @@ import { useNextId } from '../../../hooks/nextId/next-id';
 
 // Form data type
 export type ExpenseFormData = {
-  id?: number;
+  id: number;
   amount: number;
   description: string;
   categoryId: number;

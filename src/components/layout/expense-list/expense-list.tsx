@@ -10,7 +10,6 @@ import ExpenseForm, {
   type ExpenseFormData,
 } from '../../forms/expense-form/expense-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
-import { useNextId } from '../../../hooks/nextId/next-id';
 import { formatAmount } from '../../../utils/currency';
 import { formatDate } from '../../../utils/validators';
 import EmptyState from '../../ui/empty-state/empty-state';
@@ -53,7 +52,6 @@ export default function ExpenseList() {
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const id = useNextId<Expense>(expenses);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
@@ -69,7 +67,6 @@ export default function ExpenseList() {
   const handleAdd = (data: ExpenseFormData) => {
     const newExpense: Expense = {
       ...data,
-      id: id,
       amount: Number(data.amount),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
@@ -82,12 +79,10 @@ export default function ExpenseList() {
       ...data,
       id: Number(data.id),
       amount: Number(data.amount),
-      description: data.description,
-      categoryId: data.categoryId,
-      budgetId: data.budgetId,
       updatedAt: new Date().toISOString(),
     };
     dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
+    console.log('Updating expense:', updatedExpense);
     setExpenseToEdit(null);
   };
   const handleDeleteExpense = (expense: Expense) => {
