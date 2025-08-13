@@ -11,9 +11,8 @@ import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
-import CategoryForm from '../../forms/category-form/category-form';
+import CategoryForm, { type CategoryFormData } from '../../forms/category-form/category-form';
 import type { Expense } from '../../../types/expense';
-import { useCategoryManagement } from '../../../hooks/category-management/category-management';
 
 export default function Onboarding({
   setOnboardingComplete,
@@ -28,17 +27,11 @@ export default function Onboarding({
   const navigate = useNavigate();
 
   // Use existing hooks
-  const {
-    addCategoryFormState,
-    handleAddFormChange,
-    handleAddCategory: handleAddCategoryBase,
-  } = useCategoryManagement(categories, nextCategoryId);
-
-  // Wrap the handlers to include onboarding-specific logic
-  const handleAddCategory = () => {
-    handleAddCategoryBase();
-    setStep(4);
-  };
+  const handleAddCategory = (data: CategoryFormData) => {
+      dispatch({ type: 'ADD_CATEGORY', payload: { ...data, id: nextCategoryId } });
+      console.log(data);
+      setStep(4);
+    };
 
   const handleSaveBudget = (data: BudgetFormData) => {
     const newBudget: Budget = {
@@ -99,16 +92,9 @@ export default function Onboarding({
             <p className="mb-6">Let’s create your first category together.</p>
             <div>
               <CategoryForm
-                formState={addCategoryFormState}
-                onFieldChange={handleAddFormChange}
+                categories={categories}
+                onSubmit={handleAddCategory}
               />
-              <Button
-                onClick={handleAddCategory}
-                variant="primary"
-                type="button"
-              >
-                Save Category
-              </Button>
             </div>
           </>
         )}
