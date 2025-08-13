@@ -8,7 +8,7 @@ import {
   protectedRoutes,
   type ProtectedRoute,
 } from './constants/protected-routes';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { RequireOnboarding } from './components/routing/requireOnboarding';
 import { useDB } from './hooks/db/useDB';
 import LoadingStencil from './components/ui/loading-stencil/loading-stencil';
@@ -61,11 +61,12 @@ function App() {
               ))}
           </nav>
           <main>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route
-                path="/onboarding"
-                element={
+            <Suspense fallback={<LoadingStencil />}>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route
+                  path="/onboarding"
+                  element={
                   <Onboarding setOnboardingComplete={setOnboardingComplete} />
                 }
               />
@@ -82,6 +83,7 @@ function App() {
               ))}
               <Route path="*" element={<div>404 Not Found</div>} />
             </Routes>
+            </Suspense>
           </main>
         </Router>
       </div>
