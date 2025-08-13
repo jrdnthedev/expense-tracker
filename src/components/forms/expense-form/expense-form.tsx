@@ -11,7 +11,7 @@ import { useNextId } from '../../../hooks/nextId/next-id';
 
 // Form data type
 export type ExpenseFormData = {
-  id?: number;
+  id: number;
   amount: number;
   description: string;
   categoryId: number;
@@ -48,8 +48,8 @@ export default function ExpenseForm({
     description: expenseFormData?.description || '',
     categoryId: expenseFormData?.categoryId || 0,
     category: expenseFormData?.category || '',
-    budgetId: budgets?.[0]?.id || 0,
-    budget: budgets?.[0]?.name || '',
+    budgetId: expenseFormData?.budgetId || budgets?.[0]?.id || 0,
+    budget: expenseFormData?.budget || budgets?.[0]?.name || '',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });

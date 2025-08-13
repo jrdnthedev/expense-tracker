@@ -1,34 +1,49 @@
 import Button from '../../ui/button/button';
 import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
-import BudgetForm from '../../forms/budget-form/budget-form';
+import BudgetForm, { type BudgetFormData } from '../../forms/budget-form/budget-form';
 import type { Budget } from '../../../types/budget';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import { formatDate } from '../../../utils/validators';
-import { useAppState } from '../../../context/app-state-hooks';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
 import EmptyState from '../../ui/empty-state/empty-state';
-import { useBudgetManagement } from '../../../hooks/budget-management/budget-management';
 import Badge from '../../ui/badge/badge';
+import { useState } from 'react';
+import { calculateSpentAmount } from '../../../utils/budget';
 
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
   const nextBudgetId = useNextId<Budget>(budgets);
-  const {
-    isModalOpen,
-    budgetToEdit,
-    addFormRef,
-    editFormRef,
-    setIsModalOpen,
-    setBudgetToEdit,
-    getInitialFormData,
-    budgetToFormData,
-    handleSaveBudget,
-    calculateSpentAmount,
-    handleBudgetEdit,
-    handleSaveChanges,
-    handleDeleteBudget,
-  } = useBudgetManagement(categories, expenses, nextBudgetId);
+  const [budgetToEdit, setBudgetToEdit] = useState<BudgetFormData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const handleAdd = (data: BudgetFormData) => {
+      const newBudget: Budget = {
+        ...data,
+        id: nextBudgetId,
+      };
+      dispatch({ type: 'ADD_BUDGET', payload: newBudget });
+      console.log('Adding budget:', newBudget);
+      setIsModalOpen(false);
+    };
+
+    const handleEdit = (data: BudgetFormData) => {
+      const updatedBudget: Budget = {
+        ...data,
+        id: Number(data.id),
+        limit: Number(data.limit),
+      };
+      dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
+      console.log('Updating budget:', updatedBudget);
+      setBudgetToEdit(null);
+    };
+
+    const handleDeleteBudget = (budget: Budget) => {
+      dispatch({ type: 'REMOVE_BUDGET', payload: { id: budget.id } });
+      setBudgetToEdit(null);
+    };
   return (
     <>
       <div className="mb-6">
@@ -54,13 +69,10 @@ export default function BudgetManager() {
                     <h1 className="text-2xl font-bold">Add Budget</h1>
                     <div className="flex flex-col gap-4">
                       <BudgetForm
-                        ref={addFormRef}
-                        initialData={getInitialFormData()}
+                        currency={currency}
+                        onSubmit={handleAdd}
+                        onCancel={() => setIsModalOpen(false)}
                       />
-
-                      <Button onClick={handleSaveBudget} variant="primary">
-                        Save
-                      </Button>
                     </div>
                   </Modal>
                 )}
@@ -68,7 +80,7 @@ export default function BudgetManager() {
             </div>
             <ul>
               {budgets.map((budget: Budget) => {
-                const spentAmount = calculateSpentAmount(budget);
+                const spentAmount = calculateSpentAmount(budget, expenses);
                 const remainingAmount = budget.limit - spentAmount;
                 const percentageUsed = (spentAmount / budget.limit) * 100;
                 const isCurrentOrPast =
@@ -80,7 +92,7 @@ export default function BudgetManager() {
                         <div className="flex justify-end">
                           <div className="flex gap-1">
                             <span className="text-sm text-gray-500">
-                              <button onClick={() => handleBudgetEdit(budget)}>
+                              <button onClick={() => setBudgetToEdit(budget)}>
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   className="h-4 w-4 text-gray-500"
@@ -99,7 +111,7 @@ export default function BudgetManager() {
                             </span>
                             <span className="text-sm text-gray-500 ">
                               <button
-                                onClick={() => handleDeleteBudget(budget.id)}
+                                onClick={() => handleDeleteBudget(budget)}
                               >
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -181,12 +193,11 @@ export default function BudgetManager() {
             <h1 className="text-2xl font-bold">Edit Budget</h1>
             <div className="flex flex-col gap-4">
               <BudgetForm
-                ref={editFormRef}
-                initialData={budgetToFormData(budgetToEdit)}
+                budgetFormData={budgetToEdit}
+                currency={currency}
+                onSubmit={handleEdit}
+                onCancel={() => setBudgetToEdit(null)}
               />
-              <Button onClick={handleSaveChanges} variant="primary">
-                Save Changes
-              </Button>
             </div>
           </Modal>
         )}
