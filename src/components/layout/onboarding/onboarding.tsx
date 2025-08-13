@@ -3,15 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import Card from '../../ui/card/card';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
-import ExpenseForm, { type ExpenseFormData } from '../../forms/expense-form/expense-form';
+import ExpenseForm, {
+  type ExpenseFormData,
+} from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
-import BudgetForm, { type BudgetFormData } from '../../forms/budget-form/budget-form';
+import BudgetForm, {
+  type BudgetFormData,
+} from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
-import CategoryForm, { type CategoryFormData } from '../../forms/category-form/category-form';
+import CategoryForm, {
+  type CategoryFormData,
+} from '../../forms/category-form/category-form';
 import type { Expense } from '../../../types/expense';
 
 export default function Onboarding({
@@ -26,18 +32,19 @@ export default function Onboarding({
   const nextCategoryId = useNextId<Category>(categories);
   const navigate = useNavigate();
 
-  // Use existing hooks
   const handleAddCategory = (data: CategoryFormData) => {
-      dispatch({ type: 'ADD_CATEGORY', payload: { ...data, id: nextCategoryId } });
-      console.log(data);
-      setStep(4);
-    };
+    dispatch({
+      type: 'ADD_CATEGORY',
+      payload: { ...data, id: nextCategoryId },
+    });
+    setStep(4);
+  };
 
   const handleSaveBudget = (data: BudgetFormData) => {
     const newBudget: Budget = {
-        ...data,
-        id: nextBudgetId,
-      };
+      ...data,
+      id: nextBudgetId,
+    };
     LocalStorage.set('onboardingComplete', true);
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setOnboardingComplete(true);
@@ -50,7 +57,6 @@ export default function Onboarding({
       amount: Number(data.amount),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
-    console.log('Adding expense:', newExpense);
     setStep(6);
   };
   return (
