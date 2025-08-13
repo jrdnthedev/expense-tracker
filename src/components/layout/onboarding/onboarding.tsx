@@ -3,17 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import Card from '../../ui/card/card';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
-import ExpenseForm, { type ExpenseFormData } from '../../forms/expense-form/expense-form';
+import ExpenseForm, {
+  type ExpenseFormData,
+} from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
-import BudgetForm, { type BudgetFormData } from '../../forms/budget-form/budget-form';
+import BudgetForm, {
+  type BudgetFormData,
+} from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
-import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
-import CategoryForm from '../../forms/category-form/category-form';
+import CategoryForm, {
+  type CategoryFormData,
+} from '../../forms/category-form/category-form';
 import type { Expense } from '../../../types/expense';
-import { useCategoryManagement } from '../../../hooks/category-management/category-management';
 
 export default function Onboarding({
   setOnboardingComplete,
@@ -23,28 +27,21 @@ export default function Onboarding({
   const { categories, currency, budgets } = useAppState();
   const [step, setStep] = useState(1);
   const dispatch = useAppDispatch();
-  const nextBudgetId = useNextId<Budget>(budgets);
-  const nextCategoryId = useNextId<Category>(categories);
   const navigate = useNavigate();
 
-  // Use existing hooks
-  const {
-    addCategoryFormState,
-    handleAddFormChange,
-    handleAddCategory: handleAddCategoryBase,
-  } = useCategoryManagement(categories, nextCategoryId);
-
-  // Wrap the handlers to include onboarding-specific logic
-  const handleAddCategory = () => {
-    handleAddCategoryBase();
+  const handleAddCategory = (data: CategoryFormData) => {
+    dispatch({
+      type: 'ADD_CATEGORY',
+      payload: { ...data, id: Number(data.id) },
+    });
     setStep(4);
   };
 
   const handleSaveBudget = (data: BudgetFormData) => {
     const newBudget: Budget = {
-        ...data,
-        id: nextBudgetId,
-      };
+      ...data,
+      id: Number(data.id),
+    };
     LocalStorage.set('onboardingComplete', true);
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
     setOnboardingComplete(true);
@@ -57,7 +54,6 @@ export default function Onboarding({
       amount: Number(data.amount),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
-    console.log('Adding expense:', newExpense);
     setStep(6);
   };
   return (
@@ -99,16 +95,9 @@ export default function Onboarding({
             <p className="mb-6">Let’s create your first category together.</p>
             <div>
               <CategoryForm
-                formState={addCategoryFormState}
-                onFieldChange={handleAddFormChange}
+                categories={categories}
+                onSubmit={handleAddCategory}
               />
-              <Button
-                onClick={handleAddCategory}
-                variant="primary"
-                type="button"
-              >
-                Save Category
-              </Button>
             </div>
           </>
         )}
@@ -119,6 +108,7 @@ export default function Onboarding({
             <div className="flex flex-col gap-4">
               <BudgetForm
                 currency={currency}
+                budgets={budgets}
                 onSubmit={handleSaveBudget}
                 onCancel={() => void 0}
               />

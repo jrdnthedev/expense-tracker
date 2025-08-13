@@ -2,30 +2,46 @@ import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
 import type { Category } from '../../../types/category';
 import Modal from '../../ui/modal/modal';
-import { useAppState } from '../../../context/app-state-hooks';
+import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
-import CategoryForm from '../../forms/category-form/category-form';
-import { useCategoryManagement } from '../../../hooks/category-management/category-management';
+import CategoryForm, { type CategoryFormData } from '../../forms/category-form/category-form';
+import { useState } from 'react';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();
+  const dispatch = useAppDispatch();
   const nextId = useNextId<Category>(categories);
-  
-  const {
-    selectedCategory,
-    isModalOpen,
-    isConfirmModalOpen,
-    formState,
-    addCategoryFormState,
-    setIsModalOpen,
-    setIsConfirmModalOpen,
-    handleSelectedCategoryChange,
-    handleDeleteCategory,
-    handleSaveChanges,
-    handleAddCategory,
-    handleFormChange,
-    handleAddFormChange,
-  } = useCategoryManagement(categories, nextId);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [previousSelectedCategory, setPreviousSelectedCategory] = 
+    useState<Category | null>(categories[0] ?? null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  const handleAddCategory = (data: CategoryFormData) => {
+    dispatch({ type: 'ADD_CATEGORY', payload: { ...data, id: nextId } });
+    setIsModalOpen(false);
+    console.log(data);
+  };
+  const handleEditCategory = (data: CategoryFormData) => {
+    if (selectedCategory) {
+      dispatch({
+        type: 'UPDATE_CATEGORY',
+        payload: { ...selectedCategory, ...data },
+      });
+    }
+    console.log('Editing Category:', data);
+  };
+  const handleDeleteCategory = () => {
+    if (selectedCategory) {
+      dispatch({
+        type: 'REMOVE_CATEGORY',
+        payload: { id: selectedCategory.id },
+      });
+      setSelectedCategory(previousSelectedCategory);
+    }
+    setIsConfirmModalOpen(false);
+    console.log('Deleting Category:', selectedCategory);
+  };
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
       <div className="text-lg font-semibold text-gray-900 mb-2">
@@ -50,14 +66,9 @@ export default function CategoryManagement() {
               </h2>
               <div className="flex flex-col gap-4">
                 <CategoryForm
-                  onFieldChange={(field, value) =>
-                    handleAddFormChange(field, value)
-                  }
-                  formState={addCategoryFormState}
+                  categories={categories}
+                  onSubmit={handleAddCategory}
                 />
-                <Button onClick={handleAddCategory} variant="primary">
-                  Add Category
-                </Button>
               </div>
             </Modal>
           )}
@@ -70,7 +81,7 @@ export default function CategoryManagement() {
             label={category.name}
             icon={category.icon}
             selected={selectedCategory?.name === category.name}
-            onClick={() => handleSelectedCategoryChange(category)}
+            onClick={() => {setSelectedCategory(category); setPreviousSelectedCategory(category);}}
           />
         ))}
       </div>
@@ -78,22 +89,12 @@ export default function CategoryManagement() {
         {selectedCategory ? (
           <>
             <CategoryForm
-              formState={formState}
-              onFieldChange={(field, value) =>
-                handleFormChange(field, value)
-              }
+              categories={categories}
+              onSubmit={handleEditCategory}
+              categoryFormData={selectedCategory}
+              onDelete={() => setIsConfirmModalOpen(true)}
             />
-            <div className="flex justify-end gap-2">
-              <Button onClick={handleSaveChanges} variant="primary">
-                Save Changes
-              </Button>
-              <Button
-                onClick={() => setIsConfirmModalOpen(true)}
-                variant="secondary"
-              >
-                Delete Category
-              </Button>
-            </div>
+            
           </>
         ) : (
           <p>Select a category to edit</p>
