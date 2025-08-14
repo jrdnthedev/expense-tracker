@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import DatePicker from '../../ui/date-picker/date-picker';
 import Input from '../../ui/input/input';
 import type { Currency } from '../../../types/currency';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
+import useFormManagement from '../../../hooks/form-management/form-management';
 
 export type BudgetFormData = {
   id?: number;
@@ -30,61 +30,40 @@ export default function BudgetForm({
   onSubmit,
 }: BudgetFormProps) {
   const nextBudgetId = useNextId<Budget>(budgets);
-  const [formState, setFormState] = useState<BudgetFormData>({
-    id: budgetFormData?.id || nextBudgetId,
-    name: budgetFormData?.name || '',
-    limit: budgetFormData?.limit || 0,
-    categoryIds: budgetFormData?.categoryIds || [],
-    startDate: budgetFormData?.startDate || '',
-    endDate: budgetFormData?.endDate || '',
-  });
-  const [errorState, setErrorState] = useState({
-    limit: '',
-    name: '',
-    startDate: '',
-    endDate: '',
-  });
 
-  const validateForm = (): boolean => {
-    const errors = {
+  const validationRules = {
+    limit: (value: number) =>
+      !value || value <= 0 ? 'Limit must be greater than 0' : '',
+    name: (value: string) => (!value.trim() ? 'Name is required' : ''),
+    startDate: (value: string) => (!value ? 'Start date is required' : ''),
+    endDate: (value: string) => (!value ? 'End date is required' : ''),
+  };
+
+  const {
+    formState,
+    errorState,
+    handleChange,
+    handleSubmit,
+    setFormState,
+    setErrorState,
+  } = useFormManagement<BudgetFormData>({
+    initialFormState: {
+      id: budgetFormData?.id || nextBudgetId,
+      name: budgetFormData?.name || '',
+      limit: budgetFormData?.limit || 0,
+      categoryIds: budgetFormData?.categoryIds || [],
+      startDate: budgetFormData?.startDate || '',
+      endDate: budgetFormData?.endDate || '',
+    },
+    onSubmit,
+    initialErrorState: {
       limit: '',
       name: '',
       startDate: '',
       endDate: '',
-    };
-
-    if (!formState.limit || formState.limit <= 0) {
-      errors.limit = 'Limit must be greater than 0';
-    }
-
-    if (!formState.name.trim()) {
-      errors.name = 'Name is required';
-    }
-
-    if (!formState.startDate) {
-      errors.startDate = 'Start date is required';
-    }
-
-    if (!formState.endDate) {
-      errors.endDate = 'End date is required';
-    }
-
-    setErrorState(errors);
-    return !Object.values(errors).some((error) => error !== '');
-  };
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    if (errorState[name as keyof typeof errorState]) {
-      setErrorState((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
-    setFormState((prevState: BudgetFormData) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+    },
+    validationRules,
+  });
 
   const handleDatePickerChange = (
     field: keyof BudgetFormData,
@@ -101,12 +80,7 @@ export default function BudgetForm({
       [field]: value,
     }));
   };
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (validateForm() && onSubmit) {
-      onSubmit(formState);
-    }
-  };
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-4">
