@@ -1,7 +1,9 @@
 import Button from '../../ui/button/button';
 import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
-import BudgetForm, { type BudgetFormData } from '../../forms/budget-form/budget-form';
+import BudgetForm, {
+  type BudgetFormData,
+} from '../../forms/budget-form/budget-form';
 import type { Budget } from '../../../types/budget';
 import { formatDate } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
@@ -18,30 +20,30 @@ export default function BudgetManager() {
   const dispatch = useAppDispatch();
 
   const handleAdd = (data: BudgetFormData) => {
-      const newBudget: Budget = {
-        ...data,
-        id: Number(data.id),
-      };
-      dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-      console.log('Adding budget:', newBudget);
-      setIsModalOpen(false);
+    const newBudget: Budget = {
+      ...data,
+      id: Number(data.id),
     };
+    dispatch({ type: 'ADD_BUDGET', payload: newBudget });
+    console.log('Adding budget:', newBudget);
+    setIsModalOpen(false);
+  };
 
-    const handleEdit = (data: BudgetFormData) => {
-      const updatedBudget: Budget = {
-        ...data,
-        id: Number(data.id),
-        limit: Number(data.limit),
-      };
-      dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
-      console.log('Updating budget:', updatedBudget);
-      setBudgetToEdit(null);
+  const handleEdit = (data: BudgetFormData) => {
+    const updatedBudget: Budget = {
+      ...data,
+      id: Number(data.id),
+      limit: Number(data.limit),
     };
+    dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
+    console.log('Updating budget:', updatedBudget);
+    setBudgetToEdit(null);
+  };
 
-    const handleDeleteBudget = (budget: Budget) => {
-      dispatch({ type: 'REMOVE_BUDGET', payload: { id: Number(budget.id) } });
-      setBudgetToEdit(null);
-    };
+  const handleDeleteBudget = (budget: Budget) => {
+    dispatch({ type: 'REMOVE_BUDGET', payload: { id: Number(budget.id) } });
+    setBudgetToEdit(null);
+  };
   return (
     <>
       <div className="mb-6">

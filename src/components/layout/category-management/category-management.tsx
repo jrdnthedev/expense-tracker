@@ -4,15 +4,19 @@ import type { Category } from '../../../types/category';
 import Modal from '../../ui/modal/modal';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
-import CategoryForm, { type CategoryFormData } from '../../forms/category-form/category-form';
+import CategoryForm, {
+  type CategoryFormData,
+} from '../../forms/category-form/category-form';
 import { useState } from 'react';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();
   const dispatch = useAppDispatch();
   const nextId = useNextId<Category>(categories);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [previousSelectedCategory, setPreviousSelectedCategory] = 
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+  const [previousSelectedCategory, setPreviousSelectedCategory] =
     useState<Category | null>(categories[0] ?? null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -45,7 +49,9 @@ export default function CategoryManagement() {
   return (
     <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
       <div className="text-lg font-semibold text-gray-900 mb-2">
-        <h1 className="text-xl font-bold text-gray-800">➕ Manage Categories</h1>
+        <h1 className="text-xl font-bold text-gray-800">
+          ➕ Manage Categories
+        </h1>
       </div>
       <div className="text-sm text-gray-500 mb-6">
         Easily manage your expense categories. Select a category to edit or
@@ -81,7 +87,10 @@ export default function CategoryManagement() {
             label={category.name}
             icon={category.icon}
             selected={selectedCategory?.name === category.name}
-            onClick={() => {setSelectedCategory(category); setPreviousSelectedCategory(category);}}
+            onClick={() => {
+              setSelectedCategory(category);
+              setPreviousSelectedCategory(category);
+            }}
           />
         ))}
       </div>
@@ -94,7 +103,6 @@ export default function CategoryManagement() {
               categoryFormData={selectedCategory}
               onDelete={() => setIsConfirmModalOpen(true)}
             />
-            
           </>
         ) : (
           <p>Select a category to edit</p>
