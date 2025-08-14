@@ -39,11 +39,11 @@ export default function BudgetForm({
     endDate: budgetFormData?.endDate || '',
   });
   const [errorState, setErrorState] = useState({
-      limit: '',
-      name: '',
-      startDate: '',
-      endDate: '',
-    });
+    limit: '',
+    name: '',
+    startDate: '',
+    endDate: '',
+  });
 
   const validateForm = (): boolean => {
     const errors = {
@@ -71,7 +71,7 @@ export default function BudgetForm({
 
     setErrorState(errors);
     return !Object.values(errors).some((error) => error !== '');
-    };
+  };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     if (errorState[name as keyof typeof errorState]) {
@@ -121,10 +121,8 @@ export default function BudgetForm({
             placeholder="Enter budget name"
           />
           {errorState.name && (
-              <span className="text-red-500 text-sm mt-1">
-                {errorState.name}
-              </span>
-            )}
+            <span className="text-red-500 text-sm mt-1">{errorState.name}</span>
+          )}
         </div>
         <div>
           <label htmlFor="limit">Limit</label>
@@ -137,10 +135,10 @@ export default function BudgetForm({
             placeholder={`${currency.symbol}0.00`}
           />
           {errorState.limit && (
-              <span className="text-red-500 text-sm mt-1">
-                {errorState.limit}
-              </span>
-            )}
+            <span className="text-red-500 text-sm mt-1">
+              {errorState.limit}
+            </span>
+          )}
         </div>
         <div className="flex max-sm:flex-col gap-4">
           <div className="w-full flex-1">
