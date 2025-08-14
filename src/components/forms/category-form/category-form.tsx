@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Category } from '../../../types/category';
 import Input from '../../ui/input/input';
 import Button from '../../ui/button/button';
+import useFormManagement from '../../../hooks/form-management/form-management';
 
 export type CategoryFormData = {
   name: string;
@@ -24,15 +25,25 @@ export default function CategoryForm({
   categoryFormData,
 }: CategoryFormProps) {
   const nextId = useNextId<Category>(categories);
-  const [formState, setFormState] = useState<CategoryFormData>({
-    name: categoryFormData?.name || '',
-    icon: categoryFormData?.icon || '➕',
-    id: categoryFormData?.id || nextId,
-  });
-  const [errorState, setErrorState] = useState({
-    name: '',
-    icon: '',
-  });
+  const validationRules = {
+    name: (value: string) => (!value.trim() ? 'Name is required' : ''),
+    icon: (value: string) => (!value.trim() ? 'Icon is required' : ''),
+  };
+
+  const { formState, errorState, handleChange, handleSubmit, setFormState } =
+    useFormManagement<CategoryFormData>({
+      initialFormState: {
+        name: categoryFormData?.name || '',
+        icon: categoryFormData?.icon || '➕',
+        id: categoryFormData?.id || nextId,
+      },
+      onSubmit: onSubmit || (() => {}),
+      initialErrorState: {
+        name: '',
+        icon: '',
+      },
+      validationRules,
+    });
 
   useEffect(() => {
     if (categoryFormData) {
@@ -41,46 +52,8 @@ export default function CategoryForm({
         icon: categoryFormData.icon,
       });
     }
-  }, [categoryFormData]);
+  }, [categoryFormData, setFormState]);
 
-  const validateForm = (): boolean => {
-    const errors = {
-      name: '',
-      icon: '',
-    };
-
-    if (!formState.name.trim()) {
-      errors.name = 'Name is required';
-    }
-
-    if (!formState.icon.trim()) {
-      errors.icon = 'Icon is required';
-    }
-
-    setErrorState(errors);
-    return !Object.values(errors).some((error) => error !== '');
-  };
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    if (errorState[name as keyof typeof errorState]) {
-      setErrorState((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
-    setFormState((prevState: CategoryFormData) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (validateForm() && onSubmit) {
-      onSubmit(formState);
-    }
-  };
   return (
     <form onSubmit={handleSubmit}>
       <div className="category-form flex flex-col gap-2">
@@ -94,7 +67,9 @@ export default function CategoryForm({
             placeholder="Category Name"
             type="text"
           />
-          {errorState.name && <p className="text-red-500 text-sm mt-1">{errorState.name}</p>}
+          {errorState.name && (
+            <p className="text-red-500 text-sm mt-1">{errorState.name}</p>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="category-icon">Category Icon</label>
@@ -106,7 +81,9 @@ export default function CategoryForm({
             placeholder="Category Icon"
             type="text"
           />
-          {errorState.icon && <p className="text-red-500 text-sm mt-1">{errorState.icon}</p>}
+          {errorState.icon && (
+            <p className="text-red-500 text-sm mt-1">{errorState.icon}</p>
+          )}
         </div>
         <div className="flex justify-end gap-2">
           <Button onClick={() => void 0} type="submit" variant="primary">

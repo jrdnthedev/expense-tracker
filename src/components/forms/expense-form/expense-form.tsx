@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
 import Input from '../../ui/input/input';
@@ -8,6 +7,7 @@ import type { Budget } from '../../../types/budget';
 import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
+import useFormManagement from '../../../hooks/form-management/form-management';
 
 // Form data type
 export type ExpenseFormData = {
@@ -42,73 +42,43 @@ export default function ExpenseForm({
   onSubmit,
 }: ExpenseFormProps) {
   const id = useNextId<Expense>(expenses);
-  const [formState, setFormState] = useState<ExpenseFormData>({
-    id: expenseFormData?.id || id,
-    amount: expenseFormData?.amount || 1,
-    description: expenseFormData?.description || '',
-    categoryId: expenseFormData?.categoryId || 0,
-    category: expenseFormData?.category || '',
-    budgetId: expenseFormData?.budgetId || budgets?.[0]?.id || 0,
-    budget: expenseFormData?.budget || budgets?.[0]?.name || '',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  });
-  const [errorState, setErrorState] = useState({
-    amount: '',
-    description: '',
-    categoryId: '',
-    budgetId: '',
-  });
 
-  const validateForm = (): boolean => {
-    const errors = {
+  const validationRules = {
+    amount: (value: number) =>
+      !value || value <= 0 ? 'Amount must be greater than 0' : '',
+    description: (value: string) =>
+      !value.trim() ? 'Description is required' : '',
+    categoryId: (value: number) => (!value ? 'Please select a category' : ''),
+    budgetId: (value: number) => (!value ? 'Please select a budget' : ''),
+  };
+  const {
+    formState,
+    errorState,
+    handleChange,
+    handleSubmit,
+    setFormState,
+    setErrorState,
+  } = useFormManagement<ExpenseFormData>({
+    initialFormState: {
+      id: expenseFormData?.id || id,
+      amount: expenseFormData?.amount || 1,
+      description: expenseFormData?.description || '',
+      categoryId: expenseFormData?.categoryId || 0,
+      category: expenseFormData?.category || '',
+      budgetId: expenseFormData?.budgetId || budgets?.[0]?.id || 0,
+      budget: expenseFormData?.budget || budgets?.[0]?.name || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    onSubmit: onSubmit || (() => {}),
+    initialErrorState: {
       amount: '',
       description: '',
       categoryId: '',
       budgetId: '',
-    };
-
-    if (!formState.amount || formState.amount <= 0) {
-      errors.amount = 'Amount must be greater than 0';
-    }
-
-    if (!formState.description.trim()) {
-      errors.description = 'Description is required';
-    }
-
-    if (!formState.categoryId) {
-      errors.categoryId = 'Please select a category';
-    }
-
-    if (!formState.budgetId) {
-      errors.budgetId = 'Please select a budget';
-    }
-
-    setErrorState(errors);
-    return !Object.values(errors).some((error) => error !== '');
-  };
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-
-    if (errorState[name as keyof typeof errorState]) {
-      setErrorState((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
-    }
-    setFormState((prevState: ExpenseFormData) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (validateForm() && onSubmit) {
-      onSubmit(formState);
-    }
-  };
-
+    },
+    validationRules,
+  });
   const handleCategorySelect = (category: Category) => {
     if (errorState.categoryId) {
       setErrorState((prev) => ({
