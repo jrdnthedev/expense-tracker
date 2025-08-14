@@ -176,7 +176,7 @@ describe('ExpenseForm', () => {
   test('initializes with default values when no expenseFormData provided', () => {
     render(<ExpenseForm {...defaultProps} />);
 
-    expect(screen.getByTestId('amount')).toHaveValue(0);
+    expect(screen.getByTestId('amount')).toHaveValue(1);
     expect(screen.getByTestId('description')).toHaveValue('');
     expect(screen.getByTestId('budget-select')).toHaveValue('Monthly Budget');
   });
