@@ -1,8 +1,4 @@
 import { useState } from 'react';
-import { useNextId } from '../nextId/next-id';
-import type { Category } from '../../types/category';
-import type { Budget } from '../../types/budget';
-import type { Expense } from '../../types/expense';
 
 interface FormManagementProps<T> {
   initialFormState: T;
@@ -11,19 +7,14 @@ interface FormManagementProps<T> {
   validationRules?: {
     [K in keyof T]?: (value: T[K]) => string;
   };
-  type?: Expense[] | Budget[] | Category[]; // Type of the form, e.g., 'expense', 'budget', 'category'
 }
 
 export default function useFormManagement<T>({
   initialFormState,
   onSubmit,
   initialErrorState,
-  type,
   validationRules = {},
 }: FormManagementProps<T>) {
-  const id = useNextId<Expense | Budget | Category>(
-    type as (Expense | Budget | Category)[]
-  );
   const [formState, setFormState] = useState<T>(initialFormState);
   const [errorState, setErrorState] =
     useState<Partial<Record<keyof T, string>>>(initialErrorState);
@@ -68,7 +59,6 @@ export default function useFormManagement<T>({
   return {
     formState,
     errorState,
-    id,
     handleChange,
     validateForm,
     handleSubmit,
