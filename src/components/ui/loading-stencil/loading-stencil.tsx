@@ -3,13 +3,11 @@ export default function LoadingStencil() {
   return (
     <div className="p-4 bg-gray-100 min-h-screen">
       <div className="max-w-xl mx-auto">
-        {/* Header Stencil */}
         <div className="mb-8">
           <div className="h-8 w-48 bg-gray-200 animate-pulse rounded"></div>
           <div className="h-4 w-96 bg-gray-200 animate-pulse rounded mt-4"></div>
         </div>
         
-        {/* Card Stencils */}
         <div className="space-y-4">
           {[...Array(3)].map((_, index) => (
             <div 
