@@ -98,7 +98,7 @@ export default function ExpenseList() {
         <>
           {categories.length > 0 ? (
             <>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="w-auto">
                   <Button
                     onClick={() => setIsAddExpenseModalOpen(true)}
@@ -158,7 +158,7 @@ export default function ExpenseList() {
                         return (
                           <li
                             key={expense.id}
-                            className="flex items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0"
+                            className="flex-col flex sm:flex-row sm:items-center justify-between py-2 border-b border-gray-200 last-of-type:border-0 gap-2"
                           >
                             <div className="flex items-center">
                               <div>
