@@ -50,10 +50,10 @@ export default function BudgetManager() {
         <h1 className="text-2xl font-bold flex-1">🎯 Budget Manager</h1>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-4">
         {categories.length > 0 ? (
           <>
-            <div className="flex items-center justify-between mb-6 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <p className="text-gray-600">
                 Manage your budget effectively with our intuitive tools.
               </p>
@@ -132,7 +132,7 @@ export default function BudgetManager() {
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                           <div className="flex gap-2">
                             <h2 className="text-lg font-semibold text-gray-900">
                               {budget.name}
@@ -163,7 +163,7 @@ export default function BudgetManager() {
                             }}
                           ></div>
                         </div>
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                           <p className="text-sm text-gray-600">
                             Remaining: {formatAmount(remainingAmount, currency)}
                           </p>
