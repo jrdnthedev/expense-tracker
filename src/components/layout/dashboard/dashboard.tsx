@@ -51,10 +51,9 @@ export default function Dashboard() {
             {recentExpenses.map((expense: ExpenseList) => (
               <li
                 key={expense.id}
-                className="flex items-center justify-between mb-2 border-b border-gray-200 pb-2"
+                className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-200 pb-2"
               >
               <div className="flex items-center gap-2">
-                {/* <span className="text-xl">{expense.icon}</span> */}
                 <div className="flex flex-col">
                   <span className="font-medium">{expense.description}</span>
                   <span className="text-gray-600">

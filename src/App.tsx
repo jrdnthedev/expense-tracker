@@ -1,9 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/app-state-context';
 import Landing from './components/layout/landing/landing';
 import Onboarding from './components/layout/onboarding/onboarding';
 import { LocalStorage } from './utils/local-storage';
-import { navLinks } from './constants/data';
 import {
   protectedRoutes,
   type ProtectedRoute,
@@ -14,6 +13,7 @@ import { useDB } from './hooks/db/useDB';
 import LoadingStencil from './components/ui/loading-stencil/loading-stencil';
 import { ErrorScreen } from './components/ui/error-screen/error-screen';
 import { ErrorBoundary } from 'react-error-boundary';
+import Header from './components/layout/header/header';
 
 function ErrorFallback({
   error,
@@ -63,21 +63,9 @@ function App() {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <AppProvider>
-        <div className="p-4 bg-gray-100 min-h-screen">
+        <div className="bg-gray-100 flex flex-col gap-2 min-h-screen p-4">
           <Router>
-            <nav>
-              {onboardingComplete &&
-                navLinks.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-        active:outline-none"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-            </nav>
+            <Header onboardingComplete={onboardingComplete} />
             <main>
               <Suspense fallback={<LoadingStencil />}>
                 <Routes>
