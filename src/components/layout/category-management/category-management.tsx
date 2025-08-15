@@ -47,18 +47,18 @@ export default function CategoryManagement() {
     console.log('Deleting Category:', selectedCategory);
   };
   return (
-    <div className="border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
-      <div className="text-lg font-semibold text-gray-900 mb-2">
+    <div className="flex flex-col gap-4 border border-gray-900/10 max-w-xl mx-auto bg-white rounded-lg shadow-md p-8">
+      <div className="text-lg font-semibold text-gray-900">
         <h1 className="text-xl font-bold text-gray-800">
           ➕ Manage Categories
         </h1>
       </div>
-      <div className="text-sm text-gray-500 mb-6">
+      <div className="text-sm text-gray-500">
         Easily manage your expense categories. Select a category to edit or
         delete.
       </div>
-      <div className="flex items-center justify-between mb-6 gap-4">
-        <h2 className="text-xl font-bold text-gray-800 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-xl font-bold text-gray-800">
           Expense Categories
         </h2>
         <span className="w-auto">
@@ -80,7 +80,7 @@ export default function CategoryManagement() {
           )}
         </span>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {categories.map((category: Category) => (
           <CardButton
             key={category.id}
