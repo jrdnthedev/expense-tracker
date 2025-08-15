@@ -12,6 +12,7 @@ import EmptyState from '../../ui/empty-state/empty-state';
 import Badge from '../../ui/badge/badge';
 import { useState } from 'react';
 import { calculateSpentAmount } from '../../../utils/budget';
+import ProgressBar from '../../ui/progress-bar/progress-bar';
 
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
@@ -66,7 +67,7 @@ export default function BudgetManager() {
                     onClose={() => setIsModalOpen(false)}
                     isOpen={isModalOpen}
                   >
-                    <h1 className="text-2xl font-bold">Add Budget</h1>
+                    <h1 className="text-2xl font-bold">Add Budget Form</h1>
                     <div className="flex flex-col gap-4">
                       <BudgetForm
                         currency={currency}
@@ -151,18 +152,7 @@ export default function BudgetManager() {
                             {formatAmount(Number(budget.limit), currency)}
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                          <div
-                            className={`h-2.5 rounded-full ${
-                              percentageUsed > 100
-                                ? 'bg-red-600'
-                                : 'bg-blue-600'
-                            }`}
-                            style={{
-                              width: `${Math.min(percentageUsed, 100)}%`,
-                            }}
-                          ></div>
-                        </div>
+                        <ProgressBar percentageUsed={percentageUsed} />
                         <div className="flex items-center justify-between">
                           <p className="text-sm text-gray-600">
                             Remaining: {formatAmount(remainingAmount, currency)}
@@ -191,7 +181,7 @@ export default function BudgetManager() {
         )}
         {budgetToEdit && (
           <Modal isOpen={!!budgetToEdit} onClose={() => setBudgetToEdit(null)}>
-            <h1 className="text-2xl font-bold">Edit Budget</h1>
+            <h1 className="text-2xl font-bold">Edit Budget Form</h1>
             <div className="flex flex-col gap-4">
               <BudgetForm
                 budgetFormData={budgetToEdit}
