@@ -16,6 +16,7 @@ export type State = {
   budgets: Budget[];
   categories: Category[];
   expenses: Expense[];
+  theme: 'light' | 'dark';
 };
 
 export type Action =
@@ -29,7 +30,8 @@ export type Action =
   | { type: 'ADD_CATEGORY'; payload: Category }
   | { type: 'UPDATE_CATEGORY'; payload: Category }
   | { type: 'REMOVE_CATEGORY'; payload: { id: number } }
-  | { type: 'SET_DEFAULT_CATEGORY'; payload: { categoryId: number } };
+  | { type: 'SET_DEFAULT_CATEGORY'; payload: { categoryId: number } }
+  | { type: 'SET_THEME'; payload: 'light' | 'dark' };
 
 
 
@@ -82,6 +84,11 @@ function appReducer(state: State, action: Action): State {
       return {
         ...state,
         budgets: removeBudget(state.budgets, action.payload.id),
+      };
+    case 'SET_THEME':
+      return {
+        ...state,
+        theme: action.payload,
       };
     default:
       return state;

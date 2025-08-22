@@ -75,7 +75,7 @@ export default function AnalyticsDashboard() {
   return (
     <div className="analytics-dashboard-container">
       <h1 className="text-2xl font-bold mb-4">📊 Analytics Dashboard</h1>
-      <p className="text-gray-600 mb-6">
+      <p className="text-gray-600 mb-6 dark:text-gray-400">
         This section provides insights into your spending patterns and financial
         health.
       </p>
@@ -84,7 +84,7 @@ export default function AnalyticsDashboard() {
           <div className="mb-4">
             <Card>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
                   Spending Overview
                 </h2>
                 <div className="w-40">
@@ -105,7 +105,7 @@ export default function AnalyticsDashboard() {
           </div>
           <div className="flex gap-4 max-sm:flex-col">
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
                 Category Breakdown
               </h2>
               <CustomPieChart
@@ -115,7 +115,7 @@ export default function AnalyticsDashboard() {
               />
             </Card>
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
                 Monthly Trends
               </h2>
               <CustomBarChart

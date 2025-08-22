@@ -54,7 +54,7 @@ export default function BudgetManager() {
         {categories.length > 0 ? (
           <>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 Manage your budget effectively with our intuitive tools.
               </p>
               <span className="w-auto">
@@ -134,7 +134,7 @@ export default function BudgetManager() {
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                           <div className="flex gap-2">
-                            <h2 className="text-lg font-semibold text-gray-900">
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                               {budget.name}
                             </h2>
                             {!isCurrentOrPast && (
@@ -153,10 +153,10 @@ export default function BudgetManager() {
                         </div>
                         <ProgressBar percentageUsed={percentageUsed} />
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-100">
                             Remaining: {formatAmount(remainingAmount, currency)}
                           </p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-100">
                             {formatDate(budget.startDate)} -{' '}
                             {formatDate(budget.endDate)}
                           </p>

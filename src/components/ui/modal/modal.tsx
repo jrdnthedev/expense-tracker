@@ -12,7 +12,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        className="absolute inset-0 bg-gray-800 opacity-20"
+        className="absolute inset-0 bg-gray-800 dark:bg-gray-900 opacity-20 dark:opacity-40"
         onClick={onClose}
         aria-hidden="true"
         data-testid="modal-backdrop"
@@ -29,7 +29,7 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
           >
             <button
               onClick={onClose}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 activate:ring-blue-500 cursor-pointer"
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 activate:ring-blue-500 cursor-pointer"
               aria-label="Close modal"
             >
               <svg

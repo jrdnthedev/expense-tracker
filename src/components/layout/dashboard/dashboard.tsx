@@ -14,11 +14,11 @@ export default function Dashboard() {
   const totalRemainingBudget = calculateAllRemainingBudgets(budgets, expenses);
   return (
     <div className="dashboard-container">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4 dark:text-gray-100">Dashboard</h1>
       <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <li>
           <Card>
-            <h2 className="text-sm font-semibold text-gray-900 mb-2">
+            <h2 className="text-sm font-semibold text-gray-900 mb-2 dark:text-gray-100">
               This month
             </h2>
             <p className="text-xl text-green-700 font-semibold">{formatAmount(monthlyExpenses, currency)}</p>
@@ -26,7 +26,7 @@ export default function Dashboard() {
         </li>
         <li>
           <Card>
-            <h2 className="text-sm font-semibold text-gray-900 mb-2">
+            <h2 className="text-sm font-semibold text-gray-900 mb-2 dark:text-gray-100">
               Budget left
             </h2>
             <p className={`text-xl font-semibold ${totalRemainingBudget > 0 ? 'text-green-700' : 'text-red-700'}`}>{formatAmount(totalRemainingBudget, currency)}</p>
@@ -34,7 +34,7 @@ export default function Dashboard() {
         </li>
         <li>
           <Card>
-            <h2 className="text-sm font-semibold text-gray-900 mb-2">
+            <h2 className="text-sm font-semibold text-gray-900 mb-2 dark:text-gray-100">
               Transactions
             </h2>
             <p className="text-xl text-blue-700 font-semibold">{getTotalTransactions(expenses)}</p>
@@ -43,7 +43,7 @@ export default function Dashboard() {
       </ul>
 
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">
           Recent Expenses
         </h2>
         {recentExpenses.length > 0 ? (
@@ -56,7 +56,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 <div className="flex flex-col">
                   <span className="font-medium">{expense.description}</span>
-                  <span className="text-gray-600">
+                  <span className="text-gray-600 dark:text-gray-400">
                     {new Date(expense.createdAt).toLocaleDateString()}
                   </span>
                 </div>

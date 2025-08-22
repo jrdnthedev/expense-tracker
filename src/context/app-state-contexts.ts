@@ -6,6 +6,7 @@ import { CURRENCIES } from "../types/currency";
 export const initialState: State = {
   currency: CURRENCIES.USD,
   defaultCategory: 1,
+  theme: 'light',
   budgets: [
     // {
     //   id: 1,

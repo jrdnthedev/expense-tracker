@@ -4,6 +4,9 @@ import Select from '../../ui/select/select';
 import { CURRENCIES, type Currency } from '../../../types/currency';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import type { Category } from '../../../types/category';
+import ThemeToggle from '../../ui/theme-toggle/theme-toggle';
+import Button from '../../ui/button/button';
+import DataManager from '../../ui/data-manager/data-manager';
 
 export default function Settings() {
   const {
@@ -13,6 +16,7 @@ export default function Settings() {
   } = useAppState();
   const [settingCurrency, setCurrency] = useState<Currency>(currency);
   const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
+  const [isDataManagerOpen, setIsDataManagerOpen] = useState(false);
   const dispatch = useAppDispatch();
 
   const handleCurrencyChange = (currency: Currency) => {
@@ -29,22 +33,22 @@ export default function Settings() {
   
   const currencyOptions = Object.values(CURRENCIES);
   return (
-    <div className="settings-container">
-      <h1 className="text-2xl font-bold mb-4">⚙️ Settings</h1>
-      <p className="text-gray-600 mb-6">
+    <div className="settings-container flex flex-col gap-4">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">⚙️ Settings</h1>
+      <p className="text-gray-600 dark:text-gray-400">
         Manage your application settings and preferences here.
       </p>
-      <div className="mb-4">
+      <div>
         <Card>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
             💰 General Settings
           </h2>
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 justify-between border-b border-gray-200 pb-2">
+            <div className="flex items-center gap-2 justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
               <div className="flex items-center gap-2">
                 <div className="flex flex-col">
-                  <span className="font-medium">Currency</span>
-                  <span className="text-gray-600">
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Currency</span>
+                  <span className="text-gray-600 dark:text-gray-400">
                     Display currency for all amounts
                   </span>
                 </div>
@@ -65,11 +69,11 @@ export default function Settings() {
                 />
               </div>
             </div>
-            <div className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2 justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
               <div className="flex items-center gap-2">
                 <div className="flex flex-col">
-                  <span className="font-medium">Default Category</span>
-                  <span className="text-gray-600">
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Default Category</span>
+                  <span className="text-gray-600 dark:text-gray-400">
                     Auto-select category for new expenses
                   </span>
                 </div>
@@ -87,24 +91,66 @@ export default function Settings() {
                     getOptionId={(cat: Category) => cat.id}
                   />
                 ) : (
-                  <span className="text-gray-600">No categories available</span>
+                  <span className="text-gray-600 dark:text-gray-400">No categories available</span>
                 )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col">
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Theme</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Switch between light and dark mode
+                  </span>
+                </div>
+              </div>
+              <div className="w-auto">
+                <ThemeToggle />
               </div>
             </div>
           </div>
         </Card>
       </div>
       <Card>
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">
-          🔔 Notifications
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          💾 Data Management
         </h2>
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 justify-between pb-2">
-            <div className="text-gray-600 flex flex-col gap-4">
+            <div className="flex flex-col">
+              <span className="font-medium text-gray-900 dark:text-gray-100">Backup & Restore</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                Export your data or import from backup files
+              </span>
+            </div>
+            <div className="w-auto">
+              <Button
+                onClick={() => setIsDataManagerOpen(true)}
+                variant="primary"
+              >
+                Manage Data
+              </Button>
             </div>
           </div>
         </div>
       </Card>
+
+      <Card>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          🔔 Notifications
+        </h2>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 justify-between pb-2">
+            <div className="text-gray-600 dark:text-gray-400 flex flex-col gap-4">
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <DataManager
+        isOpen={isDataManagerOpen}
+        onClose={() => setIsDataManagerOpen(false)}
+      />
     </div>
   );
 }
