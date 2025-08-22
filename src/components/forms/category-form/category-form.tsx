@@ -4,12 +4,7 @@ import type { Category } from '../../../types/category';
 import Input from '../../ui/input/input';
 import Button from '../../ui/button/button';
 import useFormManagement from '../../../hooks/form-management/form-management';
-
-export type CategoryFormData = {
-  name: string;
-  icon: string;
-  id?: number;
-};
+import type { CategoryFormData } from '../../../constants/form-data';
 
 interface CategoryFormProps {
   onSubmit?: (data: CategoryFormData) => void;

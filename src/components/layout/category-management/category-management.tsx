@@ -4,10 +4,9 @@ import type { Category } from '../../../types/category';
 import Modal from '../../ui/modal/modal';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { useNextId } from '../../../hooks/nextId/next-id';
-import CategoryForm, {
-  type CategoryFormData,
-} from '../../forms/category-form/category-form';
+import CategoryForm from '../../forms/category-form/category-form';
 import { useState } from 'react';
+import type { CategoryFormData } from '../../../constants/form-data';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();

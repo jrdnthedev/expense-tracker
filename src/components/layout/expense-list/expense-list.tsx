@@ -6,9 +6,7 @@ import type { Category } from '../../../types/category';
 import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
 import Modal from '../../ui/modal/modal';
-import ExpenseForm, {
-  type ExpenseFormData,
-} from '../../forms/expense-form/expense-form';
+import ExpenseForm from '../../forms/expense-form/expense-form';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { formatAmount } from '../../../utils/currency';
 import { formatDate } from '../../../utils/validators';
@@ -16,6 +14,7 @@ import EmptyState from '../../ui/empty-state/empty-state';
 import Input from '../../ui/input/input';
 import { getBudgetById } from '../../../utils/state';
 import Badge from '../../ui/badge/badge';
+import type { ExpenseFormData } from '../../../constants/form-data';
 
 function DeleteConfirmationModal({
   expense,

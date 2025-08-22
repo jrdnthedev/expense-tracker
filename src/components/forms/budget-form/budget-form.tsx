@@ -5,15 +5,7 @@ import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import type { Budget } from '../../../types/budget';
 import useFormManagement from '../../../hooks/form-management/form-management';
-
-export type BudgetFormData = {
-  id?: number;
-  limit: number;
-  name: string;
-  categoryIds: number[];
-  startDate: string;
-  endDate: string;
-};
+import type { BudgetFormData } from '../../../constants/form-data';
 
 interface BudgetFormProps {
   onCancel: () => void;
