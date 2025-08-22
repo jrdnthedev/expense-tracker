@@ -14,6 +14,7 @@ import LoadingStencil from './components/ui/loading-stencil/loading-stencil';
 import { ErrorScreen } from './components/ui/error-screen/error-screen';
 import { ErrorBoundary } from 'react-error-boundary';
 import Header from './components/layout/header/header';
+import { useTheme } from './hooks/theme/useTheme';
 
 function ErrorFallback({
   error,
@@ -31,11 +32,12 @@ function ErrorFallback({
   );
 }
 
-function App() {
+function AppContent() {
   const [onboardingComplete, setOnboardingComplete] = useState(
     () => LocalStorage.get<boolean>('onboardingComplete') === true
   );
   const { isDBReady, dbError } = useDB();
+  const { theme } = useTheme();
   useEffect(() => {
     const handler = () => {
       setOnboardingComplete(
@@ -61,42 +63,65 @@ function App() {
     return <LoadingStencil />;
   }
   return (
+    <div className={`bg-gray-100 dark:bg-gray-900 flex flex-col gap-2 min-h-screen p-4 transition-colors ${theme === 'dark' ? 'dark' : ''}`}>
+      <Router>
+        <Header onboardingComplete={onboardingComplete} />
+        <main>
+          <Suspense fallback={<LoadingStencil />}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route
+                path="/onboarding"
+                element={
+                  <Onboarding
+                    setOnboardingComplete={setOnboardingComplete}
+                  />
+                }
+              />
+              {protectedRoutes.map((route: ProtectedRoute) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={
+                    <RequireOnboarding
+                      onboardingComplete={onboardingComplete}
+                    >
+                      {route.element}
+                    </RequireOnboarding>
+                  }
+                />
+              ))}
+              <Route path="*" element={<div className="text-gray-900 dark:text-gray-100">404 Not Found</div>} />
+            </Routes>
+          </Suspense>
+        </main>
+      </Router>
+    </div>
+  );
+}
+
+function App() {
+  const { isDBReady, dbError } = useDB();
+
+  if (dbError) {
+    return (
+      <ErrorScreen
+        title="Database Error"
+        message={dbError}
+        actionLabel="Reload Page"
+        onAction={() => window.location.reload()}
+      />
+    );
+  }
+
+  if (!isDBReady) {
+    return <LoadingStencil />;
+  }
+
+  return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <AppProvider>
-        <div className="bg-gray-100 flex flex-col gap-2 min-h-screen p-4">
-          <Router>
-            <Header onboardingComplete={onboardingComplete} />
-            <main>
-              <Suspense fallback={<LoadingStencil />}>
-                <Routes>
-                  <Route path="/" element={<Landing />} />
-                  <Route
-                    path="/onboarding"
-                    element={
-                      <Onboarding
-                        setOnboardingComplete={setOnboardingComplete}
-                      />
-                    }
-                  />
-                  {protectedRoutes.map((route: ProtectedRoute) => (
-                    <Route
-                      key={route.path}
-                      path={route.path}
-                      element={
-                        <RequireOnboarding
-                          onboardingComplete={onboardingComplete}
-                        >
-                          {route.element}
-                        </RequireOnboarding>
-                      }
-                    />
-                  ))}
-                  <Route path="*" element={<div>404 Not Found</div>} />
-                </Routes>
-              </Suspense>
-            </main>
-          </Router>
-        </div>
+        <AppContent />
       </AppProvider>
     </ErrorBoundary>
   );
