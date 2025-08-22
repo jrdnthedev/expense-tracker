@@ -3,21 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import Card from '../../ui/card/card';
 import CardButton from '../../ui/card-btn/card-btn';
 import type { Category } from '../../../types/category';
-import ExpenseForm, {
-  type ExpenseFormData,
-} from '../../forms/expense-form/expense-form';
+import ExpenseForm from '../../forms/expense-form/expense-form';
 import Dashboard from '../dashboard/dashboard';
-import BudgetForm, {
-  type BudgetFormData,
-} from '../../forms/budget-form/budget-form';
+import BudgetForm from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
 import type { Budget } from '../../../types/budget';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
 import { LocalStorage } from '../../../utils/local-storage';
-import CategoryForm, {
-  type CategoryFormData,
-} from '../../forms/category-form/category-form';
+import CategoryForm from '../../forms/category-form/category-form';
 import type { Expense } from '../../../types/expense';
+import type { BudgetFormData, CategoryFormData, ExpenseFormData } from '../../../constants/form-data';
 
 export default function Onboarding({
   setOnboardingComplete,

@@ -1,9 +1,7 @@
 import Button from '../../ui/button/button';
 import Card from '../../ui/card/card';
 import Modal from '../../ui/modal/modal';
-import BudgetForm, {
-  type BudgetFormData,
-} from '../../forms/budget-form/budget-form';
+import BudgetForm from '../../forms/budget-form/budget-form';
 import type { Budget } from '../../../types/budget';
 import { formatDate } from '../../../utils/validators';
 import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
@@ -13,6 +11,7 @@ import Badge from '../../ui/badge/badge';
 import { useState } from 'react';
 import { calculateSpentAmount } from '../../../utils/budget';
 import ProgressBar from '../../ui/progress-bar/progress-bar';
+import type { BudgetFormData } from '../../../constants/form-data';
 
 export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();

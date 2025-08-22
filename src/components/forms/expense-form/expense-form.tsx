@@ -8,19 +8,7 @@ import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import useFormManagement from '../../../hooks/form-management/form-management';
-
-// Form data type
-export type ExpenseFormData = {
-  id: number;
-  amount: number;
-  description: string;
-  categoryId: number;
-  category: string;
-  budgetId: number;
-  budget: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import type { ExpenseFormData } from '../../../constants/form-data';
 
 interface ExpenseFormProps {
   onSubmit?: (data: ExpenseFormData) => void;
