@@ -8,7 +8,14 @@ import {
   AppStateContext,
   initialState,
 } from './app-state-contexts';
-import { removeBudget, removeCategory, removeExpenseFromList, updateBudget, updateCategory, updateExpense } from '../utils/state';
+import {
+  removeBudget,
+  removeCategory,
+  removeExpenseFromList,
+  updateBudget,
+  updateCategory,
+  updateExpense
+} from '../utils/state';
 
 export type State = {
   currency: Currency;
@@ -35,68 +42,88 @@ export type Action =
 
 
 
+// Action handlers for better organization
+const actionHandlers = {
+  SET_CURRENCY: (state: State, payload: Currency): State => ({
+    ...state,
+    currency: payload
+  }),
+
+  SET_DEFAULT_CATEGORY: (state: State, payload: { categoryId: number }): State => ({
+    ...state,
+    defaultCategory: payload.categoryId
+  }),
+
+  ADD_CATEGORY: (state: State, payload: Category): State => ({
+    ...state,
+    categories: [...state.categories, payload]
+  }),
+
+  REMOVE_CATEGORY: (state: State, payload: { id: number }): State => ({
+    ...state,
+    categories: removeCategory(state.categories, payload.id)
+  }),
+
+  UPDATE_CATEGORY: (state: State, payload: Category): State => ({
+    ...state,
+    categories: updateCategory(state.categories, payload)
+  }),
+
+  ADD_EXPENSE: (state: State, payload: Expense): State => ({
+    ...state,
+    expenses: [...state.expenses, payload]
+  }),
+
+  UPDATE_EXPENSE: (state: State, payload: Expense): State => ({
+    ...state,
+    expenses: updateExpense(state.expenses, payload)
+  }),
+
+  REMOVE_EXPENSE: (state: State, payload: { id: number }): State => ({
+    ...state,
+    expenses: removeExpenseFromList(state.expenses, payload.id)
+  }),
+
+  ADD_BUDGET: (state: State, payload: Budget): State => ({
+    ...state,
+    budgets: [...state.budgets, payload]
+  }),
+
+  UPDATE_BUDGET: (state: State, payload: Budget): State => ({
+    ...state,
+    budgets: updateBudget(state.budgets, payload)
+  }),
+
+  REMOVE_BUDGET: (state: State, payload: { id: number }): State => ({
+    ...state,
+    budgets: removeBudget(state.budgets, payload.id)
+  }),
+
+  SET_THEME: (state: State, payload: 'light' | 'dark'): State => ({
+    ...state,
+    theme: payload
+  })
+};
+
 function appReducer(state: State, action: Action): State {
-  switch (action.type) {
-    case 'SET_CURRENCY':
-      return { ...state, currency: action.payload };
-    case 'SET_DEFAULT_CATEGORY':
-      return { ...state, defaultCategory: action.payload.categoryId };
-    case 'ADD_CATEGORY':
-      return { ...state, categories: [...state.categories, action.payload] };
-    case 'REMOVE_CATEGORY':
-      return {
-        ...state,
-        categories: removeCategory(state.categories, action.payload.id),
-      };
-    case 'UPDATE_CATEGORY':
-      return {
-        ...state,
-        categories: updateCategory(state.categories, action.payload),
-      };
-    case 'ADD_EXPENSE': {
-      return {
-        ...state,
-        expenses: [...state.expenses, action.payload],
-      };
-    }
-    case 'UPDATE_EXPENSE':
-      return {
-        ...state,
-        expenses: updateExpense(state.expenses, action.payload),
-      };
-    case 'REMOVE_EXPENSE': {
-      return {
-        ...state,
-        expenses: removeExpenseFromList(state.expenses, action.payload.id),
-      };
-    }
-    case 'ADD_BUDGET':
-      return {
-        ...state,
-        budgets: [...state.budgets, action.payload],
-      };
-    case 'UPDATE_BUDGET':
-      return {
-        ...state,
-        budgets: updateBudget(state.budgets, action.payload),
-      };
-    case 'REMOVE_BUDGET':
-      return {
-        ...state,
-        budgets: removeBudget(state.budgets, action.payload.id),
-      };
-    case 'SET_THEME':
-      return {
-        ...state,
-        theme: action.payload,
-      };
-    default:
-      return state;
+  const handler = actionHandlers[action.type];
+  if (handler) {
+    return handler(state, action.payload as never);
   }
+  return state;
 }
 
-export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+interface AppProviderProps {
+  children: React.ReactNode;
+}
+
+/**
+ * App Provider component that wraps the application with state management context
+ * Provides access to application state and dispatch function throughout the component tree
+ */
+export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
