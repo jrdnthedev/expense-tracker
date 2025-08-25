@@ -4,15 +4,17 @@ import type { Category } from '../types/category';
 import type { Currency } from '../types/currency';
 import type { ExportData } from './data-export';
 
+export interface ImportData {
+  expenses?: Expense[];
+  budgets?: Budget[];
+  categories?: Category[];
+  currency?: Currency;
+}
+
 export interface ImportResult {
   success: boolean;
   message: string;
-  data?: {
-    expenses?: Expense[];
-    budgets?: Budget[];
-    categories?: Category[];
-    currency?: Currency;
-  };
+  data?: ImportData;
   errors?: string[];
 }
 
@@ -20,6 +22,11 @@ export interface ImportOptions {
   mergeMode: 'replace' | 'merge';
   skipDuplicates: boolean;
 }
+
+// Constants for better maintainability
+const REQUIRED_CSV_HEADERS = ['Date', 'Description', 'Amount', 'Category'] as const;
+const DEFAULT_CATEGORY_ICON = '📦';
+const SUPPORTED_VERSION = '1.0';
 
 export const DataImport = {
   /**
@@ -61,39 +68,17 @@ export const DataImport = {
     try {
       const lines = content.trim().split('\n');
       if (lines.length < 2) {
-        return {
-          success: false,
-          message: 'CSV file must contain at least a header and one data row'
-        };
+        return this.createErrorResult('CSV file must contain at least a header and one data row');
       }
 
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-      const expenses: Expense[] = [];
-      const errors: string[] = [];
+      const headers = this.parseCSVHeaders(lines[0]);
+      const missingHeaders = this.validateHeaders(headers);
 
-      // Expected headers
-      const requiredHeaders = ['Date', 'Description', 'Amount', 'Category'];
-      const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
-      
       if (missingHeaders.length > 0) {
-        return {
-          success: false,
-          message: `Missing required headers: ${missingHeaders.join(', ')}`
-        };
+        return this.createErrorResult(`Missing required headers: ${missingHeaders.join(', ')}`);
       }
 
-      for (let i = 1; i < lines.length; i++) {
-        try {
-          const values = this.parseCSVLine(lines[i]);
-          const expense = this.parseExpenseFromCSV(values, headers, existingCategories);
-          
-          if (expense) {
-            expenses.push(expense);
-          }
-        } catch (error) {
-          errors.push(`Line ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-      }
+      const { expenses, errors } = this.parseExpenseRows(lines.slice(1), headers, existingCategories);
 
       return {
         success: expenses.length > 0,
@@ -102,12 +87,60 @@ export const DataImport = {
         errors: errors.length > 0 ? errors : undefined
       };
     } catch (error) {
-      return {
-        success: false,
-        message: 'Failed to parse CSV',
-        errors: [error instanceof Error ? error.message : 'Unknown parsing error']
-      };
+      return this.createErrorResult('Failed to parse CSV', [error instanceof Error ? error.message : 'Unknown parsing error']);
     }
+  },
+
+  /**
+   * Helper method to create error results
+   */
+  createErrorResult(message: string, errors?: string[]): ImportResult {
+    return {
+      success: false,
+      message,
+      errors
+    };
+  },
+
+  /**
+   * Parse CSV headers
+   */
+  parseCSVHeaders(headerLine: string): string[] {
+    return headerLine.split(',').map(h => h.trim().replace(/"/g, ''));
+  },
+
+  /**
+   * Validate required headers are present
+   */
+  validateHeaders(headers: string[]): string[] {
+    return REQUIRED_CSV_HEADERS.filter(h => !headers.includes(h));
+  },
+
+  /**
+   * Parse expense rows from CSV
+   */
+  parseExpenseRows(
+    dataLines: string[],
+    headers: string[],
+    existingCategories: Category[]
+  ): { expenses: Expense[]; errors: string[] } {
+    const expenses: Expense[] = [];
+    const errors: string[] = [];
+
+    for (let i = 0; i < dataLines.length; i++) {
+      try {
+        const values = this.parseCSVLine(dataLines[i]);
+        const expense = this.parseExpenseFromCSV(values, headers, existingCategories);
+
+        if (expense) {
+          expenses.push(expense);
+        }
+      } catch (error) {
+        errors.push(`Line ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+
+    return { expenses, errors };
   },
 
   /**
@@ -182,7 +215,7 @@ export const DataImport = {
       category = {
         id: Date.now() + Math.random(), // Temporary ID
         name: categoryName,
-        icon: '📦' // Default icon
+        icon: DEFAULT_CATEGORY_ICON
       };
     }
 
@@ -219,7 +252,7 @@ export const DataImport = {
     const typedData = data as Record<string, unknown>;
 
     // Check version compatibility
-    if (typedData.version && typeof typedData.version === 'string' && typedData.version !== '1.0') {
+    if (typedData.version && typeof typedData.version === 'string' && typedData.version !== SUPPORTED_VERSION) {
       errors.push(`Unsupported version: ${typedData.version}`);
     }
 
@@ -276,14 +309,14 @@ export const DataImport = {
    * Merge imported data with existing data
    */
   mergeData(
-    imported: ImportResult['data'],
+    imported: ImportData | undefined,
     existing: {
       expenses: Expense[];
       budgets: Budget[];
       categories: Category[];
     },
     options: ImportOptions
-  ): ImportResult['data'] {
+  ): ImportData {
     if (!imported) return existing;
 
     if (options.mergeMode === 'replace') {
@@ -303,53 +336,77 @@ export const DataImport = {
       currency: imported.currency
     };
 
-    // Merge categories (avoid duplicates by name)
-    if (imported.categories) {
-      imported.categories.forEach(importedCat => {
-        const exists = result.categories.some(cat => 
-          cat.name.toLowerCase() === importedCat.name.toLowerCase()
-        );
-        if (!exists) {
-          result.categories.push({
-            ...importedCat,
-            id: Date.now() + Math.random() // Generate new ID
-          });
-        }
-      });
-    }
-
-    // Merge budgets (avoid duplicates by name)
-    if (imported.budgets) {
-      imported.budgets.forEach(importedBudget => {
-        if (options.skipDuplicates) {
-          const exists = result.budgets.some(budget => 
-            budget.name.toLowerCase() === importedBudget.name.toLowerCase()
-          );
-          if (!exists) {
-            result.budgets.push({
-              ...importedBudget,
-              id: Date.now() + Math.random()
-            });
-          }
-        } else {
-          result.budgets.push({
-            ...importedBudget,
-            id: Date.now() + Math.random()
-          });
-        }
-      });
-    }
-
-    // Merge expenses
-    if (imported.expenses) {
-      imported.expenses.forEach(importedExpense => {
-        result.expenses.push({
-          ...importedExpense,
-          id: Date.now() + Math.random()
-        });
-      });
-    }
+    // Merge data using helper functions
+    this.mergeCategories(imported.categories, result.categories);
+    this.mergeBudgets(imported.budgets, result.budgets, options.skipDuplicates);
+    this.mergeExpenses(imported.expenses, result.expenses);
 
     return result;
+  },
+
+  /**
+   * Generate a unique ID for imported items
+   */
+  generateUniqueId(): number {
+    return Date.now() + Math.random();
+  },
+
+  /**
+   * Merge categories avoiding duplicates by name
+   */
+  mergeCategories(importedCategories: Category[] | undefined, existingCategories: Category[]): void {
+    if (!importedCategories) return;
+
+    importedCategories.forEach(importedCat => {
+      const exists = existingCategories.some(cat =>
+        cat.name.toLowerCase() === importedCat.name.toLowerCase()
+      );
+      if (!exists) {
+        existingCategories.push({
+          ...importedCat,
+          id: this.generateUniqueId()
+        });
+      }
+    });
+  },
+
+  /**
+   * Merge budgets with optional duplicate checking
+   */
+  mergeBudgets(importedBudgets: Budget[] | undefined, existingBudgets: Budget[], skipDuplicates: boolean): void {
+    if (!importedBudgets) return;
+
+    importedBudgets.forEach(importedBudget => {
+      if (skipDuplicates) {
+        const exists = existingBudgets.some(budget =>
+          budget.name.toLowerCase() === importedBudget.name.toLowerCase()
+        );
+        if (!exists) {
+          existingBudgets.push({
+            ...importedBudget,
+            id: this.generateUniqueId()
+          });
+        }
+      } else {
+        existingBudgets.push({
+          ...importedBudget,
+          id: this.generateUniqueId()
+        });
+      }
+    });
+  },
+
+  /**
+   * Merge expenses (always add all imported expenses)
+   */
+  mergeExpenses(importedExpenses: Expense[] | undefined, existingExpenses: Expense[]): void {
+    if (!importedExpenses) return;
+
+    importedExpenses.forEach(importedExpense => {
+      existingExpenses.push({
+        ...importedExpense,
+        id: this.generateUniqueId()
+      });
+    });
   }
 };
