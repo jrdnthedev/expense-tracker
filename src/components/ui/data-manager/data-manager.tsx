@@ -1,7 +1,11 @@
 import { useState, useRef } from 'react';
 import { useAppState, useAppDispatch } from '../../../context/app-state-hooks';
 import { DataExport } from '../../../utils/data-export';
-import { DataImport, type ImportResult, type ImportOptions } from '../../../utils/data-import';
+import {
+  DataImport,
+  type ImportResult,
+  type ImportOptions,
+} from '../../../utils/data-import';
 import Button from '../button/button';
 import Modal from '../modal/modal';
 
@@ -14,12 +18,12 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
   const { expenses, budgets, categories, currency } = useAppState();
   const dispatch = useAppDispatch();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importOptions, setImportOptions] = useState<ImportOptions>({
     mergeMode: 'merge',
-    skipDuplicates: true
+    skipDuplicates: true,
   });
 
   const handleExportAll = () => {
@@ -38,7 +42,9 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
     fileInputRef.current?.click();
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -56,7 +62,7 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
       } else {
         result = {
           success: false,
-          message: 'Unsupported file format. Please use JSON or CSV files.'
+          message: 'Unsupported file format. Please use JSON or CSV files.',
         };
       }
 
@@ -73,8 +79,8 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
         if (mergedData) {
           // Dispatch actions to update the state
           if (mergedData.categories) {
-            mergedData.categories.forEach(category => {
-              const exists = categories.some(cat => cat.id === category.id);
+            mergedData.categories.forEach((category) => {
+              const exists = categories.some((cat) => cat.id === category.id);
               if (!exists) {
                 dispatch({ type: 'ADD_CATEGORY', payload: category });
               }
@@ -82,8 +88,8 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
           }
 
           if (mergedData.budgets) {
-            mergedData.budgets.forEach(budget => {
-              const exists = budgets.some(b => b.id === budget.id);
+            mergedData.budgets.forEach((budget) => {
+              const exists = budgets.some((b) => b.id === budget.id);
               if (!exists) {
                 dispatch({ type: 'ADD_BUDGET', payload: budget });
               }
@@ -91,8 +97,8 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
           }
 
           if (mergedData.expenses) {
-            mergedData.expenses.forEach(expense => {
-              const exists = expenses.some(e => e.id === expense.id);
+            mergedData.expenses.forEach((expense) => {
+              const exists = expenses.some((e) => e.id === expense.id);
               if (!exists) {
                 dispatch({ type: 'ADD_EXPENSE', payload: expense });
               }
@@ -108,7 +114,7 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
       setImportResult({
         success: false,
         message: 'Failed to process file',
-        errors: [error instanceof Error ? error.message : 'Unknown error']
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
       });
     } finally {
       setImporting(false);
@@ -127,46 +133,39 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="max-w-md mx-auto">
-        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6">
+      <div className="flex flex-col gap-4">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
           Data Management
         </h3>
-        
+
         {/* Export Section */}
-        <div className="mb-6">
-          <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        <div className="flex flex-col gap-4">
+          <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
             📤 Export Data
           </h4>
-          <div className="space-y-2">
-            <Button
-              onClick={handleExportAll}
-              variant="primary"
-            >
-              Export All Data (JSON)
-            </Button>
-            <Button
-              onClick={handleExportExpenses}
-              variant="secondary"
-            >
-              Export Expenses (CSV)
-            </Button>
-            <Button
-              onClick={handleExportBudgets}
-              variant="secondary"
-            >
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <Button onClick={handleExportAll} variant="primary">
+                Export All Data (JSON)
+              </Button>
+              <Button onClick={handleExportExpenses} variant="secondary">
+                Export Expenses (CSV)
+              </Button>
+            </div>
+            <Button onClick={handleExportBudgets} variant="secondary">
               Export Budgets (CSV)
             </Button>
           </div>
         </div>
 
         {/* Import Section */}
-        <div className="mb-6">
+        <div>
           <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
             📥 Import Data
           </h4>
-          
+
           {/* Import Options */}
-          <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div className="mb-2">
               <label className="flex items-center">
                 <input
@@ -174,10 +173,12 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
                   name="mergeMode"
                   value="merge"
                   checked={importOptions.mergeMode === 'merge'}
-                  onChange={(e) => setImportOptions(prev => ({
-                    ...prev,
-                    mergeMode: e.target.value as 'merge' | 'replace'
-                  }))}
+                  onChange={(e) =>
+                    setImportOptions((prev) => ({
+                      ...prev,
+                      mergeMode: e.target.value as 'merge' | 'replace',
+                    }))
+                  }
                   className="mr-2"
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -192,10 +193,12 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
                   name="mergeMode"
                   value="replace"
                   checked={importOptions.mergeMode === 'replace'}
-                  onChange={(e) => setImportOptions(prev => ({
-                    ...prev,
-                    mergeMode: e.target.value as 'merge' | 'replace'
-                  }))}
+                  onChange={(e) =>
+                    setImportOptions((prev) => ({
+                      ...prev,
+                      mergeMode: e.target.value as 'merge' | 'replace',
+                    }))
+                  }
                   className="mr-2"
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -208,10 +211,12 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
                 <input
                   type="checkbox"
                   checked={importOptions.skipDuplicates}
-                  onChange={(e) => setImportOptions(prev => ({
-                    ...prev,
-                    skipDuplicates: e.target.checked
-                  }))}
+                  onChange={(e) =>
+                    setImportOptions((prev) => ({
+                      ...prev,
+                      skipDuplicates: e.target.checked,
+                    }))
+                  }
                   className="mr-2"
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -228,7 +233,7 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
             onChange={handleFileSelect}
             className="hidden"
           />
-          
+
           <Button
             onClick={handleImportClick}
             variant="primary"
@@ -236,7 +241,7 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
           >
             {importing ? 'Importing...' : 'Select File to Import'}
           </Button>
-          
+
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             Supports JSON (full backup) and CSV (expenses only) files
           </p>
@@ -244,31 +249,40 @@ export default function DataManager({ isOpen, onClose }: DataManagerProps) {
 
         {/* Import Result */}
         {importResult && (
-          <div className={`p-3 rounded-lg mb-4 ${
-            importResult.success 
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
-              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-          }`}>
+          <div
+            className={`p-3 rounded-lg mb-4 ${
+              importResult.success
+                ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
+            }`}
+          >
             <div className="flex items-start justify-between">
               <div>
-                <p className={`font-medium ${
-                  importResult.success 
-                    ? 'text-green-800 dark:text-green-200' 
-                    : 'text-red-800 dark:text-red-200'
-                }`}>
+                <p
+                  className={`font-medium ${
+                    importResult.success
+                      ? 'text-green-800 dark:text-green-200'
+                      : 'text-red-800 dark:text-red-200'
+                  }`}
+                >
                   {importResult.success ? '✅ Success' : '❌ Error'}
                 </p>
-                <p className={`text-sm ${
-                  importResult.success 
-                    ? 'text-green-700 dark:text-green-300' 
-                    : 'text-red-700 dark:text-red-300'
-                }`}>
+                <p
+                  className={`text-sm ${
+                    importResult.success
+                      ? 'text-green-700 dark:text-green-300'
+                      : 'text-red-700 dark:text-red-300'
+                  }`}
+                >
                   {importResult.message}
                 </p>
                 {importResult.errors && (
                   <ul className="text-xs mt-2 space-y-1">
                     {importResult.errors.map((error, index) => (
-                      <li key={index} className="text-red-600 dark:text-red-400">
+                      <li
+                        key={index}
+                        className="text-red-600 dark:text-red-400"
+                      >
                         • {error}
                       </li>
                     ))}
