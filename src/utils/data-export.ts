@@ -24,7 +24,11 @@ export const DataExport = {
   /**
    * Export expenses to CSV format
    */
-  exportExpensesToCSV(expenses: Expense[], categories: Category[], currency: Currency): string {
+  exportExpensesToCSV(
+    expenses: Expense[],
+    categories: Category[],
+    currency: Currency
+  ): string {
     if (expenses.length === 0) {
       return 'No expenses to export';
     }
@@ -38,12 +42,12 @@ export const DataExport = {
       'Category',
       'Budget',
       'Created At',
-      'Updated At'
+      'Updated At',
     ];
 
     // Convert expenses to CSV rows
-    const rows = expenses.map(expense => {
-      const category = categories.find(cat => cat.id === expense.categoryId);
+    const rows = expenses.map((expense) => {
+      const category = categories.find((cat) => cat.id === expense.categoryId);
       return [
         formatDate(expense.createdAt),
         `"${expense.description.replace(/"/g, '""')}"`, // Escape quotes
@@ -52,13 +56,13 @@ export const DataExport = {
         category?.name || 'Unknown',
         expense.budget || '',
         expense.createdAt,
-        expense.updatedAt || expense.createdAt
+        expense.updatedAt || expense.createdAt,
       ];
     });
 
     // Combine headers and rows
     const csvContent = [headers, ...rows]
-      .map(row => row.join(','))
+      .map((row) => row.join(','))
       .join('\n');
 
     return csvContent;
@@ -67,7 +71,11 @@ export const DataExport = {
   /**
    * Export budgets to CSV format
    */
-  exportBudgetsToCSV(budgets: Budget[], categories: Category[], currency: Currency): string {
+  exportBudgetsToCSV(
+    budgets: Budget[],
+    categories: Category[],
+    currency: Currency
+  ): string {
     if (budgets.length === 0) {
       return 'No budgets to export';
     }
@@ -78,12 +86,12 @@ export const DataExport = {
       'Currency',
       'Categories',
       'Start Date',
-      'End Date'
+      'End Date',
     ];
 
-    const rows = budgets.map(budget => {
+    const rows = budgets.map((budget) => {
       const budgetCategories = budget.categoryIds
-        .map(id => categories.find(cat => cat.id === id)?.name)
+        .map((id) => categories.find((cat) => cat.id === id)?.name)
         .filter(Boolean)
         .join('; ');
 
@@ -93,12 +101,12 @@ export const DataExport = {
         currency.code,
         `"${budgetCategories}"`,
         budget.startDate,
-        budget.endDate
+        budget.endDate,
       ];
     });
 
     const csvContent = [headers, ...rows]
-      .map(row => row.join(','))
+      .map((row) => row.join(','))
       .join('\n');
 
     return csvContent;
@@ -107,19 +115,23 @@ export const DataExport = {
   /**
    * Download data as a file
    */
-  downloadFile(content: string, filename: string, mimeType: string = 'text/plain'): void {
+  downloadFile(
+    content: string,
+    filename: string,
+    mimeType: string = 'text/plain'
+  ): void {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     link.style.display = 'none';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Clean up the URL object
     URL.revokeObjectURL(url);
   },
@@ -148,12 +160,12 @@ export const DataExport = {
       categories,
       currency,
       exportDate: new Date().toISOString(),
-      version: '1.0'
+      version: '1.0',
     };
 
     const jsonContent = this.exportToJSON(exportData);
     const filename = this.generateFilename('expense_tracker_backup', 'json');
-    
+
     this.downloadFile(jsonContent, filename, 'application/json');
   },
 
@@ -167,7 +179,7 @@ export const DataExport = {
   ): void {
     const csvContent = this.exportExpensesToCSV(expenses, categories, currency);
     const filename = this.generateFilename('expenses', 'csv');
-    
+
     this.downloadFile(csvContent, filename, 'text/csv');
   },
 
@@ -181,7 +193,7 @@ export const DataExport = {
   ): void {
     const csvContent = this.exportBudgetsToCSV(budgets, categories, currency);
     const filename = this.generateFilename('budgets', 'csv');
-    
+
     this.downloadFile(csvContent, filename, 'text/csv');
-  }
+  },
 };

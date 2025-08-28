@@ -24,7 +24,12 @@ export interface ImportOptions {
 }
 
 // Constants for better maintainability
-const REQUIRED_CSV_HEADERS = ['Date', 'Description', 'Amount', 'Category'] as const;
+const REQUIRED_CSV_HEADERS = [
+  'Date',
+  'Description',
+  'Amount',
+  'Category',
+] as const;
 const DEFAULT_CATEGORY_ICON = '📦';
 const SUPPORTED_VERSION = '1.0';
 
@@ -35,7 +40,7 @@ export const DataImport = {
   parseJSON(content: string): ImportResult {
     try {
       const data = JSON.parse(content) as ExportData;
-      
+
       // Validate the structure
       const validationResult = this.validateImportData(data);
       if (!validationResult.success) {
@@ -49,14 +54,16 @@ export const DataImport = {
           expenses: data.expenses || [],
           budgets: data.budgets || [],
           categories: data.categories || [],
-          currency: data.currency
-        }
+          currency: data.currency,
+        },
       };
     } catch (error) {
       return {
         success: false,
         message: 'Invalid JSON format',
-        errors: [error instanceof Error ? error.message : 'Unknown parsing error']
+        errors: [
+          error instanceof Error ? error.message : 'Unknown parsing error',
+        ],
       };
     }
   },
@@ -64,30 +71,43 @@ export const DataImport = {
   /**
    * Parse CSV content for expenses
    */
-  parseExpensesCSV(content: string, existingCategories: Category[]): ImportResult {
+  parseExpensesCSV(
+    content: string,
+    existingCategories: Category[]
+  ): ImportResult {
     try {
       const lines = content.trim().split('\n');
       if (lines.length < 2) {
-        return this.createErrorResult('CSV file must contain at least a header and one data row');
+        return this.createErrorResult(
+          'CSV file must contain at least a header and one data row'
+        );
       }
 
       const headers = this.parseCSVHeaders(lines[0]);
       const missingHeaders = this.validateHeaders(headers);
 
       if (missingHeaders.length > 0) {
-        return this.createErrorResult(`Missing required headers: ${missingHeaders.join(', ')}`);
+        return this.createErrorResult(
+          `Missing required headers: ${missingHeaders.join(', ')}`
+        );
       }
 
-      const { expenses, errors } = this.parseExpenseRows(lines.slice(1), headers, existingCategories);
+      const { expenses, errors } = this.parseExpenseRows(
+        lines.slice(1),
+        headers,
+        existingCategories
+      );
 
       return {
         success: expenses.length > 0,
         message: `Parsed ${expenses.length} expenses${errors.length > 0 ? ` with ${errors.length} errors` : ''}`,
         data: { expenses },
-        errors: errors.length > 0 ? errors : undefined
+        errors: errors.length > 0 ? errors : undefined,
       };
     } catch (error) {
-      return this.createErrorResult('Failed to parse CSV', [error instanceof Error ? error.message : 'Unknown parsing error']);
+      return this.createErrorResult('Failed to parse CSV', [
+        error instanceof Error ? error.message : 'Unknown parsing error',
+      ]);
     }
   },
 
@@ -98,7 +118,7 @@ export const DataImport = {
     return {
       success: false,
       message,
-      errors
+      errors,
     };
   },
 
@@ -106,14 +126,14 @@ export const DataImport = {
    * Parse CSV headers
    */
   parseCSVHeaders(headerLine: string): string[] {
-    return headerLine.split(',').map(h => h.trim().replace(/"/g, ''));
+    return headerLine.split(',').map((h) => h.trim().replace(/"/g, ''));
   },
 
   /**
    * Validate required headers are present
    */
   validateHeaders(headers: string[]): string[] {
-    return REQUIRED_CSV_HEADERS.filter(h => !headers.includes(h));
+    return REQUIRED_CSV_HEADERS.filter((h) => !headers.includes(h));
   },
 
   /**
@@ -130,13 +150,19 @@ export const DataImport = {
     for (let i = 0; i < dataLines.length; i++) {
       try {
         const values = this.parseCSVLine(dataLines[i]);
-        const expense = this.parseExpenseFromCSV(values, headers, existingCategories);
+        const expense = this.parseExpenseFromCSV(
+          values,
+          headers,
+          existingCategories
+        );
 
         if (expense) {
           expenses.push(expense);
         }
       } catch (error) {
-        errors.push(`Line ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        errors.push(
+          `Line ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
       }
     }
 
@@ -150,10 +176,10 @@ export const DataImport = {
     const values: string[] = [];
     let current = '';
     let inQuotes = false;
-    
+
     for (let i = 0; i < line.length; i++) {
       const char = line[i];
-      
+
       if (char === '"') {
         if (inQuotes && line[i + 1] === '"') {
           // Escaped quote
@@ -171,10 +197,10 @@ export const DataImport = {
         current += char;
       }
     }
-    
+
     // Add the last field
     values.push(current.trim());
-    
+
     return values;
   },
 
@@ -197,7 +223,9 @@ export const DataImport = {
     const dateStr = getValue('Date');
 
     if (!description || !amountStr || !categoryName) {
-      throw new Error('Missing required fields: Description, Amount, or Category');
+      throw new Error(
+        'Missing required fields: Description, Amount, or Category'
+      );
     }
 
     const amount = parseFloat(amountStr);
@@ -206,8 +234,8 @@ export const DataImport = {
     }
 
     // Find or create category
-    let category = categories.find(cat => 
-      cat.name.toLowerCase() === categoryName.toLowerCase()
+    let category = categories.find(
+      (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
     );
 
     if (!category) {
@@ -215,7 +243,7 @@ export const DataImport = {
       category = {
         id: Date.now() + Math.random(), // Temporary ID
         name: categoryName,
-        icon: DEFAULT_CATEGORY_ICON
+        icon: DEFAULT_CATEGORY_ICON,
       };
     }
 
@@ -231,7 +259,7 @@ export const DataImport = {
       budget: getValue('Budget') || '',
       budgetId: 0, // Will need to be resolved later
       createdAt,
-      updatedAt: now
+      updatedAt: now,
     };
   },
 
@@ -244,7 +272,7 @@ export const DataImport = {
     if (!data || typeof data !== 'object') {
       return {
         success: false,
-        message: 'Invalid data format'
+        message: 'Invalid data format',
       };
     }
 
@@ -252,7 +280,11 @@ export const DataImport = {
     const typedData = data as Record<string, unknown>;
 
     // Check version compatibility
-    if (typedData.version && typeof typedData.version === 'string' && typedData.version !== SUPPORTED_VERSION) {
+    if (
+      typedData.version &&
+      typeof typedData.version === 'string' &&
+      typedData.version !== SUPPORTED_VERSION
+    ) {
       errors.push(`Unsupported version: ${typedData.version}`);
     }
 
@@ -275,13 +307,13 @@ export const DataImport = {
       return {
         success: false,
         message: 'Data validation failed',
-        errors
+        errors,
       };
     }
 
     return {
       success: true,
-      message: 'Data validation passed'
+      message: 'Data validation passed',
     };
   },
 
@@ -291,16 +323,16 @@ export const DataImport = {
   readFile(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = (event) => {
         const content = event.target?.result as string;
         resolve(content);
       };
-      
+
       reader.onerror = () => {
         reject(new Error('Failed to read file'));
       };
-      
+
       reader.readAsText(file);
     });
   },
@@ -324,7 +356,7 @@ export const DataImport = {
         expenses: imported.expenses || existing.expenses,
         budgets: imported.budgets || existing.budgets,
         categories: imported.categories || existing.categories,
-        currency: imported.currency
+        currency: imported.currency,
       };
     }
 
@@ -333,7 +365,7 @@ export const DataImport = {
       expenses: [...existing.expenses],
       budgets: [...existing.budgets],
       categories: [...existing.categories],
-      currency: imported.currency
+      currency: imported.currency,
     };
 
     // Merge data using helper functions
@@ -354,17 +386,20 @@ export const DataImport = {
   /**
    * Merge categories avoiding duplicates by name
    */
-  mergeCategories(importedCategories: Category[] | undefined, existingCategories: Category[]): void {
+  mergeCategories(
+    importedCategories: Category[] | undefined,
+    existingCategories: Category[]
+  ): void {
     if (!importedCategories) return;
 
-    importedCategories.forEach(importedCat => {
-      const exists = existingCategories.some(cat =>
-        cat.name.toLowerCase() === importedCat.name.toLowerCase()
+    importedCategories.forEach((importedCat) => {
+      const exists = existingCategories.some(
+        (cat) => cat.name.toLowerCase() === importedCat.name.toLowerCase()
       );
       if (!exists) {
         existingCategories.push({
           ...importedCat,
-          id: this.generateUniqueId()
+          id: this.generateUniqueId(),
         });
       }
     });
@@ -373,24 +408,29 @@ export const DataImport = {
   /**
    * Merge budgets with optional duplicate checking
    */
-  mergeBudgets(importedBudgets: Budget[] | undefined, existingBudgets: Budget[], skipDuplicates: boolean): void {
+  mergeBudgets(
+    importedBudgets: Budget[] | undefined,
+    existingBudgets: Budget[],
+    skipDuplicates: boolean
+  ): void {
     if (!importedBudgets) return;
 
-    importedBudgets.forEach(importedBudget => {
+    importedBudgets.forEach((importedBudget) => {
       if (skipDuplicates) {
-        const exists = existingBudgets.some(budget =>
-          budget.name.toLowerCase() === importedBudget.name.toLowerCase()
+        const exists = existingBudgets.some(
+          (budget) =>
+            budget.name.toLowerCase() === importedBudget.name.toLowerCase()
         );
         if (!exists) {
           existingBudgets.push({
             ...importedBudget,
-            id: this.generateUniqueId()
+            id: this.generateUniqueId(),
           });
         }
       } else {
         existingBudgets.push({
           ...importedBudget,
-          id: this.generateUniqueId()
+          id: this.generateUniqueId(),
         });
       }
     });
@@ -399,14 +439,17 @@ export const DataImport = {
   /**
    * Merge expenses (always add all imported expenses)
    */
-  mergeExpenses(importedExpenses: Expense[] | undefined, existingExpenses: Expense[]): void {
+  mergeExpenses(
+    importedExpenses: Expense[] | undefined,
+    existingExpenses: Expense[]
+  ): void {
     if (!importedExpenses) return;
 
-    importedExpenses.forEach(importedExpense => {
+    importedExpenses.forEach((importedExpense) => {
       existingExpenses.push({
         ...importedExpense,
-        id: this.generateUniqueId()
+        id: this.generateUniqueId(),
       });
     });
-  }
+  },
 };
