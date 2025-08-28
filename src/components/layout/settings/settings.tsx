@@ -16,24 +16,37 @@ interface SettingRowProps {
   hasBorder?: boolean;
 }
 
-function SettingRow({ title, description, children, hasBorder = true }: SettingRowProps) {
+function SettingRow({
+  title,
+  description,
+  children,
+  hasBorder = true,
+}: SettingRowProps) {
   return (
-    <div className={`flex items-center gap-2 justify-between ${hasBorder ? 'border-b border-gray-200 dark:border-gray-700 pb-2' : ''}`}>
+    <div
+      className={`flex items-center gap-2 justify-between ${hasBorder ? 'border-b border-gray-200 dark:border-gray-700 pb-2' : ''}`}
+    >
       <div className="flex items-center gap-2">
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900 dark:text-gray-100">{title}</span>
-          <span className="text-gray-600 dark:text-gray-400">{description}</span>
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {title}
+          </span>
+          <span className="text-gray-600 dark:text-gray-400">
+            {description}
+          </span>
         </div>
       </div>
-      <div className="w-auto">
-        {children}
-      </div>
+      <div className="w-auto">{children}</div>
     </div>
   );
 }
 
 export default function Settings() {
-  const { currency, defaultCategory: stateDefaultCategory, categories } = useAppState();
+  const {
+    currency,
+    defaultCategory: stateDefaultCategory,
+    categories,
+  } = useAppState();
   const [settingCurrency, setCurrency] = useState<Currency>(currency);
   const [defaultCategory, setDefaultCategory] = useState(stateDefaultCategory);
   const [isDataManagerOpen, setIsDataManagerOpen] = useState(false);
@@ -61,7 +74,9 @@ export default function Settings() {
   const currencyOptions = Object.values(CURRENCIES);
   return (
     <div className="settings-container flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">⚙️ Settings</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        ⚙️ Settings
+      </h1>
       <p className="text-gray-600 dark:text-gray-400">
         Manage your application settings and preferences here.
       </p>
@@ -106,7 +121,9 @@ export default function Settings() {
                   getOptionId={(cat: Category) => cat.id}
                 />
               ) : (
-                <span className="text-gray-600 dark:text-gray-400">No categories available</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  No categories available
+                </span>
               )}
             </SettingRow>
 
@@ -130,10 +147,7 @@ export default function Settings() {
             description="Export your data or import from backup files"
             hasBorder={false}
           >
-            <Button
-              onClick={openDataManager}
-              variant="primary"
-            >
+            <Button onClick={openDataManager} variant="primary">
               Manage Data
             </Button>
           </SettingRow>
@@ -146,16 +160,12 @@ export default function Settings() {
         </h2>
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 justify-between pb-2">
-            <div className="text-gray-600 dark:text-gray-400 flex flex-col gap-4">
-            </div>
+            <div className="text-gray-600 dark:text-gray-400 flex flex-col gap-4"></div>
           </div>
         </div>
       </Card>
 
-      <DataManager
-        isOpen={isDataManagerOpen}
-        onClose={closeDataManager}
-      />
+      <DataManager isOpen={isDataManagerOpen} onClose={closeDataManager} />
     </div>
   );
 }

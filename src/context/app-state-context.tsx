@@ -14,7 +14,7 @@ import {
   removeExpenseFromList,
   updateBudget,
   updateCategory,
-  updateExpense
+  updateExpense,
 } from '../utils/state';
 
 export type State = {
@@ -40,69 +40,70 @@ export type Action =
   | { type: 'SET_DEFAULT_CATEGORY'; payload: { categoryId: number } }
   | { type: 'SET_THEME'; payload: 'light' | 'dark' };
 
-
-
 // Action handlers for better organization
 const actionHandlers = {
   SET_CURRENCY: (state: State, payload: Currency): State => ({
     ...state,
-    currency: payload
+    currency: payload,
   }),
 
-  SET_DEFAULT_CATEGORY: (state: State, payload: { categoryId: number }): State => ({
+  SET_DEFAULT_CATEGORY: (
+    state: State,
+    payload: { categoryId: number }
+  ): State => ({
     ...state,
-    defaultCategory: payload.categoryId
+    defaultCategory: payload.categoryId,
   }),
 
   ADD_CATEGORY: (state: State, payload: Category): State => ({
     ...state,
-    categories: [...state.categories, payload]
+    categories: [...state.categories, payload],
   }),
 
   REMOVE_CATEGORY: (state: State, payload: { id: number }): State => ({
     ...state,
-    categories: removeCategory(state.categories, payload.id)
+    categories: removeCategory(state.categories, payload.id),
   }),
 
   UPDATE_CATEGORY: (state: State, payload: Category): State => ({
     ...state,
-    categories: updateCategory(state.categories, payload)
+    categories: updateCategory(state.categories, payload),
   }),
 
   ADD_EXPENSE: (state: State, payload: Expense): State => ({
     ...state,
-    expenses: [...state.expenses, payload]
+    expenses: [...state.expenses, payload],
   }),
 
   UPDATE_EXPENSE: (state: State, payload: Expense): State => ({
     ...state,
-    expenses: updateExpense(state.expenses, payload)
+    expenses: updateExpense(state.expenses, payload),
   }),
 
   REMOVE_EXPENSE: (state: State, payload: { id: number }): State => ({
     ...state,
-    expenses: removeExpenseFromList(state.expenses, payload.id)
+    expenses: removeExpenseFromList(state.expenses, payload.id),
   }),
 
   ADD_BUDGET: (state: State, payload: Budget): State => ({
     ...state,
-    budgets: [...state.budgets, payload]
+    budgets: [...state.budgets, payload],
   }),
 
   UPDATE_BUDGET: (state: State, payload: Budget): State => ({
     ...state,
-    budgets: updateBudget(state.budgets, payload)
+    budgets: updateBudget(state.budgets, payload),
   }),
 
   REMOVE_BUDGET: (state: State, payload: { id: number }): State => ({
     ...state,
-    budgets: removeBudget(state.budgets, payload.id)
+    budgets: removeBudget(state.budgets, payload.id),
   }),
 
   SET_THEME: (state: State, payload: 'light' | 'dark'): State => ({
     ...state,
-    theme: payload
-  })
+    theme: payload,
+  }),
 };
 
 function appReducer(state: State, action: Action): State {
