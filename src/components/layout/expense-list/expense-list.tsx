@@ -7,7 +7,8 @@ import type { Expense } from '../../../types/expense';
 import Button from '../../ui/button/button';
 import Modal from '../../ui/modal/modal';
 import ExpenseForm from '../../forms/expense-form/expense-form';
-import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { useAppState } from '../../../context/app-state-hooks';
+import { usePersistedDispatch } from '../../../hooks/persisted-dispatch/usePersistedDispatch';
 import { formatAmount } from '../../../utils/currency';
 import { formatDate } from '../../../utils/validators';
 import EmptyState from '../../ui/empty-state/empty-state';
@@ -48,7 +49,7 @@ export default function ExpenseList() {
     name: 'All',
     icon: '📦',
   });
-  const dispatch = useAppDispatch();
+  const dispatch = usePersistedDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
@@ -69,7 +70,6 @@ export default function ExpenseList() {
       amount: Number(data.amount),
     };
     dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
-    console.log('Adding expense:', newExpense);
     setIsAddExpenseModalOpen(false);
   };
 
@@ -81,7 +81,6 @@ export default function ExpenseList() {
       updatedAt: new Date().toISOString(),
     };
     dispatch({ type: 'UPDATE_EXPENSE', payload: updatedExpense });
-    console.log('Updating expense:', updatedExpense);
     setExpenseToEdit(null);
   };
   const handleDeleteExpense = (expense: Expense) => {

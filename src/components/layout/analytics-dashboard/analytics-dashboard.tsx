@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Card from '../../ui/card/card';
 import Select from '../../ui/select/select';
 import { useAppState } from '../../../context/app-state-hooks';
@@ -18,32 +18,34 @@ export default function AnalyticsDashboard() {
   ];
 
   // Calculate totals and statistics
-  const totalExpenses = calculateTotalExpenses(expenses);
+  const totalExpenses = useMemo(() => calculateTotalExpenses(expenses), [expenses]);
 
   // Calculate monthly average
-  const monthlyAverage =
+  const monthlyAverage = useMemo(() =>
     totalExpenses /
-    (timeframe === 'last30days' ? 1 : timeframe === 'last3months' ? 3 : 6);
+    (timeframe === 'last30days' ? 1 : timeframe === 'last3months' ? 3 : 6),
+    [totalExpenses, timeframe]);
 
   // Calculate category totals
-  const categoryTotals = categories.map((category) => ({
+  const categoryTotals = useMemo(() => categories.map((category) => ({
     ...category,
     total: expenses
       .filter((exp) => exp.categoryId === category.id)
       .reduce((sum, exp) => sum + exp.amount, 0),
-  }));
+  })), [categories, expenses]);
 
   // Find top category
-  const topCategory =
+  const topCategory = useMemo(() =>
     categoryTotals.length > 0
       ? categoryTotals.reduce(
           (max, cat) => (cat.total > max.total ? cat : max),
           categoryTotals[0]
         )
-      : null;
+      : null,
+    [categoryTotals]);
 
   // Calculate monthly trends
-  const getMonthlyTrends = () => {
+  const monthlyTrends = useMemo(() => {
     const trends: { [month: string]: number } = {};
     expenses.forEach((expense) => {
       const month = new Date(expense.createdAt).toLocaleString('default', {
@@ -52,26 +54,18 @@ export default function AnalyticsDashboard() {
       trends[month] = (trends[month] || 0) + expense.amount;
     });
     return trends;
-  };
+  }, [expenses]);
 
-  const monthlyTrends = getMonthlyTrends();
-
-  const getOverviewTrends = () => {
+  const overviewTrendsData = useMemo(() => {
     const months = Object.keys(monthlyTrends);
-
-    const data = months.map((month) => ({
+    return months.map((month) => ({
       name: month,
       total: monthlyTrends[month],
       average: monthlyAverage,
-      // If this is the most recent month, show the top category total
       topCategory:
         month === months[months.length - 1] ? topCategory?.total || 0 : 0,
     }));
-
-    return data;
-  };
-
-  const overviewTrendsData = getOverviewTrends();
+  }, [monthlyTrends, monthlyAverage, topCategory]);
   return (
     <div className="analytics-dashboard-container">
       <h1 className="text-2xl font-bold mb-4">📊 Analytics Dashboard</h1>

@@ -2,7 +2,8 @@ import CardButton from '../../ui/card-btn/card-btn';
 import Button from '../../ui/button/button';
 import type { Category } from '../../../types/category';
 import Modal from '../../ui/modal/modal';
-import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { useAppState } from '../../../context/app-state-hooks';
+import { usePersistedDispatch } from '../../../hooks/persisted-dispatch/usePersistedDispatch';
 import { useNextId } from '../../../hooks/nextId/next-id';
 import CategoryForm from '../../forms/category-form/category-form';
 import { useState } from 'react';
@@ -10,7 +11,7 @@ import type { CategoryFormData } from '../../../constants/form-data';
 
 export default function CategoryManagement() {
   const { categories } = useAppState();
-  const dispatch = useAppDispatch();
+  const dispatch = usePersistedDispatch();
   const nextId = useNextId<Category>(categories);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
@@ -23,7 +24,6 @@ export default function CategoryManagement() {
   const handleAddCategory = (data: CategoryFormData) => {
     dispatch({ type: 'ADD_CATEGORY', payload: { ...data, id: nextId } });
     setIsModalOpen(false);
-    console.log(data);
   };
   const handleEditCategory = (data: CategoryFormData) => {
     if (selectedCategory) {
@@ -32,7 +32,6 @@ export default function CategoryManagement() {
         payload: { ...selectedCategory, ...data },
       });
     }
-    console.log('Editing Category:', data);
   };
   const handleDeleteCategory = () => {
     if (selectedCategory) {
@@ -43,7 +42,6 @@ export default function CategoryManagement() {
       setSelectedCategory(previousSelectedCategory);
     }
     setIsConfirmModalOpen(false);
-    console.log('Deleting Category:', selectedCategory);
   };
   return (
     <div className="flex flex-col gap-4 border border-gray-900/10 max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { navLinks } from '../../../constants/data';
 import { useState } from 'react';
 
@@ -8,6 +8,7 @@ export default function Header({
   onboardingComplete: boolean;
 }) {
   const [isHidden, setIsHidden] = useState(false);
+  const location = useLocation();
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">

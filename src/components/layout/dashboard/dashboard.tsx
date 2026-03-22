@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useAppState } from '../../../context/app-state-hooks';
 import type { Expense } from '../../../types/expense';
 import { calculateAllRemainingBudgets } from '../../../utils/budget';
@@ -8,10 +9,9 @@ import EmptyState from '../../ui/empty-state/empty-state';
 
 export default function Dashboard() {
   const { expenses, currency, budgets } = useAppState();
-  const monthlyExpenses = getCurrentMonthExpenses(expenses);
-  const recentExpenses = getRecentExpenses(expenses, 5);
-
-  const totalRemainingBudget = calculateAllRemainingBudgets(budgets, expenses);
+  const monthlyExpenses = useMemo(() => getCurrentMonthExpenses(expenses), [expenses]);
+  const recentExpenses = useMemo(() => getRecentExpenses(expenses, 5), [expenses]);
+  const totalRemainingBudget = useMemo(() => calculateAllRemainingBudgets(budgets, expenses), [budgets, expenses]);
   return (
     <div className="dashboard-container">
       <h1 className="text-2xl font-bold mb-4 dark:text-gray-100">Dashboard</h1>

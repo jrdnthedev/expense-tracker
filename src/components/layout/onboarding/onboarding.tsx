@@ -8,11 +8,11 @@ import Dashboard from '../dashboard/dashboard';
 import BudgetForm from '../../forms/budget-form/budget-form';
 import Button from '../../ui/button/button';
 import type { Budget } from '../../../types/budget';
-import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { useAppState } from '../../../context/app-state-hooks';
+import { usePersistedDispatch } from '../../../hooks/persisted-dispatch/usePersistedDispatch';
 import { LocalStorage } from '../../../utils/local-storage';
 import CategoryForm from '../../forms/category-form/category-form';
-import type { Expense } from '../../../types/expense';
-import type { BudgetFormData, CategoryFormData, ExpenseFormData } from '../../../constants/form-data';
+import type { BudgetFormData, CategoryFormData } from '../../../constants/form-data';
 
 export default function Onboarding({
   setOnboardingComplete,
@@ -21,7 +21,7 @@ export default function Onboarding({
 }) {
   const { categories, currency, budgets } = useAppState();
   const [step, setStep] = useState(1);
-  const dispatch = useAppDispatch();
+  const dispatch = usePersistedDispatch();
   const navigate = useNavigate();
 
   const handleAddCategory = (data: CategoryFormData) => {
@@ -43,14 +43,6 @@ export default function Onboarding({
     setStep(5);
   };
 
-  const handleAdd = (data: ExpenseFormData) => {
-    const newExpense: Expense = {
-      ...data,
-      amount: Number(data.amount),
-    };
-    dispatch({ type: 'ADD_EXPENSE', payload: newExpense });
-    setStep(6);
-  };
   return (
     <div className="max-w-lg mx-auto mt-12">
       <Card>
@@ -119,7 +111,6 @@ export default function Onboarding({
                 categories={categories}
                 budgets={budgets}
                 currency={currency}
-                onSubmit={handleAdd}
                 onCancel={() => void 0}
               />
             </div>
