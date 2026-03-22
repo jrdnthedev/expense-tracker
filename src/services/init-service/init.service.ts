@@ -9,10 +9,8 @@ export const initializeDatabase = async () => {
       categoryDB.initDB(),
       budgetDB.initDB()
     ]);
-    console.log('initialized database:');
     return true;
   } catch (error) {
-    console.error('Failed to initialize database:', error);
-    return false;
+    throw error instanceof Error ? error : new Error('Failed to initialize database');
   }
 };

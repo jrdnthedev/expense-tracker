@@ -1,13 +1,14 @@
 import type { Budget } from "../../types/budget";
+import { BaseDBService } from "../base-service/base.service";
 
-class BudgetDBService {
-  private dbName = 'expenseTrackerDB';
-  private version = 1;
-  private db: IDBDatabase | null = null;
+class BudgetDBService extends BaseDBService<Budget> {
+  constructor() {
+    super('budgets');
+  }
 
-  async initDB(): Promise<void> {
+  override async initDB(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version);
+      const request = indexedDB.open('expenseTrackerDB', 1);
 
       request.onerror = () => reject('Error opening database');
       request.onsuccess = (event) => {
@@ -17,85 +18,24 @@ class BudgetDBService {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
         if (!db.objectStoreNames.contains('budgets')) {
-          const budgetStore = db.createObjectStore('budgets', { 
-            keyPath: 'id', 
-            autoIncrement: true 
+          const store = db.createObjectStore('budgets', {
+            keyPath: 'id',
+            autoIncrement: true,
           });
-          
-          budgetStore.createIndex('category', 'category');
-          budgetStore.createIndex('categoryId', 'categoryId');
-          budgetStore.createIndex('period', 'period');
-          budgetStore.createIndex('startDate', 'startDate');
+          store.createIndex('category', 'category');
+          store.createIndex('categoryId', 'categoryId');
+          store.createIndex('period', 'period');
+          store.createIndex('startDate', 'startDate');
         }
       };
     });
   }
 
-  async addBudget(budget: Omit<Budget, 'id'>): Promise<number> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['budgets'], 'readwrite');
-      const store = transaction.objectStore('budgets');
-      const request = store.add(budget);
-
-      request.onsuccess = () => resolve(request.result as number);
-      request.onerror = () => reject('Error adding budget');
-    });
-  }
-
-  async getBudgets(): Promise<Budget[]> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['budgets'], 'readonly');
-      const store = transaction.objectStore('budgets');
-      const request = store.getAll();
-
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject('Error fetching budgets');
-    });
-  }
-
-  async updateBudget(budget: Budget): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['budgets'], 'readwrite');
-      const store = transaction.objectStore('budgets');
-      const request = store.put(budget);
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject('Error updating budget');
-    });
-  }
-
-  async deleteBudget(id: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['budgets'], 'readwrite');
-      const store = transaction.objectStore('budgets');
-      const request = store.delete(id);
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject('Error deleting budget');
-    });
-  }
+  addBudget(budget: Omit<Budget, 'id'>) { return this.add(budget); }
+  getBudgets() { return this.getAll(); }
+  updateBudget(budget: Budget) { return this.update(budget); }
+  deleteBudget(id: number) { return this.delete(id); }
 }
 
 export const budgetDB = new BudgetDBService();

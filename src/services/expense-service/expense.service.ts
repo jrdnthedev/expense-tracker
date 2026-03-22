@@ -1,13 +1,14 @@
 import type { Expense } from "../../types/expense";
+import { BaseDBService } from "../base-service/base.service";
 
-class ExpenseDBService {
-  private dbName = 'expenseTrackerDB';
-  private version = 1;
-  private db: IDBDatabase | null = null;
+class ExpenseDBService extends BaseDBService<Expense> {
+  constructor() {
+    super('expenses');
+  }
 
-  async initDB(): Promise<void> {
+  override async initDB(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version);
+      const request = indexedDB.open('expenseTrackerDB', 1);
 
       request.onerror = () => reject('Error opening database');
       request.onsuccess = (event) => {
@@ -17,105 +18,24 @@ class ExpenseDBService {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
         if (!db.objectStoreNames.contains('expenses')) {
-          const expenseStore = db.createObjectStore('expenses', { 
-            keyPath: 'id', 
-            autoIncrement: true 
+          const store = db.createObjectStore('expenses', {
+            keyPath: 'id',
+            autoIncrement: true,
           });
-          
-          expenseStore.createIndex('date', 'date');
-          expenseStore.createIndex('category', 'category');
-          expenseStore.createIndex('categoryId', 'categoryId');
-          expenseStore.createIndex('createdAt', 'createdAt');
+          store.createIndex('date', 'date');
+          store.createIndex('category', 'category');
+          store.createIndex('categoryId', 'categoryId');
+          store.createIndex('createdAt', 'createdAt');
         }
       };
     });
   }
 
-  async addExpense(expense: Omit<Expense, 'id'>): Promise<number> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['expenses'], 'readwrite');
-      const store = transaction.objectStore('expenses');
-      const request = store.add(expense);
-
-      request.onsuccess = () => {
-        resolve(request.result as number);
-      };
-
-      request.onerror = () => {
-        reject('Error adding expense');
-      };
-    });
-  }
-
-  async getExpenses(): Promise<Expense[]> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['expenses'], 'readonly');
-      const store = transaction.objectStore('expenses');
-      const request = store.getAll();
-
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-
-      request.onerror = () => {
-        reject('Error fetching expenses');
-      };
-    });
-  }
-
-  async updateExpense(expense: Expense): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['expenses'], 'readwrite');
-      const store = transaction.objectStore('expenses');
-      const request = store.put(expense);
-
-      request.onsuccess = () => {
-        resolve();
-      };
-
-      request.onerror = () => {
-        reject('Error updating expense');
-      };
-    });
-  }
-
-  async deleteExpense(id: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject('Database not initialized');
-        return;
-      }
-
-      const transaction = this.db.transaction(['expenses'], 'readwrite');
-      const store = transaction.objectStore('expenses');
-      const request = store.delete(id);
-
-      request.onsuccess = () => {
-        resolve();
-      };
-
-      request.onerror = () => {
-        reject('Error deleting expense');
-      };
-    });
-  }
+  addExpense(expense: Omit<Expense, 'id'>) { return this.add(expense); }
+  getExpenses() { return this.getAll(); }
+  updateExpense(expense: Expense) { return this.update(expense); }
+  deleteExpense(id: number) { return this.delete(id); }
 }
 
 export const expenseDB = new ExpenseDBService();
