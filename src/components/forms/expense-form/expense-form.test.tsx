@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ExpenseForm, { type ExpenseFormData } from './expense-form';
+import ExpenseForm from './expense-form';
+import type { ExpenseFormData } from '../../../constants/form-data';
 import type { Category } from '../../../types/category';
 import type { Budget } from '../../../types/budget';
 import type { Currency } from '../../../types/currency';

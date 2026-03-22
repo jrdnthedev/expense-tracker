@@ -57,6 +57,7 @@ describe('CustomPieChart', () => {
       budgets: [],
       categories: [],
       expenses: [],
+      theme: 'light',
     });
     mockFormatAmount.mockReturnValue('$100.00');
   });
@@ -121,6 +122,7 @@ describe('CustomPieChart', () => {
       budgets: [],
       categories: [],
       expenses: [],
+      theme: 'light',
     });
     render(<CustomPieChart data={mockData} />);
 

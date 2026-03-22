@@ -17,6 +17,10 @@ vi.mock('../../../context/app-state-hooks', () => ({
   useAppDispatch: () => mockUseAppDispatch(),
 }));
 
+vi.mock('../../../hooks/persisted-dispatch/usePersistedDispatch', () => ({
+  usePersistedDispatch: () => mockDispatch,
+}));
+
 // Mock the utility functions
 vi.mock('../../../utils/validators', () => ({
   formatDate: (date: string) => new Date(date).toLocaleDateString(),
@@ -169,8 +173,8 @@ describe('BudgetManager', () => {
       name: 'Future Transport Budget',
       categoryIds: [2],
       limit: 300,
-      startDate: '2025-12-01',
-      endDate: '2025-12-31',
+      startDate: '2027-12-01',
+      endDate: '2027-12-31',
     },
   ];
 

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, test, expect, beforeEach, describe } from 'vitest';
-import CategoryForm, { type CategoryFormData } from './category-form';
+import CategoryForm from './category-form';
+import type { CategoryFormData } from '../../../constants/form-data';
 import type { Category } from '../../../types/category';
 
 // Mock the useNextId hook
