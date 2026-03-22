@@ -2,11 +2,13 @@ export const LocalStorage = {
   set<T>(key: string, value: T): void {
     window.localStorage.setItem(key, JSON.stringify(value));
   },
-  get<T>(key: string): T | null {
+  get<T>(key: string, validate?: (value: unknown) => value is T): T | null {
     const item = window.localStorage.getItem(key);
     if (!item) return null;
     try {
-      return JSON.parse(item) as T;
+      const parsed: unknown = JSON.parse(item);
+      if (validate && !validate(parsed)) return null;
+      return parsed as T;
     } catch {
       return null;
     }

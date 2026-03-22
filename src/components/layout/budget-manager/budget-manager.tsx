@@ -4,7 +4,8 @@ import Modal from '../../ui/modal/modal';
 import BudgetForm from '../../forms/budget-form/budget-form';
 import type { Budget } from '../../../types/budget';
 import { formatDate } from '../../../utils/validators';
-import { useAppDispatch, useAppState } from '../../../context/app-state-hooks';
+import { useAppState } from '../../../context/app-state-hooks';
+import { usePersistedDispatch } from '../../../hooks/persisted-dispatch/usePersistedDispatch';
 import { formatAmount } from '../../../utils/currency';
 import EmptyState from '../../ui/empty-state/empty-state';
 import Badge from '../../ui/badge/badge';
@@ -17,7 +18,7 @@ export default function BudgetManager() {
   const { budgets, categories, expenses, currency } = useAppState();
   const [budgetToEdit, setBudgetToEdit] = useState<BudgetFormData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const dispatch = useAppDispatch();
+  const dispatch = usePersistedDispatch();
 
   const handleAdd = (data: BudgetFormData) => {
     const newBudget: Budget = {
@@ -25,7 +26,6 @@ export default function BudgetManager() {
       id: Number(data.id),
     };
     dispatch({ type: 'ADD_BUDGET', payload: newBudget });
-    console.log('Adding budget:', newBudget);
     setIsModalOpen(false);
   };
 
@@ -36,7 +36,6 @@ export default function BudgetManager() {
       limit: Number(data.limit),
     };
     dispatch({ type: 'UPDATE_BUDGET', payload: updatedBudget });
-    console.log('Updating budget:', updatedBudget);
     setBudgetToEdit(null);
   };
 
@@ -93,7 +92,7 @@ export default function BudgetManager() {
                         <div className="flex justify-end">
                           <div className="flex gap-1">
                             <span className="text-sm text-gray-500">
-                              <button onClick={() => setBudgetToEdit(budget)}>
+                              <button onClick={() => setBudgetToEdit(budget)} aria-label={`Edit budget ${budget.name}`}>
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   className="h-4 w-4 text-gray-500"
@@ -113,6 +112,7 @@ export default function BudgetManager() {
                             <span className="text-sm text-gray-500 ">
                               <button
                                 onClick={() => handleDeleteBudget(budget)}
+                                aria-label={`Delete budget ${budget.name}`}
                               >
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -149,6 +149,9 @@ export default function BudgetManager() {
                           >
                             {formatAmount(spentAmount, currency)}/
                             {formatAmount(Number(budget.limit), currency)}
+                            <span className="sr-only">
+                              {remainingAmount < 0 ? ' (over budget)' : ' (within budget)'}
+                            </span>
                           </span>
                         </div>
                         <ProgressBar percentageUsed={percentageUsed} />

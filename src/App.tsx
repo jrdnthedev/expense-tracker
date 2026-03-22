@@ -101,23 +101,6 @@ function AppContent() {
 }
 
 function App() {
-  const { isDBReady, dbError } = useDB();
-
-  if (dbError) {
-    return (
-      <ErrorScreen
-        title="Database Error"
-        message={dbError}
-        actionLabel="Reload Page"
-        onAction={() => window.location.reload()}
-      />
-    );
-  }
-
-  if (!isDBReady) {
-    return <LoadingStencil />;
-  }
-
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <AppProvider>
