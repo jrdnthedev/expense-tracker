@@ -17,7 +17,7 @@ export default function EmptyState({
       </div>
       <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
       <p className="text-sm text-gray-500">{description}</p>
-      <Link to={`/${link}`} className="text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-sm md:bg-transparent">
+      <Link to={`/${link}`} className="text-blue-600 hover:underline focus:ring-2 focus:ring-blue-500 focus:border-transparent rounded-sm md:bg-transparent">
         {cta}
       </Link>
     </div>
