@@ -40,8 +40,15 @@ export type Action =
   | { type: 'SET_DEFAULT_CATEGORY'; payload: { categoryId: number } }
   | { type: 'SET_THEME'; payload: 'light' | 'dark' };
 
-// Action handlers for better organization
-const actionHandlers = {
+// Action handlers map type-safe handler functions to each action type
+type ActionHandlers = {
+  [K in Action['type']]: (
+    state: State,
+    payload: Extract<Action, { type: K }>['payload']
+  ) => State;
+};
+
+const actionHandlers: ActionHandlers = {
   SET_CURRENCY: (state: State, payload: Currency): State => ({
     ...state,
     currency: payload,
@@ -107,9 +114,9 @@ const actionHandlers = {
 };
 
 function appReducer(state: State, action: Action): State {
-  const handler = actionHandlers[action.type];
+  const handler = actionHandlers[action.type] as (state: State, payload: Action['payload']) => State;
   if (handler) {
-    return handler(state, action.payload as never);
+    return handler(state, action.payload);
   }
   return state;
 }
