@@ -14,21 +14,17 @@ const mockBudgets: Budget[] = [
     id: 1,
     name: 'Groceries Budget',
     limit: 500,
-    category: 'Food',
     categoryIds: [1],
     startDate: '2025-01-01',
     endDate: '2025-01-31',
-    expenseIds: [],
   },
   {
     id: 2,
     name: 'Entertainment Budget',
     limit: 200,
-    category: 'Entertainment',
     categoryIds: [2],
     startDate: '2025-01-01',
     endDate: '2025-01-31',
-    expenseIds: [],
   },
 ];
 
@@ -81,11 +77,9 @@ describe('useBudgets', () => {
     const newBudget: Omit<Budget, 'id'> = {
       name: 'Transport Budget',
       limit: 300,
-      category: 'Transport',
       categoryIds: [3],
       startDate: '2025-02-01',
       endDate: '2025-02-28',
-      expenseIds: [],
     };
 
     mockBudgetDB.getBudgets.mockResolvedValue(mockBudgets);
@@ -114,11 +108,9 @@ describe('useBudgets', () => {
     const newBudget: Omit<Budget, 'id'> = {
       name: 'Transport Budget',
       limit: 300,
-      category: 'Transport',
       categoryIds: [3],
       startDate: '2025-02-01',
       endDate: '2025-02-28',
-      expenseIds: [],
     };
 
     mockBudgetDB.getBudgets.mockResolvedValue(mockBudgets);

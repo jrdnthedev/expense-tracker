@@ -64,9 +64,7 @@ const mockBudgets: Budget[] = [
     id: 1,
     name: 'Monthly Food Budget',
     limit: 500,
-    expenseIds: [1, 3],
     categoryIds: [1],
-    category: 'Food',
     startDate: '2025-01-01',
     endDate: '2025-01-31',
   },
@@ -74,9 +72,7 @@ const mockBudgets: Budget[] = [
     id: 2,
     name: 'Transport Budget',
     limit: 200,
-    expenseIds: [2],
     categoryIds: [2],
-    category: 'Transport',
     startDate: '2025-01-01',
     endDate: '2025-01-31',
   },
@@ -84,9 +80,7 @@ const mockBudgets: Budget[] = [
     id: 3,
     name: 'Entertainment Budget',
     limit: 150,
-    expenseIds: [4],
     categoryIds: [3],
-    category: 'Entertainment',
     startDate: '2025-01-01',
     endDate: '2025-01-31',
   },
@@ -145,6 +139,7 @@ const mockState = {
   budgets: mockBudgets,
   categories: mockCategories,
   expenses: mockExpenses,
+  theme: 'light' as const,
 };
 
 describe('AnalyticsDashboard', () => {
