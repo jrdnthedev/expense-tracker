@@ -16,8 +16,6 @@ const mockBudgets: Budget[] = [
     startDate: '2025-08-01',
     endDate: '2025-08-31',
     categoryIds: [1, 2],
-    category: 'Food',
-    expenseIds: [],
   },
   {
     id: 2,
@@ -26,8 +24,6 @@ const mockBudgets: Budget[] = [
     startDate: '2025-08-01',
     endDate: '2025-08-31',
     categoryIds: [3],
-    category: 'Entertainment',
-    expenseIds: [],
   },
 ];
 

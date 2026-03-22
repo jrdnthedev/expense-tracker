@@ -5,7 +5,7 @@ import Input from './input';
 describe('Input', () => {
   describe('Rendering', () => {
     test('renders correctly with default props', () => {
-      render(<Input id="test-input" value="Test" onChange={() => {}} />);
+      render(<Input id="test-input" name="test" value="Test" onChange={() => {}} />);
       const input = screen.getByRole('textbox');
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue('Test');
@@ -16,6 +16,7 @@ describe('Input', () => {
         <Input
           required={false}
           id="input-id"
+          name="input-name"
           type="text"
           value="Test"
           placeholder="Enter text"
@@ -34,7 +35,7 @@ describe('Input', () => {
   describe('User Interactions', () => {
     test('calls onChange prop when input value changes', () => {
       const handleChange = vi.fn();
-      render(<Input id="test-input" value="Test" onChange={handleChange} />);
+      render(<Input id="test-input" name="test" value="Test" onChange={handleChange} />);
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: 'New Value' } });
       expect(handleChange).toHaveBeenCalled();
