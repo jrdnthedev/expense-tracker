@@ -9,10 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky install",
+    "typecheck": "tsc -b",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "validate": "npm run typecheck && npm run lint && npm run test:run"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
