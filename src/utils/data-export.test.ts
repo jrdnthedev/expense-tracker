@@ -184,4 +184,139 @@ describe('DataExport', () => {
       global.URL = originalURL;
     });
   });
+
+  describe('exportExpensesToCSV edge cases', () => {
+    test('should show "Unknown" for expenses with missing category', () => {
+      const expenseUnknownCat: Expense[] = [{
+        id: 1,
+        amount: 10,
+        description: 'Mystery',
+        category: 'Gone',
+        categoryId: 999,
+        budget: '',
+        budgetId: 0,
+        createdAt: '2024-01-15T12:00:00Z',
+        updatedAt: '2024-01-15T12:00:00Z'
+      }];
+
+      const result = DataExport.exportExpensesToCSV(expenseUnknownCat, mockCategories, CURRENCIES.USD);
+      expect(result).toContain('Unknown');
+    });
+
+    test('should use createdAt as fallback when updatedAt is empty', () => {
+      const expense: Expense[] = [{
+        id: 1,
+        amount: 5,
+        description: 'Old',
+        category: 'Food',
+        categoryId: 1,
+        budget: '',
+        budgetId: 0,
+        createdAt: '2024-01-10T00:00:00Z',
+        updatedAt: ''
+      }];
+
+      const result = DataExport.exportExpensesToCSV(expense, mockCategories, CURRENCIES.USD);
+      const lines = result.split('\n');
+      // Last column should fall back to createdAt
+      expect(lines[1]).toContain('2024-01-10T00:00:00Z');
+    });
+  });
+
+  describe('exportBudgetsToCSV edge cases', () => {
+    test('should escape quotes in budget names', () => {
+      const budgetWithQuotes: Budget[] = [{
+        id: 1,
+        name: 'My "Special" Budget',
+        categoryIds: [1],
+        limit: 100,
+        startDate: '2024-01-01',
+        endDate: '2024-01-31'
+      }];
+
+      const result = DataExport.exportBudgetsToCSV(budgetWithQuotes, mockCategories, CURRENCIES.USD);
+      expect(result).toContain('"My ""Special"" Budget"');
+    });
+
+    test('should join multiple category names with semicolons', () => {
+      const budget: Budget[] = [{
+        id: 1,
+        name: 'Multi Category',
+        categoryIds: [1, 2],
+        limit: 300,
+        startDate: '2024-01-01',
+        endDate: '2024-01-31'
+      }];
+
+      const result = DataExport.exportBudgetsToCSV(budget, mockCategories, CURRENCIES.USD);
+      expect(result).toContain('Food; Transport');
+    });
+
+    test('should skip unknown category ids', () => {
+      const budget: Budget[] = [{
+        id: 1,
+        name: 'Sparse',
+        categoryIds: [1, 999],
+        limit: 100,
+        startDate: '2024-01-01',
+        endDate: '2024-01-31'
+      }];
+
+      const result = DataExport.exportBudgetsToCSV(budget, mockCategories, CURRENCIES.USD);
+      const lines = result.split('\n');
+      // Only "Food" should appear, not "Unknown"
+      expect(lines[1]).toContain('Food');
+      expect(lines[1]).not.toContain('Unknown');
+    });
+  });
+
+  describe('exportAllData', () => {
+    test('should call downloadFile with JSON content and generated filename', () => {
+      const downloadSpy = vi.spyOn(DataExport, 'downloadFile').mockImplementation(() => {});
+
+      DataExport.exportAllData(mockExpenses, mockBudgets, mockCategories, CURRENCIES.USD);
+
+      expect(downloadSpy).toHaveBeenCalledTimes(1);
+      const [content, filename, mimeType] = downloadSpy.mock.calls[0];
+      const parsed = JSON.parse(content);
+      expect(parsed.expenses).toHaveLength(2);
+      expect(parsed.version).toBe('1.0');
+      expect(filename).toMatch(/^expense_tracker_backup_\d{4}-\d{2}-\d{2}\.json$/);
+      expect(mimeType).toBe('application/json');
+
+      downloadSpy.mockRestore();
+    });
+  });
+
+  describe('exportExpensesCSV', () => {
+    test('should call downloadFile with CSV content', () => {
+      const downloadSpy = vi.spyOn(DataExport, 'downloadFile').mockImplementation(() => {});
+
+      DataExport.exportExpensesCSV(mockExpenses, mockCategories, CURRENCIES.USD);
+
+      expect(downloadSpy).toHaveBeenCalledTimes(1);
+      const [content, filename, mimeType] = downloadSpy.mock.calls[0];
+      expect(content).toContain('Date,Description');
+      expect(filename).toMatch(/^expenses_\d{4}-\d{2}-\d{2}\.csv$/);
+      expect(mimeType).toBe('text/csv');
+
+      downloadSpy.mockRestore();
+    });
+  });
+
+  describe('exportBudgetsCSV', () => {
+    test('should call downloadFile with CSV content', () => {
+      const downloadSpy = vi.spyOn(DataExport, 'downloadFile').mockImplementation(() => {});
+
+      DataExport.exportBudgetsCSV(mockBudgets, mockCategories, CURRENCIES.USD);
+
+      expect(downloadSpy).toHaveBeenCalledTimes(1);
+      const [content, filename, mimeType] = downloadSpy.mock.calls[0];
+      expect(content).toContain('Name,Limit');
+      expect(filename).toMatch(/^budgets_\d{4}-\d{2}-\d{2}\.csv$/);
+      expect(mimeType).toBe('text/csv');
+
+      downloadSpy.mockRestore();
+    });
+  });
 });
