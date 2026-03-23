@@ -193,9 +193,9 @@ describe('Dashboard', () => {
   test('shows expense dates in the recent list', () => {
     renderDashboard();
 
-    // jsdom toLocaleDateString() renders YYYY-MM-DD
+    // toLocaleDateString() format depends on locale/ICU: YYYY-MM-DD (minimal ICU) or M/D/YYYY (full ICU)
     const dateElements = screen.getAllByText(
-      /\d{4}-\d{2}-\d{2}/
+      /\d{4}-\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}\/\d{4}/
     );
     expect(dateElements.length).toBeGreaterThanOrEqual(3);
   });
