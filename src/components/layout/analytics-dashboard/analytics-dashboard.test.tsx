@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import AnalyticsDashboard from './analytics-dashboard';
 import { useAppState } from '../../../context/app-state-hooks';
 import { calculateTotalExpenses } from '../../../utils/expense';
@@ -302,5 +303,39 @@ describe('AnalyticsDashboard', () => {
     expect(pieChartData[1].value).toBe(30);
     expect(pieChartData[2].name).toBe('Transport');
     expect(pieChartData[2].value).toBe(25);
+  });
+
+  test('shows empty state when there are no categories', () => {
+    mockUseAppState.mockReturnValue({
+      ...mockState,
+      categories: [],
+      expenses: [],
+    });
+    mockCalculateTotalExpenses.mockReturnValue(0);
+
+    render(
+      <MemoryRouter>
+        <AnalyticsDashboard />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('No data available')).toBeInTheDocument();
+    expect(
+      screen.getByText('Add categories and expenses to see your analytics.')
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('line-chart')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('pie-chart')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('bar-chart')).not.toBeInTheDocument();
+  });
+
+  test('renders description text', () => {
+    mockUseAppState.mockReturnValue(mockState);
+    mockCalculateTotalExpenses.mockReturnValue(180);
+
+    render(<AnalyticsDashboard />);
+
+    expect(
+      screen.getByText(/insights into your spending patterns/)
+    ).toBeInTheDocument();
   });
 });
