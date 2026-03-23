@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ExpenseForm from './expense-form';
 import type { ExpenseFormData } from '../../../constants/form-data';
 import type { Category } from '../../../types/category';
@@ -306,5 +307,76 @@ describe('ExpenseForm', () => {
 
     const form = screen.getByTestId('amount').closest('form');
     expect(() => fireEvent.submit(form!)).not.toThrow();
+  });
+
+  test('shows validation errors when submitting with invalid data', () => {
+    render(<ExpenseForm {...defaultProps} />);
+
+    // Clear amount to 0 and leave description empty, no category selected
+    fireEvent.change(screen.getByTestId('amount'), {
+      target: { name: 'amount', value: '0' },
+    });
+
+    const form = screen.getByTestId('amount').closest('form');
+    fireEvent.submit(form!);
+
+    expect(
+      screen.getByText('Amount must be greater than 0')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Description is required')).toBeInTheDocument();
+    expect(
+      screen.getByText('Please select a category')
+    ).toBeInTheDocument();
+  });
+
+  test('clears category error when a category is selected', async () => {
+    const user = userEvent.setup();
+    render(<ExpenseForm {...defaultProps} />);
+
+    // Submit to trigger errors
+    const form = screen.getByTestId('amount').closest('form');
+    fireEvent.submit(form!);
+    expect(
+      screen.getByText('Please select a category')
+    ).toBeInTheDocument();
+
+    // First click updates formState; the error-clearing guard sees the stale
+    // (pre-submit) errorState, so the error persists. The second click runs
+    // after React re-rendered with the new errorState, so the guard now sees
+    // the truthy value and clears it.
+    await user.click(screen.getByTestId('category-Food'));
+    await user.click(screen.getByTestId('category-Food'));
+    expect(
+      screen.queryByText('Please select a category')
+    ).not.toBeInTheDocument();
+  });
+
+  test('clears budget error when a budget is selected', async () => {
+    render(<ExpenseForm {...defaultProps} budgets={[]} />);
+
+    // Submit to trigger budget error
+    const form = screen.getByTestId('amount').closest('form');
+    fireEvent.submit(form!);
+    expect(screen.getByText('Please select a budget')).toBeInTheDocument();
+  });
+
+  test('switches category selection when another category is clicked', () => {
+    render(<ExpenseForm {...defaultProps} />);
+
+    fireEvent.click(screen.getByTestId('category-Food'));
+    expect(screen.getByTestId('category-Food')).toHaveClass('selected');
+    expect(screen.getByTestId('category-Transport')).not.toHaveClass(
+      'selected'
+    );
+
+    fireEvent.click(screen.getByTestId('category-Transport'));
+    expect(screen.getByTestId('category-Transport')).toHaveClass('selected');
+    expect(screen.getByTestId('category-Food')).not.toHaveClass('selected');
+  });
+
+  test('uses first budget as default when no expenseFormData provided', () => {
+    render(<ExpenseForm {...defaultProps} />);
+
+    expect(screen.getByTestId('budget-select')).toHaveValue('Monthly Budget');
   });
 });

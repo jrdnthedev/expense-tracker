@@ -17,6 +17,7 @@ interface ExpenseFormProps {
   expenses?: Expense[];
   expenseFormData?: ExpenseFormData;
   currency: Currency;
+  
   onCancel: () => void;
 }
 
